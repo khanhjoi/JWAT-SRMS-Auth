@@ -31,6 +31,4 @@ export class User {
 
   @OneToMany(() => Role, (role) => role.user)
   role: Role;
-
-  
 }
