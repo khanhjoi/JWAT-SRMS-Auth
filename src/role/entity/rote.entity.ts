@@ -1,0 +1,40 @@
+import { Permission } from 'src/permission/entity/permission.entity';
+import { User } from 'src/user/entity/user.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
+
+@Entity()
+export class Role {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  title: string;
+
+  @Column()
+  description: string;
+
+  @Column({
+    default: true,
+  })
+  active: boolean;
+
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @ManyToOne(() => User, (user) => user.role)
+  user: User;
+
+  @ManyToMany(() => Permission)
+  @JoinTable({
+    name: 'role_permission',
+  })
+  permissions: Permission[];
+}
