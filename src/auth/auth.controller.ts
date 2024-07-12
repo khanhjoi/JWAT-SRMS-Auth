@@ -10,13 +10,13 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: 'login' })
+  @MessagePattern({ cmd: '/login' })
   login(@Payload() loginPayload: LoginRequestDTO) {
     return this.authService.login(loginPayload);
   }
 
   @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: 'register' })
+  @MessagePattern({ cmd: '/register' })
   register(@Payload() registerPayload: RegisterRequestDTO) {
     return this.authService.register(registerPayload);
   }

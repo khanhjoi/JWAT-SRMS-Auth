@@ -7,9 +7,14 @@ async function bootstrap() {
   const tcpMicroservice =
     await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
       transport: Transport.TCP,
+      // ---- for docker deployment
+      // options: {
+      //   host: process.env.AUTH_SERVICE_HOST || '0.0.0.0',
+      //   port: parseInt(process.env.AUTH_SERVICE_PORT, 10),
+      // },
       options: {
         host: 'localhost',
-        port: 3001, 
+        port: 3001,
       },
     });
 

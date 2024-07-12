@@ -5,11 +5,18 @@ import { User } from 'src/user/entity/user.entity';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
 import * as bcrypt from 'bcrypt';
 import { RpcException } from '@nestjs/microservices';
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
-  constructor(private userService: UserService) {}
+  constructor(
+    private userService: UserService,
+    private jwtService: JwtService,
+  ) {}
 
-  async login(loginRequestDTO: LoginRequestDTO) {
+  async login(loginRequestDTO: LoginRequestDTO): Promise<{
+    access_token: string;
+    refresh_token: string;
+  }> {
     const user = await this.userService.findUserByEmail(loginRequestDTO.email);
 
     const isMatchPassword = await bcrypt.compare(
@@ -24,11 +31,29 @@ export class AuthService {
       });
     }
 
-    return user;
+    const payload = { sub: user.id };
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      refresh_token: await this.jwtService.signAsync(payload, {
+        expiresIn: '1d',
+      }),
+    };
   }
 
-  register(registerDto: RegisterRequestDTO): Promise<User> {
-    const newUser = this.userService.createUser(registerDto);
-    return newUser;
+  async register(registerDto: RegisterRequestDTO): Promise<{
+    access_token: string;
+    refresh_token: string;
+  }> {
+    const newUser = await this.userService.createUser(registerDto);
+
+    const payload = { sub: newUser.id };
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      refresh_token: await this.jwtService.signAsync(payload, {
+        expiresIn: '1d',
+      }),
+    };
   }
 }

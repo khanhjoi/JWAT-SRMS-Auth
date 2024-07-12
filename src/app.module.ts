@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
@@ -6,6 +6,7 @@ import { RoleModule } from './role/role.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -14,6 +15,19 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       load: [ConfigurationEnv],
       envFilePath: ['.env.development.local', '.env.production.local'],
     }),
+
+    // ----- this is test for docker deployment ----
+    // TypeOrmModule.forRoot({
+    //   type: 'postgres',
+    //   host: process.env.DB_HOST,
+    //   port: parseInt(process.env.POSTGRES_PORT, 10),
+    //   username: process.env.POSTGRES_USER,
+    //   password: process.env.POSTGRES_PASSWORD,
+    //   database: process.env.POSTGRES_DB,
+    //   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+    //   synchronize: true,
+    // }),
+
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
@@ -31,6 +45,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       },
       inject: [ConfigService],
     }),
+
     AuthModule,
     UserModule,
     PermissionModule,
