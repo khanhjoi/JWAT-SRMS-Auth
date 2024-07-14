@@ -50,4 +50,17 @@ export class UserService {
 
     return user;
   }
+
+  async findUserById(userId: string): Promise<User> {
+    const user = await this.userRepository.findOneBy({ id: userId });
+
+    if (!user) {
+      throw new RpcException({
+        message: 'User not found',
+        statusCode: HttpStatus.NOT_FOUND,
+      });
+    }
+
+    return user;
+  }
 }

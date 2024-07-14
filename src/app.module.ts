@@ -4,7 +4,7 @@ import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import ConfigurationEnv from '../config-env';
+import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -16,28 +16,17 @@ import { JwtModule } from '@nestjs/jwt';
       envFilePath: ['.env.development.local', '.env.production.local'],
     }),
 
-    // ----- this is test for docker deployment ----
-    // TypeOrmModule.forRoot({
-    //   type: 'postgres',
-    //   host: process.env.DB_HOST,
-    //   port: parseInt(process.env.POSTGRES_PORT, 10),
-    //   username: process.env.POSTGRES_USER,
-    //   password: process.env.POSTGRES_PASSWORD,
-    //   database: process.env.POSTGRES_DB,
-    //   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
-    //   synchronize: true,
-    // }),
-
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
+        const databaseConfig = configService.get<databaseConfigType>('database');
         return {
-          type: configService.get<string | any>('database.type'),
-          host: configService.get<string>('database.host'),
-          port: configService.get<number>('database.port'),
-          username: configService.get<string>('database.username'),
-          password: configService.get<string>('database.password'),
-          database: configService.get<string>('database.name'),
+          type: databaseConfig.type,
+          host: databaseConfig.host,
+          port: databaseConfig.port,
+          username: databaseConfig.username,
+          password: databaseConfig.password,
+          database: databaseConfig.dbName,
           synchronize: true,
           // dropSchema: true,
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
