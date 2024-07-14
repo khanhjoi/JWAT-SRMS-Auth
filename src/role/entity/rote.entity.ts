@@ -30,7 +30,7 @@ export class Role {
   createdAt: Date;
 
   @ManyToOne(() => User, (user) => user.role)
-  user: User;
+  users: User;
 
   @ManyToMany(() => Permission)
   @JoinTable({
