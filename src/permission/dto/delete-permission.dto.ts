@@ -1,8 +1,9 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
 
 export class DeletePermissionQuery {
   @IsNotEmpty()
+  @IsUUID()
   id: string;
 }
 

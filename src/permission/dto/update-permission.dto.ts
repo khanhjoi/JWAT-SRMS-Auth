@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsString, IsUUID, ValidateNested } from 'class-validator';
 
 export class UpdatePermissionPayload {
   @IsNotEmpty()
@@ -13,7 +13,7 @@ export class UpdatePermissionPayload {
 
 export class UpdatePermissionQuery {
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   id: string;
 }
 

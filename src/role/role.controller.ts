@@ -5,9 +5,8 @@ import { Role } from './entity/rote.entity';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exception';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
-import { Validator } from 'class-validator';
-import { response } from 'express';
 import { DeleteRoleDTO } from './dto/request/delete-role.dto';
+import { AssignPermissionDTO } from './dto/request/assign-permission.dto';
 
 @Controller('role')
 export class RoleController {
@@ -26,14 +25,19 @@ export class RoleController {
   }
 
   @UseFilters(new RpcValidationFilter())
+  @MessagePattern({ cmd: { url: '/role-assign-permission', method: 'POST' } })
+  assignPermission(
+    @Payload() assignPermissionDTO: AssignPermissionDTO,
+  ): Promise<Role> {
+    return this.roleService.assignPermission(assignPermissionDTO.data, assignPermissionDTO.query)
+  }
+
+  @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/role', method: 'PUT' } })
   updateRole(@Payload() updatePayload: UpdateRoleDTO): Promise<Role> {
-    return this.roleService.updateRole(
-      updatePayload.data,
-      updatePayload.query,
-    );
+    return this.roleService.updateRole(updatePayload.data, updatePayload.query);
   }
-  
+
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/role', method: 'DELETE' } })
   deleteRole(@Payload() deleteRole: DeleteRoleDTO): any {

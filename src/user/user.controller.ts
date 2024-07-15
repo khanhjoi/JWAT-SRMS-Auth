@@ -6,9 +6,9 @@ import { UserService } from './user.service';
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @MessagePattern({ cmd: '/profile' })
-  async getProfile(@Payload() data: any) {
-    const userPayload = data.user;
+  @MessagePattern({ cmd: { url: '/profile', method: 'GET' } })
+  async getProfile(@Payload() data: any) { 
+    const userPayload = data.data; 
     const user = await this.userService.findUserById(userPayload.sub);
     return user;
   }

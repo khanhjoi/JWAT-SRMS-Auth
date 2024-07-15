@@ -1,11 +1,13 @@
+import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
+  ValidateNested,
 } from 'class-validator';
 
-export class RegisterRequestDTO {
+export class RegisterRequestPayload {
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -20,4 +22,10 @@ export class RegisterRequestDTO {
 
   @IsStrongPassword()
   password: string;
+}
+
+export class RegisterRequestDTO {
+  @ValidateNested()
+  @Type(() => RegisterRequestPayload)
+  data: RegisterRequestPayload;
 }

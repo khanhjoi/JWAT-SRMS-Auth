@@ -11,13 +11,13 @@ export class AuthController {
 
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/login', method: 'POST' } })
-  login(@Payload() loginPayload: LoginRequestDTO) {
-    return this.authService.login(loginPayload);
+  login(@Payload() loginRequestDTO: LoginRequestDTO) {
+    return this.authService.login(loginRequestDTO.data);
   }
 
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/register', method: 'POST' } })
   register(@Payload() registerPayload: RegisterRequestDTO) {
-    return this.authService.register(registerPayload);
+    return this.authService.register(registerPayload.data);
   }
 }

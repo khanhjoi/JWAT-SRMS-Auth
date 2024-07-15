@@ -1,9 +1,9 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
 
 export class DeleteQueryDTO {
   @IsNotEmpty()
-  @IsString()
+  @IsUUID()
   id: string;
 }
 

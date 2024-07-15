@@ -1,8 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { RegisterRequestDTO } from './dto/request/register-request.dto';
-import { User } from 'src/user/entity/user.entity';
-import { LoginRequestDTO } from './dto/request/login-request.dto';
+import { RegisterRequestDTO, RegisterRequestPayload } from './dto/request/register-request.dto';
+import { LoginRequestPayload } from './dto/request/login-request.dto';
 import * as bcrypt from 'bcrypt';
 import { RpcException } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
@@ -13,7 +12,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(loginRequestDTO: LoginRequestDTO): Promise<{
+  async login(loginRequestDTO: LoginRequestPayload): Promise<{
     access_token: string;
     refresh_token: string;
   }> {
@@ -41,7 +40,7 @@ export class AuthService {
     };
   }
 
-  async register(registerDto: RegisterRequestDTO): Promise<{
+  async register(registerDto: RegisterRequestPayload): Promise<{
     access_token: string;
     refresh_token: string;
   }> {
