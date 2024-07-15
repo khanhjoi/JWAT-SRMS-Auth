@@ -38,11 +38,11 @@ export class RoleService {
   }
 
   async updateRole(
-    updateRoleDTO: UpdateRolePayload,
-    query: UpdateRoleQuery,
+    updateRolePayload: UpdateRolePayload,
+    updateRoleQuery: UpdateRoleQuery,
   ): Promise<Role> {
     let role = await this.roleRepository.findOneBy({
-      id: query.id,
+      id: updateRoleQuery.id,
     });
 
     if (!role) {
@@ -51,11 +51,16 @@ export class RoleService {
         message: 'Role not found',
       });
     }
+    let permissions = await this.permissionRepository.findByIds(
+      updateRolePayload.permissions,
+    );
 
     role = {
       ...role,
-      ...updateRoleDTO,
+      ...updateRolePayload,
     };
+
+    role.permissions = permissions;
 
     let updateRole = await this.roleRepository.save(role);
 
@@ -102,7 +107,6 @@ export class RoleService {
     );
 
     role.permissions = permissionsToAssign;
-
 
     const roleAsAssign = await this.roleRepository.save(role);
 

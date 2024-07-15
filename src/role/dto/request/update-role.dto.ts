@@ -1,5 +1,12 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from 'class-validator';
+
 
 export class UpdateRolePayload {
   @IsNotEmpty()
@@ -9,6 +16,10 @@ export class UpdateRolePayload {
   @IsNotEmpty()
   @IsString()
   description: string;
+
+  @IsArray()
+  permissions: Permissions[];
+
   active?: boolean;
 }
 
