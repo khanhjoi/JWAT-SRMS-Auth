@@ -11,32 +11,32 @@ import { DeleteRoleDTO } from './dto/request/delete-role.dto';
 
 @Controller('role')
 export class RoleController {
-  constructor(private routeService: RoleService) {}
+  constructor(private roleService: RoleService) {}
 
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/role', method: 'GET' } })
   getAllRoles(): Promise<Role[]> {
-    return this.routeService.getRoles();
+    return this.roleService.getRoles();
   }
 
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/role', method: 'POST' } })
   createRole(@Payload() createRolePayload: CreateRoleDTO): Promise<Role> {
-    return this.routeService.createRole(createRolePayload);
+    return this.roleService.createRole(createRolePayload);
   }
 
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/role', method: 'PUT' } })
   updateRole(@Payload() updatePayload: UpdateRoleDTO): Promise<Role> {
-    return this.routeService.updateRole(
+    return this.roleService.updateRole(
       updatePayload.data,
       updatePayload.query,
     );
   }
-
+  
   @UseFilters(new RpcValidationFilter())
   @MessagePattern({ cmd: { url: '/role', method: 'DELETE' } })
   deleteRole(@Payload() deleteRole: DeleteRoleDTO): any {
-    return this.routeService.deleteRole(deleteRole.query);
+    return this.roleService.deleteRole(deleteRole.query);
   }
 }

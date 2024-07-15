@@ -1,15 +1,14 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entity/rote.entity';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import {
-  UpdateRoleDTO,
   UpdateRolePayload,
   UpdateRoleQuery,
 } from './dto/request/update-role.dto';
 import { RpcException } from '@nestjs/microservices';
-import { DeleteQueryDTO, DeleteRoleDTO } from './dto/request/delete-role.dto';
+import { DeleteQueryDTO } from './dto/request/delete-role.dto';
 
 @Injectable()
 export class RoleService {
@@ -66,6 +65,6 @@ export class RoleService {
 
     const roleDeleted = await this.roleRepository.remove(role);
 
-    return roleDeleted
+    return roleDeleted;
   }
 }
