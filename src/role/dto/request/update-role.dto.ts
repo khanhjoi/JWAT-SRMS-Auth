@@ -7,7 +7,6 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-
 export class UpdateRolePayload {
   @IsNotEmpty()
   @IsString()
