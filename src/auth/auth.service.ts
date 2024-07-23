@@ -1,7 +1,9 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { RegisterRequestDTO, RegisterRequestPayload } from './dto/request/register-request.dto';
-import { LoginRequestPayload } from './dto/request/login-request.dto';
+import {
+  RegisterRequestDTO,
+} from './dto/request/register-request.dto';
+import { LoginRequestDTO } from './dto/request/login-request.dto';
 import * as bcrypt from 'bcrypt';
 import { RpcException } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
@@ -12,9 +14,9 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(loginRequestDTO: LoginRequestPayload): Promise<{
-    access_token: string;
-    refresh_token: string;
+  async login(loginRequestDTO: LoginRequestDTO): Promise<{
+    assetToken: string;
+    refreshToken: string;
   }> {
     const user = await this.userService.findUserByEmail(loginRequestDTO.email);
 
@@ -33,24 +35,23 @@ export class AuthService {
     const payload = { sub: user.id };
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
-      refresh_token: await this.jwtService.signAsync(payload, {
+      assetToken: await this.jwtService.signAsync(payload),
+      refreshToken: await this.jwtService.signAsync(payload, {
         expiresIn: '1d',
       }),
     };
   }
 
-  async register(registerDto: RegisterRequestPayload): Promise<{
-    access_token: string;
-    refresh_token: string;
+  async register(registerDto: RegisterRequestDTO): Promise<{
+    assetToken: string;
+    refreshToken: string;
   }> {
     const newUser = await this.userService.createUser(registerDto);
-
     const payload = { sub: newUser.id };
 
     return {
-      access_token: await this.jwtService.signAsync(payload),
-      refresh_token: await this.jwtService.signAsync(payload, {
+      assetToken: await this.jwtService.signAsync(payload),
+      refreshToken: await this.jwtService.signAsync(payload, {
         expiresIn: '1d',
       }),
     };

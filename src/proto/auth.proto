@@ -1,0 +1,110 @@
+syntax = "proto3";
+
+package auth;
+
+import "google/protobuf/empty.proto";  // Import for empty message
+
+service AuthService {
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
+
+  rpc GetAllRole(google.protobuf.Empty) returns (RoleListResponse);
+  rpc AddRole(AddRoleRequest) returns (RoleResponse);
+  rpc UpdateRole(UpdateRoleRequest) returns (RoleResponse);
+  rpc DeleteRole(DeleteRoleRequest) returns (google.protobuf.Empty);
+  rpc AssignPermission(AssignPermissionRequest) returns (google.protobuf.Empty);
+
+  rpc GetAllPermission(google.protobuf.Empty) returns (PermissionListResponse);
+  rpc AddPermission(AddPermissionRequest) returns (PermissionResponse);
+  rpc UpdatePermission(UpdatePermissionRequest) returns (PermissionResponse);
+  rpc DeletePermission(DeletePermissionRequest) returns (google.protobuf.Empty);
+}
+
+message LoginRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string assetToken = 1;
+  string refreshToken = 2;  // Fixed typo from 'refresToken'
+}
+
+message RegisterRequest {
+  string firstName = 1;
+  string lastName = 2;
+  string email = 3;
+  string password = 4;
+}
+
+message RegisterResponse {
+  string assetToken = 1;
+  string refreshToken = 2;  // Fixed typo from 'refresToken'
+}
+
+message RefreshTokenRequest {
+  string refreshToken = 1;
+}
+
+message RefreshTokenResponse {
+  string assetToken = 1;
+  string refreshToken = 2;
+}
+
+message RoleListResponse {
+  repeated Role roles = 1;
+}
+
+message Role {
+  string id = 1;
+  string name = 2;
+}
+
+message AddRoleRequest {
+  string name = 1;
+}
+
+message UpdateRoleRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message RoleResponse {
+  Role role = 1;
+}
+
+message DeleteRoleRequest {
+  string id = 1;
+}
+
+message PermissionListResponse {
+  repeated Permission permissions = 1;
+}
+
+message Permission {
+  string id = 1;
+  string name = 2;
+}
+
+message AddPermissionRequest {
+  string name = 1;
+}
+
+message UpdatePermissionRequest {
+  string id = 1;
+  string name = 2;
+}
+
+message PermissionResponse {
+  Permission permission = 1;
+}
+
+message DeletePermissionRequest {
+  string id = 1;
+}
+
+message AssignPermissionRequest {
+  string roleId = 1;
+  string permissionId = 2;
+}

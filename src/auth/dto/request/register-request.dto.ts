@@ -4,10 +4,9 @@ import {
   IsNotEmpty,
   IsString,
   IsStrongPassword,
-  ValidateNested,
 } from 'class-validator';
 
-export class RegisterRequestPayload {
+export class RegisterRequestDTO {
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -22,10 +21,4 @@ export class RegisterRequestPayload {
 
   @IsStrongPassword()
   password: string;
-}
-
-export class RegisterRequestDTO {
-  @ValidateNested()
-  @Type(() => RegisterRequestPayload)
-  data: RegisterRequestPayload;
 }

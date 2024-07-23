@@ -3,14 +3,16 @@ import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { CustomValidationPipe } from './common/pipes/validationpipe';
+import { join } from 'path';
 
 async function bootstrap() {
   const tcpMicroservice =
     await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-      transport: Transport.TCP,
+      transport: Transport.GRPC,
       options: {
-        host: 'localhost',
-        port: 3001,
+        package: 'auth',
+        url: 'localhost:50001',
+        protoPath: join(__dirname, '../proto/auth.proto'),
       },
     });
 

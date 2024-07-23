@@ -1,23 +1,42 @@
-import { Controller, UseFilters } from '@nestjs/common';
+import { Controller, HttpStatus, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import {
+  GrpcMethod,
+  MessagePattern,
+  Payload,
+  RpcException,
+} from '@nestjs/microservices';
 import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exception';
 import { RegisterRequestDTO } from './dto/request/register-request.dto';
+import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
+import { ExceptionFilter } from 'src/common/intercepter/ValidationData.intercepter';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
+import { throwError } from 'rxjs';
+
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @GrpcMethod('AuthService', 'Login')
   @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/login', method: 'POST' } })
-  login(@Payload() loginRequestDTO: LoginRequestDTO) {
-    return this.authService.login(loginRequestDTO.data);
+  async login(
+    data: LoginRequestDTO,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ) {
+    const res = await this.authService.login(data);
+    return res;
   }
 
+  @GrpcMethod('AuthService', 'Register')
   @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/register', method: 'POST' } })
-  register(@Payload() registerPayload: RegisterRequestDTO) {
-    return this.authService.register(registerPayload.data);
+  async register(
+    data: RegisterRequestDTO,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ) {
+    const res = await this.authService.register(data);
+    return res;
   }
 }
