@@ -1,18 +1,16 @@
-import { Controller, HttpStatus, UseFilters, UsePipes, ValidationPipe } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import {
-  GrpcMethod,
-  MessagePattern,
-  Payload,
-  RpcException,
-} from '@nestjs/microservices';
+  Controller,
+  HttpStatus,
+  UseFilters,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { AuthService } from './auth.service';
+import { GrpcMethod } from '@nestjs/microservices';
 import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exception';
 import { RegisterRequestDTO } from './dto/request/register-request.dto';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
-import { ExceptionFilter } from 'src/common/intercepter/ValidationData.intercepter';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
-import { throwError } from 'rxjs';
-
 
 @Controller('auth')
 export class AuthController {

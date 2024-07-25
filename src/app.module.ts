@@ -19,7 +19,8 @@ import { JwtModule } from '@nestjs/jwt';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const databaseConfig = configService.get<databaseConfigType>('database');
+        const databaseConfig =
+          configService.get<databaseConfigType>('database');
         return {
           type: databaseConfig.type,
           host: databaseConfig.host,
@@ -34,7 +35,6 @@ import { JwtModule } from '@nestjs/jwt';
       },
       inject: [ConfigService],
     }),
-
     AuthModule,
     UserModule,
     PermissionModule,

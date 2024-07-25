@@ -2,7 +2,8 @@ syntax = "proto3";
 
 package auth;
 
-import "google/protobuf/empty.proto";  // Import for empty message
+import "google/protobuf/empty.proto";  
+import "google/protobuf/timestamp.proto"; 
 
 service AuthService {
   rpc Login(LoginRequest) returns (LoginResponse);
@@ -10,7 +11,7 @@ service AuthService {
   rpc RefreshToken(RefreshTokenRequest) returns (RefreshTokenResponse);
 
   rpc GetAllRole(google.protobuf.Empty) returns (RoleListResponse);
-  rpc AddRole(AddRoleRequest) returns (RoleResponse);
+  rpc CreateRole(CreateRoleRequest) returns (RoleResponse);
   rpc UpdateRole(UpdateRoleRequest) returns (RoleResponse);
   rpc DeleteRole(DeleteRoleRequest) returns (google.protobuf.Empty);
   rpc AssignPermission(AssignPermissionRequest) returns (google.protobuf.Empty);
@@ -28,7 +29,7 @@ message LoginRequest {
 
 message LoginResponse {
   string assetToken = 1;
-  string refreshToken = 2;  // Fixed typo from 'refresToken'
+  string refreshToken = 2;
 }
 
 message RegisterRequest {
@@ -40,7 +41,7 @@ message RegisterRequest {
 
 message RegisterResponse {
   string assetToken = 1;
-  string refreshToken = 2;  // Fixed typo from 'refresToken'
+  string refreshToken = 2;
 }
 
 message RefreshTokenRequest {
@@ -58,11 +59,16 @@ message RoleListResponse {
 
 message Role {
   string id = 1;
-  string name = 2;
+  string title = 2;
+  string description = 3;
+  bool active = 4;
+  google.protobuf.Timestamp createdAt = 5;
+  repeated Permission permissions = 6;
 }
 
-message AddRoleRequest {
-  string name = 1;
+message CreateRoleRequest {
+  string title = 1;
+  string description = 2;
 }
 
 message UpdateRoleRequest {

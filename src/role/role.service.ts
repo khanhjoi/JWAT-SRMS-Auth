@@ -23,18 +23,18 @@ export class RoleService {
     private permissionRepository: Repository<Permissions>,
   ) {}
 
-  async getRoles(): Promise<Role[]> {
+  async getRoles(): Promise<{ roles: Role[] }> {
     const roles = await this.roleRepository.find({
       relations: {
         permissions: true,
       },
     });
-    return roles;
+    return { roles: roles };
   }
 
-  async createRole(createRolePayLoad: CreateRoleDTO): Promise<Role> {
+  async createRole(createRolePayLoad: CreateRoleDTO): Promise<{ role: Role }> {
     const role = await this.roleRepository.save(createRolePayLoad);
-    return role;
+    return {role :role};
   }
 
   async updateRole(
