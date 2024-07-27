@@ -1,6 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Role } from './entity/rote.entity';
+
 import { Repository } from 'typeorm';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import {
@@ -14,6 +14,7 @@ import {
   AssignPermissionQuery,
 } from './dto/request/assign-permission.dto';
 import { Permission } from 'src/permission/entity/permission.entity';
+import { Role } from './entity/role.entity';
 
 @Injectable()
 export class RoleService {
@@ -34,7 +35,7 @@ export class RoleService {
 
   async createRole(createRolePayLoad: CreateRoleDTO): Promise<{ role: Role }> {
     const role = await this.roleRepository.save(createRolePayLoad);
-    return {role :role};
+    return { role: role };
   }
 
   async updateRole(

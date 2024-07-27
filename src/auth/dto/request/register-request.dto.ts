@@ -1,12 +1,14 @@
-import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
 } from 'class-validator';
+import { IUser } from 'src/user/entity/user.interface';
 
-export class RegisterRequestDTO {
+export class RegisterRequestDTO
+  implements Omit<IUser, 'id' | 'createdAt' | 'role'>
+{
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -18,6 +20,8 @@ export class RegisterRequestDTO {
   @IsEmail()
   @IsNotEmpty()
   email: string;
+
+  refreshToken: string;
 
   @IsStrongPassword()
   password: string;

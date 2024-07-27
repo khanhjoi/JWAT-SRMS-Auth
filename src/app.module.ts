@@ -29,7 +29,7 @@ import { JwtModule } from '@nestjs/jwt';
           password: databaseConfig.password,
           database: databaseConfig.dbName,
           synchronize: true,
-          // dropSchema: true,
+          // dropSchema: true, 
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
         };
       },

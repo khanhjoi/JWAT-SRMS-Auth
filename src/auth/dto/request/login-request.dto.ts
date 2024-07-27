@@ -1,6 +1,13 @@
 import { IsNotEmpty, IsString } from 'class-validator';
+import { IUser } from 'src/user/entity/user.interface';
 
-export class LoginRequestDTO {
+export class LoginRequestDTO
+  implements
+    Omit<
+      IUser,
+      'id' | 'createdAt' | 'role' | 'refreshToken' | 'firstName' | 'lastName'
+    >
+{
   @IsString({ message: 'Email must be a string' })
   @IsNotEmpty({ message: 'Email should not be empty' })
   email: string;

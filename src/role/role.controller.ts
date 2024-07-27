@@ -1,16 +1,17 @@
 import { Controller, UseFilters } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
-import { Role } from './entity/rote.entity';
+
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exception';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { DeleteRoleDTO } from './dto/request/delete-role.dto';
 import { AssignPermissionDTO } from './dto/request/assign-permission.dto';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
+import { Role } from './entity/role.entity';
 
 @Controller('role')
-export class RoleController {
+export class RoleController {  
   constructor(private roleService: RoleService) {}
 
   @GrpcMethod('AuthService', 'GetAllRole')
