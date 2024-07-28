@@ -1,7 +1,7 @@
 
 import { User } from 'src/user/entity/user.entity';
 
-export interface RoleInterface {
+export interface IRole {
   id: string;
   title: string;
   description: string;

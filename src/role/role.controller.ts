@@ -11,7 +11,7 @@ import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { Role } from './entity/role.entity';
 
 @Controller('role')
-export class RoleController {  
+export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @GrpcMethod('AuthService', 'GetAllRole')
@@ -36,26 +36,34 @@ export class RoleController {
     return res;
   }
 
+  @GrpcMethod('AuthService', 'UpdateRole')
   @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role-assign-permission', method: 'POST' } })
-  assignPermission(
-    @Payload() assignPermissionDTO: AssignPermissionDTO,
-  ): Promise<Role> {
-    return this.roleService.assignPermission(
-      assignPermissionDTO.data,
-      assignPermissionDTO.query,
-    );
+  updateRole(
+    data: UpdateRoleDTO,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ) {
+    return this.roleService.updateRole(data);
   }
 
+  @GrpcMethod('AuthService', 'DeleteRole')
   @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role', method: 'PUT' } })
-  updateRole(@Payload() updatePayload: UpdateRoleDTO): Promise<Role> {
-    return this.roleService.updateRole(updatePayload.data, updatePayload.query);
+  deleteRole(
+    data: DeleteRoleDTO,
+    metadata: Metadata,
+    call: ServerUnaryCall<any, any>,
+  ) {
+    return this.roleService.deleteRole(data);
   }
 
-  @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role', method: 'DELETE' } })
-  deleteRole(@Payload() deleteRole: DeleteRoleDTO): any {
-    return this.roleService.deleteRole(deleteRole.query);
-  }
+  // @UseFilters(new RpcValidationFilter())
+  // @MessagePattern({ cmd: { url: '/role-assign-permission', method: 'POST' } })
+  // assignPermission(
+  //   @Payload() assignPermissionDTO: AssignPermissionDTO,
+  // ): Promise<Role> {
+  //   return this.roleService.assignPermission(
+  //     assignPermissionDTO.data,
+  //     assignPermissionDTO.query,
+  //   );
+  // }
 }

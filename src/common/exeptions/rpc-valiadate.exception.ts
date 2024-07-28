@@ -20,6 +20,7 @@ export class RpcValidationFilter implements RpcExceptionFilter {
       statusCode: exception?.error?.statusCode || HttpStatus.BAD_REQUEST,
       errors: exception?.response?.messages || exception?.error?.message,
     };
+    console.log(exception);
 
     return throwError(
       () => new RpcException({ message: JSON.stringify(errorMessage) }),

@@ -10,17 +10,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { RoleInterface } from './role.interface';
+import { IRole } from './role.interface';
 
 @Entity()
-export class Role implements RoleInterface {
+export class Role implements IRole {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   title: string;
 
-  @Column()
+  @Column() 
   description: string;
 
   @Column({

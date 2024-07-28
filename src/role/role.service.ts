@@ -3,48 +3,38 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { Repository } from 'typeorm';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
-import {
-  UpdateRolePayload,
-  UpdateRoleQuery,
-} from './dto/request/update-role.dto';
+
 import { RpcException } from '@nestjs/microservices';
-import { DeleteQueryDTO } from './dto/request/delete-role.dto';
 import {
   AssignPermissionPayload,
   AssignPermissionQuery,
 } from './dto/request/assign-permission.dto';
 import { Permission } from 'src/permission/entity/permission.entity';
 import { Role } from './entity/role.entity';
+import { RoleRepository } from './role.repository';
+import { UpdateRoleDTO } from './dto/request/update-role.dto';
+import { PermissionRepository } from 'src/permission/permission.repository';
+import { DeleteRoleDTO } from './dto/request/delete-role.dto';
 
 @Injectable()
 export class RoleService {
   constructor(
-    @InjectRepository(Role) private roleRepository: Repository<Role>,
-    @InjectRepository(Permission)
-    private permissionRepository: Repository<Permissions>,
+    private roleRepository: RoleRepository,
+    private permissionsRepository: PermissionRepository,
   ) {}
 
   async getRoles(): Promise<{ roles: Role[] }> {
-    const roles = await this.roleRepository.find({
-      relations: {
-        permissions: true,
-      },
-    });
+    const roles = await this.roleRepository.getRoles();
     return { roles: roles };
   }
 
   async createRole(createRolePayLoad: CreateRoleDTO): Promise<{ role: Role }> {
-    const role = await this.roleRepository.save(createRolePayLoad);
+    const role = await this.roleRepository.createRole(createRolePayLoad);
     return { role: role };
   }
 
-  async updateRole(
-    updateRolePayload: UpdateRolePayload,
-    updateRoleQuery: UpdateRoleQuery,
-  ): Promise<Role> {
-    let role = await this.roleRepository.findOneBy({
-      id: updateRoleQuery.id,
-    });
+  async updateRole(updateRoleDTO: UpdateRoleDTO): Promise<{ role: Role }> {
+    let role = await this.roleRepository.findRoleById(updateRoleDTO.id);
 
     if (!role) {
       throw new RpcException({
@@ -52,65 +42,65 @@ export class RoleService {
         message: 'Role not found',
       });
     }
-    let permissions = await this.permissionRepository.findByIds(
-      updateRolePayload.permissions,
-    );
+
+    if (updateRoleDTO.permissions) {
+      let permissions = await this.permissionsRepository.findPermissionsWithIds(
+        updateRoleDTO.permissions,
+      );
+      role.permissions = permissions;
+    }
 
     role = {
       ...role,
-      ...updateRolePayload,
+      ...updateRoleDTO,
     };
 
-    role.permissions = permissions;
+    let updateRole = await this.roleRepository.updateRole(role);
 
-    let updateRole = await this.roleRepository.save(role);
-
-    return updateRole;
+    return { role: updateRole };
   }
 
-  async deleteRole(query: DeleteQueryDTO): Promise<Role> {
-    const role = await this.roleRepository.findOneBy({
-      id: query.id,
-    });
+  async deleteRole(deleteDTO: DeleteRoleDTO): Promise<{ role: Role }> {
+    const role = await this.roleRepository.findRoleById(deleteDTO.id);
 
     if (!role) {
-      throw new RpcException({
+      throw new RpcException({ 
         statusCode: HttpStatus.NOT_FOUND,
         message: 'Role not found',
       });
     }
 
-    const roleDeleted = await this.roleRepository.remove(role);
+    const roleDeleted = await this.roleRepository.deleteRole(role);
 
-    return roleDeleted;
+    return { role: roleDeleted };
   }
 
-  async assignPermission(
-    assignPermissionPayload: AssignPermissionPayload,
-    assignPermissionQuery: AssignPermissionQuery,
-  ): Promise<Role> {
-    const role = await this.roleRepository.findOne({
-      where: {
-        id: assignPermissionQuery.id,
-      },
-      relations: ['permissions'],
-    });
+  // async assignPermission(
+  //   assignPermissionPayload: AssignPermissionPayload,
+  //   assignPermissionQuery: AssignPermissionQuery,
+  // ): Promise<Role> {
+  //   const role = await this.roleRep.findOne({
+  //     where: {
+  //       id: assignPermissionQuery.id,
+  //     },
+  //     relations: ['permissions'],
+  //   });
 
-    if (!role) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Role does not exist',
-      });
-    }
+  //   if (!role) {
+  //     throw new RpcException({
+  //       statusCode: HttpStatus.NOT_FOUND,
+  //       message: 'Role does not exist',
+  //     });
+  //   }
 
-    const permissionsToAssign = await this.permissionRepository.findByIds(
-      assignPermissionPayload.permissions,
-    );
+  //   const permissionsToAssign = await this.permissionRep.findByIds(
+  //     assignPermissionPayload.permissions,
+  //   );
 
-    role.permissions = permissionsToAssign;
+  //   role.permissions = permissionsToAssign;
 
-    const roleAsAssign = await this.roleRepository.save(role);
+  //   const roleAsAssign = await this.roleRep.save(role);
 
-    return roleAsAssign;
-  }
+  //   return roleAsAssign;
+  // }
 }
