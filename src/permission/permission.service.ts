@@ -3,39 +3,39 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entity/permission.entity';
 import { Repository } from 'typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
-import {
-  UpdatePermissionPayload,
-  UpdatePermissionQuery,
-} from './dto/update-permission.dto';
+
 import { RpcException } from '@nestjs/microservices';
-import { DeletePermissionQuery } from './dto/delete-permission.dto';
+import { DeletePermissionDTO } from './dto/delete-permission.dto';
+import { UpdatePermissionDTO } from './dto/update-permission.dto';
+import { PermissionRepository } from './permission.repository';
 
 @Injectable()
 export class PermissionService {
   constructor(
     @InjectRepository(Permission)
-    private permissionRepository: Repository<Permission>,
+    private permissionRep: Repository<Permission>,
+    private permissionRepository: PermissionRepository,
   ) {}
 
-  async getPermissions(): Promise<Permission[]> {
-    const permissions = await this.permissionRepository.find();
-    return permissions;
+  async getPermissions(): Promise<{ permissions: Permission[] }> {
+    const permissions = await this.permissionRepository.getPermissions();
+    return { permissions: permissions };
   }
 
   async createPermission(
     createPermission: CreatePermissionDTO,
-  ): Promise<Permission> {
-    const permission = await this.permissionRepository.save(createPermission);
-    return permission;
+  ): Promise<{ permission: Permission }> {
+    const newPermission =
+      await this.permissionRepository.createPermission(createPermission);
+    return { permission: newPermission };
   }
 
   async updatePermission(
-    updatePermissionPayload: UpdatePermissionPayload,
-    updatePermissionQuery: UpdatePermissionQuery,
-  ): Promise<Permission> {
-    let permission = await this.permissionRepository.findOneBy({
-      id: updatePermissionQuery.id,
-    });
+    updatePermissionDTO: UpdatePermissionDTO,
+  ): Promise<{ permission: Permission }> {
+    let permission = await this.permissionRepository.findPermissionWithId(
+      updatePermissionDTO.id,
+    );
 
     if (!permission) {
       throw new RpcException({
@@ -46,20 +46,17 @@ export class PermissionService {
 
     permission = {
       ...permission,
-      ...updatePermissionPayload,
+      ...updatePermissionDTO,
     };
 
-    let updatePermission = await this.permissionRepository.save(permission);
+    let updatePermission =
+      await this.permissionRepository.updatePermission(permission);
 
-    return updatePermission;
+    return { permission: updatePermission };
   }
 
-  async deletePermission(
-    deletePermissionQuery: DeletePermissionQuery,
-  ): Promise<Permission> {
-    const permission = await this.permissionRepository.findOneBy({
-      id: deletePermissionQuery.id,
-    });
+  async deletePermission(id: string): Promise<{ permission: Permission }> {
+    const permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
       throw new RpcException({
@@ -68,8 +65,9 @@ export class PermissionService {
       });
     }
 
-    const permissionDeleted = this.permissionRepository.remove(permission);
+    const permissionDeleted =
+      await this.permissionRepository.DeletePermissionDTO(permission);
 
-    return permissionDeleted;
+    return { permission: permissionDeleted };
   }
 }

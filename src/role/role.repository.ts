@@ -29,7 +29,7 @@ export class RoleRepository {
     try {
       const roles = await this.roleRepository.find({
         relations: {
-          permissions: true,
+          permissions:true,
         },
       });
       return roles;

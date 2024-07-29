@@ -1,7 +1,17 @@
-import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, IsUUID, ValidateNested } from 'class-validator';
+import {
+  IsBoolean,
+  isBoolean,
+  IsNotEmpty,
+  IsString,
+  IsUUID,
+} from 'class-validator';
+import { IPermission } from '../entity/permission.interface';
 
-export class UpdatePermissionPayload {
+export class UpdatePermissionDTO implements Omit<IPermission, 'createdAt'> {
+  @IsUUID()
+  @IsNotEmpty()
+  id: string;
+
   @IsNotEmpty()
   @IsString()
   title: string;
@@ -9,20 +19,8 @@ export class UpdatePermissionPayload {
   @IsNotEmpty()
   @IsString()
   description: string;
-}
 
-export class UpdatePermissionQuery {
+  @IsBoolean()
   @IsNotEmpty()
-  @IsUUID()
-  id: string;
-}
-
-export class UpdatePermissionDTO {
-  @ValidateNested()
-  @Type(() => UpdatePermissionPayload)
-  data: UpdatePermissionPayload
-
-  @ValidateNested()
-  @Type(() => UpdatePermissionQuery)
-  query: UpdatePermissionQuery
+  active: boolean;
 }

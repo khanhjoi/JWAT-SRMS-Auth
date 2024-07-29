@@ -38,12 +38,13 @@ export class RoleController {
 
   @GrpcMethod('AuthService', 'UpdateRole')
   @UseFilters(new RpcValidationFilter())
-  updateRole(
+  async updateRole(
     data: UpdateRoleDTO,
     metadata: Metadata,
     call: ServerUnaryCall<any, any>,
   ) {
-    return this.roleService.updateRole(data);
+    const res = await this.roleService.updateRole(data);
+    return res;
   }
 
   @GrpcMethod('AuthService', 'DeleteRole')

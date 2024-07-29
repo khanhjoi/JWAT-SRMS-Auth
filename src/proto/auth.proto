@@ -14,12 +14,12 @@ service AuthService {
   rpc CreateRole(CreateRoleRequest) returns (RoleResponse);
   rpc UpdateRole(UpdateRoleRequest) returns (RoleResponse);
   rpc DeleteRole(DeleteRoleRequest) returns (RoleResponse);
-  rpc AssignPermission(AssignPermissionRequest) returns (google.protobuf.Empty);
+  rpc AssignPermission(AssignPermissionRequest) returns (RoleResponse);
 
   rpc GetAllPermission(google.protobuf.Empty) returns (PermissionListResponse);
   rpc AddPermission(AddPermissionRequest) returns (PermissionResponse);
   rpc UpdatePermission(UpdatePermissionRequest) returns (PermissionResponse);
-  rpc DeletePermission(DeletePermissionRequest) returns (google.protobuf.Empty);
+  rpc DeletePermission(DeletePermissionRequest) returns (PermissionResponse);
 }
 
 message LoginRequest {
@@ -100,12 +100,15 @@ message Permission {
 }
 
 message AddPermissionRequest {
-  string name = 1;
+  string title = 1;
+  string description = 2;
 }
 
 message UpdatePermissionRequest {
   string id = 1;
-  string name = 2;
+  string title = 2;
+  string description = 3;
+  bool active = 4;
 }
 
 message PermissionResponse {
@@ -118,5 +121,5 @@ message DeletePermissionRequest {
 
 message AssignPermissionRequest {
   string roleId = 1;
-  string permissionId = 2;
+  repeated string permissions = 2;
 }

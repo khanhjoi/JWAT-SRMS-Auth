@@ -1,4 +1,4 @@
-export interface PermissionInterface {
+export interface IPermission {
   id: string;
   title: string;
   description: string;

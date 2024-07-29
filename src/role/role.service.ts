@@ -1,15 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-
-import { Repository } from 'typeorm';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
-
 import { RpcException } from '@nestjs/microservices';
-import {
-  AssignPermissionPayload,
-  AssignPermissionQuery,
-} from './dto/request/assign-permission.dto';
-import { Permission } from 'src/permission/entity/permission.entity';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
@@ -43,17 +34,19 @@ export class RoleService {
       });
     }
 
+
     if (updateRoleDTO.permissions) {
       let permissions = await this.permissionsRepository.findPermissionsWithIds(
         updateRoleDTO.permissions,
       );
-      role.permissions = permissions;
+      updateRoleDTO.permissions = permissions;
     }
-
+ 
     role = {
       ...role,
       ...updateRoleDTO,
     };
+
 
     let updateRole = await this.roleRepository.updateRole(role);
 
@@ -64,7 +57,7 @@ export class RoleService {
     const role = await this.roleRepository.findRoleById(deleteDTO.id);
 
     if (!role) {
-      throw new RpcException({ 
+      throw new RpcException({
         statusCode: HttpStatus.NOT_FOUND,
         message: 'Role not found',
       });
