@@ -8,12 +8,8 @@ import {
 import { IRole } from 'src/role/entity/role.interface';
 
 export class UpdateRoleDTO
-  implements Omit<IRole, 'createdAt' | 'users' | 'permissions'>
+  implements Omit<IRole, 'createdAt' | 'users' | 'permissions'| 'id'>
 {
-  @IsUUID()
-  @IsNotEmpty()
-  id: string;
-
   @IsNotEmpty()
   @IsString()
   title: string;

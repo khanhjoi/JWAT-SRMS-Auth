@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entity/permission.entity';
 import { Repository } from 'typeorm';
@@ -38,10 +38,7 @@ export class PermissionService {
     );
 
     if (!permission) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Permission not found',
-      });
+      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
     }
 
     permission = {
@@ -59,14 +56,11 @@ export class PermissionService {
     const permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Permission not found',
-      });
+      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
     }
 
     const permissionDeleted =
-      await this.permissionRepository.DeletePermissionDTO(permission);
+      await this.permissionRepository.deletePermission(permission);
 
     return { permission: permissionDeleted };
   }

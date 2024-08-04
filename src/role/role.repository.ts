@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entity/role.entity';
 import { Repository } from 'typeorm';
@@ -17,10 +17,10 @@ export class RoleRepository {
       return role;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Find role failed',
-        });
+        throw new HttpException(
+          'Find role failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
@@ -29,30 +29,30 @@ export class RoleRepository {
     try {
       const roles = await this.roleRepository.find({
         relations: {
-          permissions:true,
+          permissions: true,
         },
       });
       return roles;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Find Role had some issues',
-        });
+        throw new HttpException(
+          'Find Role had some issues',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
 
   async updateRole(role: Role): Promise<Role> {
     try {
-      const roleUpdate = await this.roleRepository.save(role)
+      const roleUpdate = await this.roleRepository.save(role);
       return roleUpdate;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Create Role had some issues',
-        });
+        throw new HttpException(
+          'Update role had some issues',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
@@ -63,24 +63,24 @@ export class RoleRepository {
       return role;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Create Role had some issues',
-        });
+        throw new HttpException(
+          'Create Role had some issues',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
- 
+
   async deleteRole(role: Role): Promise<Role> {
     try {
       const roleDeleted = await this.roleRepository.remove(role);
       return roleDeleted;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Delete Role had some issues',
-        });
+        throw new HttpException(
+          'Delete Role had some issues',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }

@@ -1,11 +1,9 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
-import { RpcException } from '@nestjs/microservices';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { PermissionRepository } from 'src/permission/permission.repository';
-import { DeleteRoleDTO } from './dto/request/delete-role.dto';
 
 @Injectable()
 export class RoleService {
@@ -24,16 +22,12 @@ export class RoleService {
     return { role: role };
   }
 
-  async updateRole(updateRoleDTO: UpdateRoleDTO): Promise<{ role: Role }> {
-    let role = await this.roleRepository.findRoleById(updateRoleDTO.id);
+  async updateRole(id: string, updateRoleDTO: UpdateRoleDTO): Promise<Role> {
+    let role = await this.roleRepository.findRoleById(id);
 
     if (!role) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Role not found',
-      });
+      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
     }
-
 
     if (updateRoleDTO.permissions) {
       let permissions = await this.permissionsRepository.findPermissionsWithIds(
@@ -41,31 +35,27 @@ export class RoleService {
       );
       updateRoleDTO.permissions = permissions;
     }
- 
+
     role = {
       ...role,
       ...updateRoleDTO,
     };
 
-
     let updateRole = await this.roleRepository.updateRole(role);
 
-    return { role: updateRole };
+    return updateRole;
   }
 
-  async deleteRole(deleteDTO: DeleteRoleDTO): Promise<{ role: Role }> {
-    const role = await this.roleRepository.findRoleById(deleteDTO.id);
+  async deleteRole(id: string): Promise<Role> {
+    const role = await this.roleRepository.findRoleById(id);
 
     if (!role) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Role not found',
-      });
+      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
     }
 
     const roleDeleted = await this.roleRepository.deleteRole(role);
 
-    return { role: roleDeleted };
+    return roleDeleted;
   }
 
   // async assignPermission(

@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
+import { AuthController } from './auth/auth.controller';
 
 @Module({
   imports: [

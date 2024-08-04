@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { RpcException } from '@nestjs/microservices';
@@ -15,16 +15,11 @@ export class UserService {
     );
 
     if (isUserExit) {
-      throw new RpcException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'User already exists',
-      });
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
-
 
     const salt = await bcrypt.genSalt();
     const password = await bcrypt.hash(createUserDto.password, salt);
- 
 
     const newUser = await this.userRepository.createNewUser({
       email: createUserDto.email,
@@ -40,10 +35,7 @@ export class UserService {
     const userIsExit = await this.userRepository.findUserByEmail(email);
 
     if (!userIsExit) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'User not found',
-      });
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     return userIsExit;
@@ -53,10 +45,10 @@ export class UserService {
     const userIsExit = await this.userRepository.findUserById(userId);
 
     if (!userIsExit) {
-      throw new RpcException({
-        message: 'User not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      });
+      throw new HttpException(
+        'User not found',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     return userIsExit;
@@ -69,16 +61,16 @@ export class UserService {
     const user = await this.userRepository.findUserById(userId);
 
     if (!user) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'User not found',
-      });
+      throw new HttpException(
+        'User not found',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
     user.refreshToken = refreshToken;
 
     const updateUser = await this.userRepository.updateUser(user);
-
+  
     return updateUser;
   }
 }

@@ -1,6 +1,8 @@
 import {
+  Body,
   Controller,
   HttpStatus,
+  Post,
   UseFilters,
   UsePipes,
   ValidationPipe,
@@ -12,28 +14,18 @@ import { RegisterRequestDTO } from './dto/request/register-request.dto';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
 
-@Controller('auth')
+@Controller('/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @GrpcMethod('AuthService', 'Login')
-  @UseFilters(new RpcValidationFilter())
-  async login(
-    data: LoginRequestDTO,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ) {
+  @Post('/login')
+  async login(@Body() data: LoginRequestDTO) {
     const res = await this.authService.login(data);
     return res;
   }
 
-  @GrpcMethod('AuthService', 'Register')
-  @UseFilters(new RpcValidationFilter())
-  async register(
-    data: RegisterRequestDTO,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ) {
+  @Post('/register')
+  async register(@Body() data: RegisterRequestDTO) {
     const res = await this.authService.register(data);
     return res;
   }

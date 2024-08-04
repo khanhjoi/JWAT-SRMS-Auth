@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
@@ -19,10 +19,7 @@ export class UserRepository {
       return user;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Create user failed',
-        });
+        throw new HttpException('Create user failed', HttpStatus.BAD_REQUEST);
       }
     }
   }
@@ -33,10 +30,7 @@ export class UserRepository {
       return user;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'find user failed',
-        });
+        throw new HttpException('find user failed', HttpStatus.BAD_REQUEST);
       }
     }
   }
@@ -47,24 +41,18 @@ export class UserRepository {
       return user;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'find user failed',
-        });
+        throw new HttpException('find user failed', HttpStatus.BAD_REQUEST);
       }
     }
   }
 
   async updateUser(user: User): Promise<User> {
     try {
-      const userUpdate = await this.userRepository.save(user)
+      const userUpdate = await this.userRepository.save(user);
       return userUpdate;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.BAD_REQUEST,
-          message: 'Update user failed',
-        });
+        throw new HttpException('Update user failed',HttpStatus.BAD_REQUEST );
       }
     }
   }

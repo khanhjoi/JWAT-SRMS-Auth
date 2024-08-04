@@ -1,4 +1,4 @@
-import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { Permission } from './entity/permission.entity';
 import { In, Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
@@ -19,10 +19,10 @@ export class PermissionRepository {
       return permissions;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Get permissions failed',
-        });
+        throw new HttpException(
+          'Get permissions failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
@@ -32,10 +32,10 @@ export class PermissionRepository {
       const permission = await this.permissionRepository.findOneBy({ id: id });
       return permission;
     } catch (error) {
-      throw new RpcException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Find permission with ID failed',
-      });
+      throw new HttpException(
+        'Find permission with ID failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -47,10 +47,10 @@ export class PermissionRepository {
       return permissions;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Find permissions failed',
-        });
+        throw new HttpException(
+          'Find permissions failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
@@ -64,10 +64,10 @@ export class PermissionRepository {
       return permission;
     } catch (error) {
       if (error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: 'Create Permission failed',
-        });
+        throw new HttpException(
+          'Create Permission failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
@@ -77,23 +77,24 @@ export class PermissionRepository {
       const updatePermission = await this.permissionRepository.save(permission);
       return updatePermission;
     } catch (error) {
-      throw new RpcException({
-        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-        message: 'Update permission failed',
-      });
+      throw new HttpException(
+        'Update permission failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
-  async DeletePermissionDTO(permission:Permission):Promise<Permission> {
+  async deletePermission(permission: Permission): Promise<Permission> {
     try {
-      const permissionDeleted = await this.permissionRepository.remove(permission);
-      return permissionDeleted
+      const permissionDeleted =
+        await this.permissionRepository.remove(permission);
+      return permissionDeleted;
     } catch (error) {
-      if(error) {
-        throw new RpcException({
-          statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
-          message: "Delete permission failed",
-        })
+      if (error) {
+        throw new HttpException(
+          'Delete permission failed',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
       }
     }
   }
