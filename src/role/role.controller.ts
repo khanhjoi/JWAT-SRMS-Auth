@@ -18,13 +18,13 @@ export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get('')
-  async getAllRoles() {
+  async getAllRoles(): Promise<Role[]> {
     const res = await this.roleService.getRoles();
     return res;
   }
 
   @Post('')
-  async createRole(@Body() data: CreateRoleDTO) {
+  async createRole(@Body() data: CreateRoleDTO): Promise<Role> {
     const res = await this.roleService.createRole(data);
     return res;
   }

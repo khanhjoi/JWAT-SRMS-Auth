@@ -1,51 +1,51 @@
-import { Controller, UseFilters } from '@nestjs/common';
-import { GrpcMethod, MessagePattern, Payload } from '@nestjs/microservices';
-import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exception';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+
 import { Permission } from './entity/permission.entity';
 import { PermissionService } from './permission.service';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
-import { DeletePermissionDTO } from './dto/delete-permission.dto';
-import { Observable } from 'rxjs';
-import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('permission')
 export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
-  @GrpcMethod('AuthService', 'GetAllPermission')
-  @UseFilters(new RpcValidationFilter())
-  async getAllPermission(): Promise<{ permissions: Permission[] }> {
+  @Get('')
+  @UseGuards(AuthGuard)
+  async getAllPermission(): Promise<Permission[]> {
     return await this.permissionService.getPermissions();
   }
 
-  @GrpcMethod('AuthService', 'AddPermission')
-  @UseFilters(new RpcValidationFilter())
+  @Post('')
+  @UseGuards(AuthGuard)
   createRole(
-    createPermission: CreatePermissionDTO,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ): Promise<{ permission: Permission }> {
+    @Body() createPermission: CreatePermissionDTO,
+  ): Promise<Permission> {
     return this.permissionService.createPermission(createPermission);
   }
 
-  @GrpcMethod('AuthService', 'UpdatePermission')
-  @UseFilters(new RpcValidationFilter())
+  @Put('/:id')
+  @UseGuards(AuthGuard)
   updateRole(
-    updatePermissionDTO: UpdatePermissionDTO,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ): Promise<{ permission: Permission }> {
-    return this.permissionService.updatePermission(updatePermissionDTO);
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePermissionDTO: UpdatePermissionDTO,
+  ): Promise<Permission> {
+    return this.permissionService.updatePermission(id, updatePermissionDTO);
   }
 
-  @UseFilters(new RpcValidationFilter())
-  @GrpcMethod('AuthService', 'DeletePermission')
-  deleteRole(
-    deletePermissionDTO: DeletePermissionDTO,
-    metadata: Metadata,
-    call: ServerUnaryCall<any, any>,
-  ): Promise<{ permission: Permission }> {
-    return this.permissionService.deletePermission(deletePermissionDTO.id);
+  @Delete('/:id')
+  @UseGuards(AuthGuard)
+  deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Permission> {
+    return this.permissionService.deletePermission(id);
   }
 }

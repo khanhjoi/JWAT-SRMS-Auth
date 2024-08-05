@@ -7,11 +7,9 @@ import {
 } from 'class-validator';
 import { IPermission } from '../entity/permission.interface';
 
-export class UpdatePermissionDTO implements Omit<IPermission, 'createdAt'> {
-  @IsUUID()
-  @IsNotEmpty()
-  id: string;
-
+export class UpdatePermissionDTO
+  implements Omit<IPermission, 'createdAt' | 'id'>
+{
   @IsNotEmpty()
   @IsString()
   title: string;

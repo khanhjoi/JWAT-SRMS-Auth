@@ -17,25 +17,24 @@ export class PermissionService {
     private permissionRepository: PermissionRepository,
   ) {}
 
-  async getPermissions(): Promise<{ permissions: Permission[] }> {
+  async getPermissions(): Promise<Permission[]> {
     const permissions = await this.permissionRepository.getPermissions();
-    return { permissions: permissions };
+    return permissions;
   }
 
   async createPermission(
     createPermission: CreatePermissionDTO,
-  ): Promise<{ permission: Permission }> {
+  ): Promise<Permission> {
     const newPermission =
       await this.permissionRepository.createPermission(createPermission);
-    return { permission: newPermission };
+    return newPermission;
   }
 
   async updatePermission(
+    id: string,
     updatePermissionDTO: UpdatePermissionDTO,
-  ): Promise<{ permission: Permission }> {
-    let permission = await this.permissionRepository.findPermissionWithId(
-      updatePermissionDTO.id,
-    );
+  ): Promise<Permission> {
+    let permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
       throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
@@ -49,10 +48,10 @@ export class PermissionService {
     let updatePermission =
       await this.permissionRepository.updatePermission(permission);
 
-    return { permission: updatePermission };
+    return updatePermission;
   }
 
-  async deletePermission(id: string): Promise<{ permission: Permission }> {
+  async deletePermission(id: string): Promise<Permission> {
     const permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
@@ -62,6 +61,6 @@ export class PermissionService {
     const permissionDeleted =
       await this.permissionRepository.deletePermission(permission);
 
-    return { permission: permissionDeleted };
+    return permissionDeleted;
   }
 }

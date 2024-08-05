@@ -24,6 +24,8 @@ export class User implements IUser {
   @Column()
   email: string;
 
+
+
   @CreateDateColumn()
   createdAt: Date;
 

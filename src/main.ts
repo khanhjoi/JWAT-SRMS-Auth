@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/intercepter/Logging.intercepter';
 import { ValidationPipe } from '@nestjs/common';
-
+import db from "./db/typeorm.config"
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -18,9 +18,10 @@ async function bootstrap() {
 
   // tcpMicroservice.useGlobalPipes(new CustomValidationPipe());
   // tcpMicroservice.listen();
-
   app.useGlobalInterceptors(new LoggingInterceptor());
   app.useGlobalPipes(new ValidationPipe());
   app.listen(3001);
 }
+
+
 bootstrap();

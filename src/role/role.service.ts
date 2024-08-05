@@ -12,14 +12,14 @@ export class RoleService {
     private permissionsRepository: PermissionRepository,
   ) {}
 
-  async getRoles(): Promise<{ roles: Role[] }> {
+  async getRoles(): Promise<Role[]> {
     const roles = await this.roleRepository.getRoles();
-    return { roles: roles };
+    return roles;
   }
 
-  async createRole(createRolePayLoad: CreateRoleDTO): Promise<{ role: Role }> {
+  async createRole(createRolePayLoad: CreateRoleDTO): Promise<Role> {
     const role = await this.roleRepository.createRole(createRolePayLoad);
-    return { role: role };
+    return role;
   }
 
   async updateRole(id: string, updateRoleDTO: UpdateRoleDTO): Promise<Role> {

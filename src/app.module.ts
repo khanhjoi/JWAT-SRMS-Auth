@@ -6,8 +6,7 @@ import { RoleModule } from './role/role.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
-import { AuthController } from './auth/auth.controller';
+import { SharedJwtModule } from './shared/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -16,7 +15,6 @@ import { AuthController } from './auth/auth.controller';
       load: [ConfigurationEnv],
       envFilePath: ['.env.development.local', '.env.production.local'],
     }),
-
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
@@ -29,13 +27,14 @@ import { AuthController } from './auth/auth.controller';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.dbName,
-          synchronize: true,
-          // dropSchema: true, 
+          synchronize: false,
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+          migrations: [`${__dirname}/../../db/migrations/*{.ts,.js}`],
         };
       },
       inject: [ConfigService],
     }),
+    SharedJwtModule,
     AuthModule,
     UserModule,
     PermissionModule,

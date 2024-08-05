@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   HttpStatus,
+  Param,
   Post,
   UseFilters,
+  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -13,6 +15,7 @@ import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exceptio
 import { RegisterRequestDTO } from './dto/request/register-request.dto';
 import { Metadata, ServerUnaryCall } from '@grpc/grpc-js';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
+import { AuthGuard } from './guard/auth.guard';
 
 @Controller('/auth')
 export class AuthController {
@@ -28,5 +31,11 @@ export class AuthController {
   async register(@Body() data: RegisterRequestDTO) {
     const res = await this.authService.register(data);
     return res;
+  }
+
+  @Post('/profile')
+  @UseGuards(AuthGuard)
+  async getProfile(@Param('id') id: string) {
+    return 'ok'
   }
 }
