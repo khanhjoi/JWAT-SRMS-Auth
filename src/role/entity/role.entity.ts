@@ -1,5 +1,6 @@
 import { Permission } from 'src/permission/entity/permission.entity';
 import { User } from 'src/user/entity/user.entity';
+
 import {
   Column,
   CreateDateColumn,
@@ -9,16 +10,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { IRole } from './role.interface';
 
 @Entity()
-export class Role {
+export class Role implements IRole {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   title: string;
 
-  @Column()
+  @Column() 
   description: string;
 
   @Column({

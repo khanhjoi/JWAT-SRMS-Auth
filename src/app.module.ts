@@ -6,7 +6,7 @@ import { RoleModule } from './role/role.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { JwtModule } from '@nestjs/jwt';
+import { SharedJwtModule } from './shared/jwt/jwt.module';
 
 @Module({
   imports: [
@@ -15,11 +15,11 @@ import { JwtModule } from '@nestjs/jwt';
       load: [ConfigurationEnv],
       envFilePath: ['.env.development.local', '.env.production.local'],
     }),
-
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const databaseConfig = configService.get<databaseConfigType>('database');
+        const databaseConfig =
+          configService.get<databaseConfigType>('database');
         return {
           type: databaseConfig.type,
           host: databaseConfig.host,
@@ -27,14 +27,14 @@ import { JwtModule } from '@nestjs/jwt';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.dbName,
-          synchronize: true,
-          // dropSchema: true,
+          synchronize: false,
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
+          migrations: [`${__dirname}/../../db/migrations/*{.ts,.js}`],
         };
       },
       inject: [ConfigService],
     }),
-
+    SharedJwtModule,
     AuthModule,
     UserModule,
     PermissionModule,

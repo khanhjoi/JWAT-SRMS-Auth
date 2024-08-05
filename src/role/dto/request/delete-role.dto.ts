@@ -1,14 +1,19 @@
-import { Type } from 'class-transformer';
 import { IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
+import { IRole } from 'src/role/entity/role.interface';
 
-export class DeleteQueryDTO {
+export class DeleteRoleDTO
+  implements
+    Omit<
+      IRole,
+      | 'title'
+      | 'description'
+      | 'active'
+      | 'createdAt'
+      | 'users'
+      | 'permissions'
+    >
+{
   @IsNotEmpty()
   @IsUUID()
   id: string;
-}
-
-export class DeleteRoleDTO {
-  @ValidateNested()
-  @Type(() => DeleteQueryDTO)
-  query: DeleteQueryDTO;
 }

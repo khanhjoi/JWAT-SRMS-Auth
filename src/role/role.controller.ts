@@ -1,46 +1,56 @@
-import { Controller, UseFilters } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put,
+} from '@nestjs/common';
 import { RoleService } from './role.service';
-import { MessagePattern, Payload } from '@nestjs/microservices';
-import { Role } from './entity/rote.entity';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
-import { RpcValidationFilter } from 'src/common/exeptions/rpc-valiadate.exception';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
-import { DeleteRoleDTO } from './dto/request/delete-role.dto';
-import { AssignPermissionDTO } from './dto/request/assign-permission.dto';
+import { Role } from './entity/role.entity';
 
 @Controller('role')
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
-  @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role', method: 'GET' } })
-  getAllRoles(): Promise<Role[]> {
-    return this.roleService.getRoles();
+  @Get('')
+  async getAllRoles(): Promise<Role[]> {
+    const res = await this.roleService.getRoles();
+    return res;
   }
 
-  @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role', method: 'POST' } })
-  createRole(@Payload() createRolePayload: CreateRoleDTO): Promise<Role> {
-    return this.roleService.createRole(createRolePayload);
+  @Post('')
+  async createRole(@Body() data: CreateRoleDTO): Promise<Role> {
+    const res = await this.roleService.createRole(data);
+    return res;
   }
 
-  @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role-assign-permission', method: 'POST' } })
-  assignPermission(
-    @Payload() assignPermissionDTO: AssignPermissionDTO,
+  @Put('/:id')
+  async updateRole(
+    @Body() data: UpdateRoleDTO,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Role> {
-    return this.roleService.assignPermission(assignPermissionDTO.data, assignPermissionDTO.query)
+    const res = await this.roleService.updateRole(id, data);
+    return res;
   }
 
-  @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role', method: 'PUT' } })
-  updateRole(@Payload() updatePayload: UpdateRoleDTO): Promise<Role> {
-    return this.roleService.updateRole(updatePayload.data, updatePayload.query);
+  @Delete('/:id')
+  deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Role> {
+    return this.roleService.deleteRole(id);
   }
 
-  @UseFilters(new RpcValidationFilter())
-  @MessagePattern({ cmd: { url: '/role', method: 'DELETE' } })
-  deleteRole(@Payload() deleteRole: DeleteRoleDTO): any {
-    return this.roleService.deleteRole(deleteRole.query);
-  }
+  // @UseFilters(new RpcValidationFilter())
+  // @MessagePattern({ cmd: { url: '/role-assign-permission', method: 'POST' } })
+  // assignPermission(
+  //   @Payload() assignPermissionDTO: AssignPermissionDTO,
+  // ): Promise<Role> {
+  //   return this.roleService.assignPermission(
+  //     assignPermissionDTO.data,
+  //     assignPermissionDTO.query,
+  //   );
+  // }
 }

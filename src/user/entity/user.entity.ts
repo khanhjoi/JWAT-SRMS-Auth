@@ -1,4 +1,4 @@
-import { Role } from 'src/role/entity/rote.entity';
+import { Role } from 'src/role/entity/role.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,10 +7,11 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
+import { IUser } from './user.interface';
 
 @Entity()
 @Unique(['email'])
-export class User {
+export class User implements IUser {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -23,11 +24,16 @@ export class User {
   @Column()
   email: string;
 
+
+
   @CreateDateColumn()
   createdAt: Date;
 
   @Column()
   password: string;
+
+  @Column({ nullable: true })
+  refreshToken: string | null;
 
   @OneToMany(() => Role, (role) => role.users)
   role: Role;

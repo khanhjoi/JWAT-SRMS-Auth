@@ -1,34 +1,27 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcrypt';
-import { plainToClass } from 'class-transformer';
+import { UserRepository } from './user.repository';
 
 @Injectable()
 export class UserService {
-  constructor(
-    @InjectRepository(User) private userRepository: Repository<User>,
-  ) {}
+  constructor(private userRepository: UserRepository) {}
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
-    const user = await this.userRepository.findOneBy({
-      email: createUserDto.email,
-    });
+    const isUserExit = await this.userRepository.findUserByEmail(
+      createUserDto.email,
+    );
 
-    if (user) {
-      throw new RpcException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'User already exists',
-      });
+    if (isUserExit) {
+      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
     const salt = await bcrypt.genSalt();
     const password = await bcrypt.hash(createUserDto.password, salt);
 
-    const newUser = await this.userRepository.save({
+    const newUser = await this.userRepository.createNewUser({
       email: createUserDto.email,
       password: password,
       firstName: createUserDto.firstName,
@@ -39,28 +32,45 @@ export class UserService {
   }
 
   async findUserByEmail(email: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ email: email });
+    const userIsExit = await this.userRepository.findUserByEmail(email);
 
-    if (!user) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'User not found',
-      });
+    if (!userIsExit) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    return user;
+    return userIsExit;
   }
 
   async findUserById(userId: string): Promise<User> {
-    const user = await this.userRepository.findOneBy({ id: userId });
+    const userIsExit = await this.userRepository.findUserById(userId);
 
-    if (!user) {
-      throw new RpcException({
-        message: 'User not found',
-        statusCode: HttpStatus.NOT_FOUND,
-      });
+    if (!userIsExit) {
+      throw new HttpException(
+        'User not found',
+        HttpStatus.NOT_FOUND,
+      );
     }
 
-    return user;
+    return userIsExit;
+  }
+
+  async updateUserWithRefreshToken(
+    userId: string,
+    refreshToken: string,
+  ): Promise<User> {
+    const user = await this.userRepository.findUserById(userId);
+
+    if (!user) {
+      throw new HttpException(
+        'User not found',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    user.refreshToken = refreshToken;
+
+    const updateUser = await this.userRepository.updateUser(user);
+  
+    return updateUser;
   }
 }

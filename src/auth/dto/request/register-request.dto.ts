@@ -1,13 +1,14 @@
-import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
   IsString,
   IsStrongPassword,
-  ValidateNested,
 } from 'class-validator';
+import { IUser } from 'src/user/entity/user.interface';
 
-export class RegisterRequestPayload {
+export class RegisterRequestDTO
+  implements Omit<IUser, 'id' | 'createdAt' | 'role'>
+{
   @IsString()
   @IsNotEmpty()
   firstName: string;
@@ -20,12 +21,8 @@ export class RegisterRequestPayload {
   @IsNotEmpty()
   email: string;
 
+  refreshToken: string;
+
   @IsStrongPassword()
   password: string;
-}
-
-export class RegisterRequestDTO {
-  @ValidateNested()
-  @Type(() => RegisterRequestPayload)
-  data: RegisterRequestPayload;
 }

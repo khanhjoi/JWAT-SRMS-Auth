@@ -1,21 +1,27 @@
 import { NestFactory } from '@nestjs/core';
-import { Transport, MicroserviceOptions } from '@nestjs/microservices';
 import { AppModule } from './app.module';
+import { LoggingInterceptor } from './common/intercepter/Logging.intercepter';
 import { ValidationPipe } from '@nestjs/common';
-import { CustomValidationPipe } from './common/pipes/validationpipe';
-
+import db from "./db/typeorm.config"
 async function bootstrap() {
-  const tcpMicroservice =
-    await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
-      transport: Transport.TCP,
-      options: {
-        host: 'localhost',
-        port: 3001,
-      },
-    });
+  const app = await NestFactory.create(AppModule);
 
-  tcpMicroservice.useGlobalPipes(new CustomValidationPipe());
+  // const tcpMicroservice =
+  //   await NestFactory.createMicroservice<MicroserviceOptions>(AppModule, {
+  //     transport: Transport.GRPC,
+  //     options: {
+  //       package: 'auth',
+  //       url: 'localhost:50001',
+  //       protoPath: join(__dirname, '../proto/auth.proto'),
+  //     },
+  //   });
 
-  tcpMicroservice.listen();
+  // tcpMicroservice.useGlobalPipes(new CustomValidationPipe());
+  // tcpMicroservice.listen();
+  app.useGlobalInterceptors(new LoggingInterceptor());
+  app.useGlobalPipes(new ValidationPipe());
+  app.listen(3001);
 }
+
+
 bootstrap();

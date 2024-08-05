@@ -1,74 +1,65 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entity/permission.entity';
 import { Repository } from 'typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
-import {
-  UpdatePermissionPayload,
-  UpdatePermissionQuery,
-} from './dto/update-permission.dto';
+
 import { RpcException } from '@nestjs/microservices';
-import { DeletePermissionQuery } from './dto/delete-permission.dto';
+import { DeletePermissionDTO } from './dto/delete-permission.dto';
+import { UpdatePermissionDTO } from './dto/update-permission.dto';
+import { PermissionRepository } from './permission.repository';
 
 @Injectable()
 export class PermissionService {
   constructor(
     @InjectRepository(Permission)
-    private permissionRepository: Repository<Permission>,
+    private permissionRep: Repository<Permission>,
+    private permissionRepository: PermissionRepository,
   ) {}
 
   async getPermissions(): Promise<Permission[]> {
-    const permissions = await this.permissionRepository.find();
+    const permissions = await this.permissionRepository.getPermissions();
     return permissions;
   }
 
   async createPermission(
     createPermission: CreatePermissionDTO,
   ): Promise<Permission> {
-    const permission = await this.permissionRepository.save(createPermission);
-    return permission;
+    const newPermission =
+      await this.permissionRepository.createPermission(createPermission);
+    return newPermission;
   }
 
   async updatePermission(
-    updatePermissionPayload: UpdatePermissionPayload,
-    updatePermissionQuery: UpdatePermissionQuery,
+    id: string,
+    updatePermissionDTO: UpdatePermissionDTO,
   ): Promise<Permission> {
-    let permission = await this.permissionRepository.findOneBy({
-      id: updatePermissionQuery.id,
-    });
+    let permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Permission not found',
-      });
+      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
     }
 
     permission = {
       ...permission,
-      ...updatePermissionPayload,
+      ...updatePermissionDTO,
     };
 
-    let updatePermission = await this.permissionRepository.save(permission);
+    let updatePermission =
+      await this.permissionRepository.updatePermission(permission);
 
     return updatePermission;
   }
 
-  async deletePermission(
-    deletePermissionQuery: DeletePermissionQuery,
-  ): Promise<Permission> {
-    const permission = await this.permissionRepository.findOneBy({
-      id: deletePermissionQuery.id,
-    });
+  async deletePermission(id: string): Promise<Permission> {
+    const permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new RpcException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: 'Permission not found',
-      });
+      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
     }
 
-    const permissionDeleted = this.permissionRepository.remove(permission);
+    const permissionDeleted =
+      await this.permissionRepository.deletePermission(permission);
 
     return permissionDeleted;
   }

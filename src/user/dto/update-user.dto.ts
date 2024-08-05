@@ -5,22 +5,26 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 import { IUser } from '../entity/user.interface';
+import { Role } from 'src/role/entity/role.entity';
 
-export class CreateUserDTO
-  implements Omit<IUser, 'id' | 'createdAt' | 'role' | 'refreshToken'>
-{
+export class UpdateUserDTO implements Omit<IUser, 'id'> {
   @IsString()
-  @IsNotEmpty()
   firstName: string;
 
   @IsString()
-  @IsNotEmpty()
   lastName: string;
 
   @IsEmail()
-  @IsNotEmpty()
   email: string;
 
-  @IsStrongPassword()
+  @IsNotEmpty()
+  createdAt: Date;
+
+  @IsString()
+  refreshToken: string;
+
+  @IsString()
   password: string;
+
+  role: Role;
 }
