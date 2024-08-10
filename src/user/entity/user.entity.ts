@@ -8,6 +8,7 @@ import {
   Unique,
 } from 'typeorm';
 import { IUser } from './user.interface';
+import { RefreshToken } from 'src/RefreshToken/entity/refresh-token.entity';
 
 @Entity()
 @Unique(['email'])
@@ -24,16 +25,14 @@ export class User implements IUser {
   @Column()
   email: string;
 
-
-
   @CreateDateColumn()
   createdAt: Date;
 
   @Column()
   password: string;
 
-  @Column({ nullable: true })
-  refreshToken: string | null;
+  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
+  refreshTokens: RefreshToken;
 
   @OneToMany(() => Role, (role) => role.users)
   role: Role;

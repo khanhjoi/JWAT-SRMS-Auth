@@ -4,9 +4,10 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { IPermission } from './permission.interface';
 
 @Entity()
-export class Permission {
+export class Permission implements IPermission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

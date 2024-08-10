@@ -1,5 +1,7 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
+
+// must be add this config() -> if not it can get .env in app. it will be get env system
 config();
 
 export default new DataSource({

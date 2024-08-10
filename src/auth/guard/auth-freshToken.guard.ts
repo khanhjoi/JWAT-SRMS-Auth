@@ -10,27 +10,19 @@ import { Request } from 'express';
 import configEnv from '../../../config-env';
 
 @Injectable()
-export class AuthGuard implements CanActivate {
-  constructor(
-    private jwtService: JwtService,
-    private configService: ConfigService,
-  ) {}
+export class AuthRefreshGuard implements CanActivate {
+  constructor() {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    
     if (!token) {
       throw new UnauthorizedException();
     }
-    try {
-      const payload = await this.jwtService.verifyAsync(token, {
-        secret: this.configService.get<string>('jwt_secret'),
-      });
-      request['user'] = payload;
-      request['token'] = token
-    } catch {
-      throw new UnauthorizedException();
-    }
+
+    request['token'] = token;
+
     return true;
   }
 

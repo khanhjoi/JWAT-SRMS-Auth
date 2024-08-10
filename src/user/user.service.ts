@@ -1,7 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
 
@@ -42,6 +41,7 @@ export class UserService {
   }
 
   async findUserById(userId: string): Promise<User> {
+    
     const userIsExit = await this.userRepository.findUserById(userId);
 
     if (!userIsExit) {
@@ -67,7 +67,7 @@ export class UserService {
       );
     }
 
-    user.refreshToken = refreshToken;
+    // user.refreshToken = refreshToken;
 
     const updateUser = await this.userRepository.updateUser(user);
   

@@ -7,7 +7,7 @@ import {
 import { IUser } from '../entity/user.interface';
 
 export class CreateUserDTO
-  implements Omit<IUser, 'id' | 'createdAt' | 'role' | 'refreshToken'>
+  implements Pick<IUser, 'firstName' | 'lastName' | 'email' | 'password'>
 {
   @IsString()
   @IsNotEmpty()

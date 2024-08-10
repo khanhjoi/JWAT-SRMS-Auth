@@ -2,7 +2,6 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/intercepter/Logging.intercepter';
 import { ValidationPipe } from '@nestjs/common';
-import db from "./db/typeorm.config"
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -13,7 +12,7 @@ async function bootstrap() {
   //       package: 'auth',
   //       url: 'localhost:50001',
   //       protoPath: join(__dirname, '../proto/auth.proto'),
-  //     },
+  //     }, 
   //   });
 
   // tcpMicroservice.useGlobalPipes(new CustomValidationPipe());

@@ -1,21 +1,27 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import {
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import { RegisterRequestDTO } from './dto/request/register-request.dto';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
 import * as bcrypt from 'bcrypt';
-import { RpcException } from '@nestjs/microservices';
 import { JwtService } from '@nestjs/jwt';
+import { AuthResponse, TokenType } from './dto/response/Auth-response';
+import { v4 as uuidv4 } from 'uuid';
+import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
+
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
+    private refreshTokenService: RefreshTokenService,
   ) {}
 
-  async login(loginRequestDTO: LoginRequestDTO): Promise<{
-    assetToken: string;
-    refreshToken: string;
-  }> {
+  async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
     const user = await this.userService.findUserByEmail(loginRequestDTO.email);
 
     const isMatchPassword = await bcrypt.compare(
@@ -24,10 +30,66 @@ export class AuthService {
     );
 
     if (!isMatchPassword) {
-      throw new RpcException({
-        statusCode: HttpStatus.BAD_REQUEST,
-        message: 'Invalid password',
-      });
+      throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+    }
+
+    let { accessToken, refreshToken } = await this.generateRefreshToken({
+      sub: user.id,
+    });
+
+    const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
+      user.id,
+    );
+
+    if (isRefreshTokenExit) {
+      await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
+    } else {
+      await this.refreshTokenService.createRefreshToken(refreshToken, user.id);
+    }
+
+    return {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      userInfo: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
+    };
+  }
+
+  async register(registerDto: RegisterRequestDTO): Promise<AuthResponse> {
+    const newUser = await this.userService.createUser(registerDto);
+
+    const { accessToken, refreshToken } = await this.generateRefreshToken({
+      sub: newUser.id,
+    });
+
+    const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
+      newUser.id,
+    );
+
+    if (isRefreshTokenExit) {
+      await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
+    } else {
+      await this.refreshTokenService.createRefreshToken(refreshToken, newUser.id);
+    }
+    return {
+      accessToken: accessToken,
+      refreshToken: refreshToken,
+      userInfo: {
+        firstName: newUser.firstName,
+        lastName: newUser.lastName,
+        email: newUser.email,
+      },
+    };
+  }
+
+  async refreshTokens(id: string, token: string): Promise<AuthResponse> {
+    const user = await this.userService.findUserById(id);
+
+    if (!user) {
+      throw new ForbiddenException('Access Denied');
     }
 
     const { accessToken, refreshToken } = await this.generateRefreshToken({
@@ -37,40 +99,22 @@ export class AuthService {
     await this.userService.updateUserWithRefreshToken(user.id, refreshToken);
 
     return {
-      assetToken: accessToken,
-      refreshToken: refreshToken,
+      accessToken,
+      refreshToken,
+      userInfo: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+      },
     };
   }
 
-  async register(registerDto: RegisterRequestDTO): Promise<{
-    assetToken: string;
-    refreshToken: string;
-  }> {
-    const newUser = await this.userService.createUser(registerDto);
-
-    const { accessToken, refreshToken } = await this.generateRefreshToken({
-      sub: newUser.id,
-    });
-
-    await this.userService.updateUserWithRefreshToken(newUser.id, refreshToken);
-
-    return {
-      assetToken: accessToken,
-      refreshToken: refreshToken,
-    };
-  }
-
-  async generateRefreshToken(payload: { sub: string }): Promise<{
-    accessToken: string;
-    refreshToken: string;
-  }> {
-    
+  async generateRefreshToken(payload: { sub: string }): Promise<TokenType> {
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '30m',
+      expiresIn: '10m',
     });
-    const refreshToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '3d',
-    });
+
+    const refreshToken = await uuidv4();
 
     return {
       accessToken,

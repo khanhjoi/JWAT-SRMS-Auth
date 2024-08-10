@@ -7,6 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
+import { RefreshTokenModule } from './RefreshToken/refreshToken.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { SharedJwtModule } from './shared/jwt/jwt.module';
     UserModule,
     PermissionModule,
     RoleModule,
+    RefreshTokenModule,
   ],
   controllers: [],
   providers: [],

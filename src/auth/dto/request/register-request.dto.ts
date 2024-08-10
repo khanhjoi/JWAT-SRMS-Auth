@@ -7,7 +7,7 @@ import {
 import { IUser } from 'src/user/entity/user.interface';
 
 export class RegisterRequestDTO
-  implements Omit<IUser, 'id' | 'createdAt' | 'role'>
+  implements Pick<IUser, 'firstName' | 'lastName' | 'email' | 'password'>
 {
   @IsString()
   @IsNotEmpty()
@@ -20,8 +20,6 @@ export class RegisterRequestDTO
   @IsEmail()
   @IsNotEmpty()
   email: string;
-
-  refreshToken: string;
 
   @IsStrongPassword()
   password: string;
