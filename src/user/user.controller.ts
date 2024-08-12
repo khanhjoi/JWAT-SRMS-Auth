@@ -1,15 +1,16 @@
-import { Controller, UseGuards } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
+import { User } from './entity/user.entity';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @MessagePattern({ cmd: { url: '/profile', method: 'GET' } })
-  async getProfile(@Payload() data: any) { 
-    const userPayload = data.data; 
-    const user = await this.userService.findUserById(userPayload.sub);
-    return user;
+  @Get('/profile')
+  @UseGuards(AuthGuard)
+  async getProfile(@Request() req): Promise<User> {
+    const res = await this.userService.findUserById(req.user.sub);
+    return res;
   }
 }

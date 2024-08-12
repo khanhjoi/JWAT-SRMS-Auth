@@ -41,36 +41,14 @@ export class UserService {
   }
 
   async findUserById(userId: string): Promise<User> {
-    
     const userIsExit = await this.userRepository.findUserById(userId);
 
     if (!userIsExit) {
-      throw new HttpException(
-        'User not found',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
     return userIsExit;
   }
 
-  async updateUserWithRefreshToken(
-    userId: string,
-    refreshToken: string,
-  ): Promise<User> {
-    const user = await this.userRepository.findUserById(userId);
 
-    if (!user) {
-      throw new HttpException(
-        'User not found',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    // user.refreshToken = refreshToken;
-
-    const updateUser = await this.userRepository.updateUser(user);
-  
-    return updateUser;
-  }
 }

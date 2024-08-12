@@ -43,19 +43,28 @@ export class AuthService {
 
     if (isRefreshTokenExit) {
       await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
+
+      return {
+        accessToken: accessToken,
+        refreshToken: isRefreshTokenExit.id,
+        userInfo: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+      };
     } else {
       await this.refreshTokenService.createRefreshToken(refreshToken, user.id);
+      return {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        userInfo: {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+        },
+      };
     }
-
-    return {
-      accessToken: accessToken,
-      refreshToken: refreshToken,
-      userInfo: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
-    };
   }
 
   async register(registerDto: RegisterRequestDTO): Promise<AuthResponse> {
@@ -72,8 +81,12 @@ export class AuthService {
     if (isRefreshTokenExit) {
       await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
     } else {
-      await this.refreshTokenService.createRefreshToken(refreshToken, newUser.id);
+      await this.refreshTokenService.createRefreshToken(
+        refreshToken,
+        newUser.id,
+      );
     }
+
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
@@ -85,22 +98,31 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(id: string, token: string): Promise<AuthResponse> {
-    const user = await this.userService.findUserById(id);
+  async refreshTokens(email: string, token: string): Promise<AuthResponse> {
+    const user = await this.userService.findUserByEmail(email); 
 
     if (!user) {
-      throw new ForbiddenException('Access Denied');
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    const refreshTokenDB = await this.refreshTokenService.findTokenOfUserId(
+      user.id,
+    );
+
+
+    if (!refreshTokenDB || refreshTokenDB.id !== token) {
+      throw new ForbiddenException('User not Authenticated');
     }
 
     const { accessToken, refreshToken } = await this.generateRefreshToken({
       sub: user.id,
     });
 
-    await this.userService.updateUserWithRefreshToken(user.id, refreshToken);
+    await this.refreshTokenService.updateRefreshToken(refreshTokenDB.id);
 
     return {
       accessToken,
-      refreshToken,
+      refreshToken: refreshTokenDB.id,
       userInfo: {
         firstName: user.firstName,
         lastName: user.lastName,

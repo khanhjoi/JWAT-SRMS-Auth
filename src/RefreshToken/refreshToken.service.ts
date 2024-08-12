@@ -15,6 +15,14 @@ export class RefreshTokenService {
     return refresh;
   }
 
+  async findTokenWithEmail(email: string): Promise<RefreshToken> {
+    const user = await this.userRepo.findUserByEmail(email);
+
+    const refresh = await this.findTokenOfUserId(user.id);
+
+    return refresh;
+  }
+
   async createRefreshToken(
     tokenId: string,
     userId: string,
