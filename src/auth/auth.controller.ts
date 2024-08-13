@@ -35,7 +35,6 @@ export class AuthController {
     accessToken: string;
     refreshToken: string;
   }> {
-
     const res = await this.authService.refreshTokens(req.email, req.token);
     return res;
   }

@@ -39,7 +39,7 @@ export class PermissionRepository {
     }
   }
 
-  async findPermissionsWithIds(permissionIds: any[]): Promise<any[]> {
+  async findPermissionsWithIds(permissionIds: any[]): Promise<Permission[]> {
     try {
       const permissions = await this.permissionRepository.findBy({
         id: In(permissionIds),

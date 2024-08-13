@@ -1,14 +1,15 @@
-import { Role } from 'src/role/entity/role.entity';
+import { Role } from '../../role/entity/role.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { IUser } from './user.interface';
-import { RefreshToken } from 'src/RefreshToken/entity/refresh-token.entity';
+import { RefreshToken } from '../../RefreshToken/entity/refresh-token.entity';
 
 @Entity()
 @Unique(['email'])
@@ -34,6 +35,6 @@ export class User implements IUser {
   @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
   refreshTokens: RefreshToken;
 
-  @OneToMany(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users)
   role: Role;
 }

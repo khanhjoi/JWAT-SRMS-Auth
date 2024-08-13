@@ -1,5 +1,5 @@
-import { Permission } from 'src/permission/entity/permission.entity';
-import { User } from 'src/user/entity/user.entity';
+import { Permission } from '../../permission/entity/permission.entity';
+import { User } from '../../user/entity/user.entity';
 
 import {
   Column,
@@ -8,6 +8,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IRole } from './role.interface';
@@ -20,7 +21,7 @@ export class Role implements IRole {
   @Column()
   title: string;
 
-  @Column() 
+  @Column()
   description: string;
 
   @Column({
@@ -31,12 +32,12 @@ export class Role implements IRole {
   @CreateDateColumn()
   createdAt: Date;
 
-  @ManyToOne(() => User, (user) => user.role)
-  users: User;
+  @OneToMany(() => User, (user) => user.role)
+  users: User[];
 
-  @ManyToMany(() => Permission)
+  @ManyToMany(() => Permission, { eager: true }) // eager: true will automatically load permissions when loading the role
   @JoinTable({
     name: 'role_permission',
   })
-  permissions: Permissions[];
+  permissions: Permission[];
 }

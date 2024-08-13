@@ -21,20 +21,28 @@ export class UserRepository {
 
   async findUserByEmail(email: string, select?: (keyof User)[]): Promise<User> {
     try {
-      const user = await this.userRepository.findOneBy({ email: email });
+      const user = await this.userRepository.findOne({
+        where: { email: email },
+        select: select ? select : undefined,
+      });
       return user;
     } catch (error) {
       throw new HttpException('Find user failed', HttpStatus.BAD_REQUEST);
     }
   }
 
-  async findUserById(id: string, select?: any): Promise<User> {
+  async findUserById(id: string, select?: (keyof User)[]): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
         where: { id: id },
+        select: select ? select : undefined,
+        relations: {
+          role: true,
+        },
       });
       return user;
     } catch (error) {
+      console.log(error);
       throw new HttpException('Find user failed', HttpStatus.BAD_REQUEST);
     }
   }

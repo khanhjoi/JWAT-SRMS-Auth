@@ -2,6 +2,7 @@ import { HttpException, Injectable } from '@nestjs/common';
 import { RefreshRepository } from './refreshToken.repository';
 import { RefreshToken } from './entity/refresh-token.entity';
 import { UserService } from 'src/user/user.service';
+import { DeleteResult } from 'typeorm';
 
 @Injectable()
 export class RefreshTokenService {
@@ -43,6 +44,12 @@ export class RefreshTokenService {
     token.expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
 
     await this.refreshRepo.updateRefreshToken(token);
+
+    return token;
+  }
+
+  async deleteRefreshToken(tokenId: string): Promise<DeleteResult> {
+    const token = await this.refreshRepo.deleteRefreshToken(tokenId);
 
     return token;
   }

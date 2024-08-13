@@ -18,15 +18,14 @@ export class AuthRefreshGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     const email = request.headers['email'];
+    const refreshToken = await this.tokenService.findTokenWithEmail(email);
 
-    if (!token) {
+    if (!token || !refreshToken) {
       throw new UnauthorizedException();
     }
-    
-    const refreshToken = await this.tokenService.findTokenWithEmail(email);
-    
+
     if (this.isTokenExpired(refreshToken.expiresAt)) {
-      console.log('first expired')
+      await this.tokenService.deleteRefreshToken(refreshToken.id);
       throw new UnauthorizedException('Refresh token is expired');
     }
 

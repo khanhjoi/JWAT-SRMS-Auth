@@ -1,0 +1,26 @@
+export const roleSupperAdminSeedData = {
+  id: '5e4d81e7-3403-4ea5-928d-2d735e051801',
+  title: 'Super admin',
+  description:
+    'super admin of application had all permissions to doing anything',
+  active: true,
+  permissions: [
+    '992cfd77-3014-4a64-a51f-c28189188fc5',
+    '4ba36b4a-f4d4-4b53-b40b-22cf255ef923',
+    'b3ed3e96-6938-4261-9f29-0c33d660ad9c',
+    'b6d5ff5d-8244-44ac-9f4e-707105bfb777',
+  ],
+};
+
+export const roleUserManagerSeedData = {
+  id: '93d13875-ae1d-4283-a877-ab1eac71e066',
+  title: 'User manager',
+  description: 'only available with manager user',
+  active: true,
+  permissions: [
+    'b261eb72-ebb9-4c3a-bead-01064df00be0',
+    '88506893-630d-4172-a5dd-69f6fa4a01c4',
+    'b4f91232-1300-4fbc-a917-a9c807e89014',
+    'cf0e0843-2646-47fa-86b0-00c0218a9b64',
+  ],
+};

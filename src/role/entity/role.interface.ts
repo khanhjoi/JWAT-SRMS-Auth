@@ -1,4 +1,4 @@
-
+import { Permission } from 'src/permission/entity/permission.entity';
 import { User } from 'src/user/entity/user.entity';
 
 export interface IRole {
@@ -7,6 +7,6 @@ export interface IRole {
   description: string;
   active: boolean;
   createdAt: Date;
-  users: User;
-  permissions: Permissions[];
+  users: User[];
+  permissions: Permission[];
 }

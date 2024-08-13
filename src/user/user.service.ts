@@ -41,7 +41,12 @@ export class UserService {
   }
 
   async findUserById(userId: string): Promise<User> {
-    const userIsExit = await this.userRepository.findUserById(userId);
+    const userIsExit = await this.userRepository.findUserById(userId, [
+      'id',
+      'email',
+      'firstName',
+      'lastName',
+    ]);
 
     if (!userIsExit) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -49,6 +54,4 @@ export class UserService {
 
     return userIsExit;
   }
-
-
 }
