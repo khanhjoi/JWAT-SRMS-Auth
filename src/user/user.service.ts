@@ -3,6 +3,11 @@ import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class UserService {
@@ -14,7 +19,10 @@ export class UserService {
     );
 
     if (isUserExit) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(
+        'User already exists',
+        AuthErrorCode.USER_CREATE_FAILED,
+      );
     }
 
     const salt = await bcrypt.genSalt();
@@ -34,7 +42,10 @@ export class UserService {
     const userIsExit = await this.userRepository.findUserByEmail(email);
 
     if (!userIsExit) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
     }
 
     return userIsExit;
@@ -49,7 +60,7 @@ export class UserService {
     ]);
 
     if (!userIsExit) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException('User not found', AuthErrorCode.USER_NOT_FOUND);
     }
 
     return userIsExit;

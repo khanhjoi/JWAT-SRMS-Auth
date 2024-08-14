@@ -8,6 +8,8 @@ import { RpcException } from '@nestjs/microservices';
 import { DeletePermissionDTO } from './dto/delete-permission.dto';
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
 import { PermissionRepository } from './permission.repository';
+import { NotFoundException } from '../../../protos/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class PermissionService {
@@ -37,7 +39,10 @@ export class PermissionService {
     let permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Permission not found',
+        AuthErrorCode.PERMISSION_FIND_FAILED,
+      );
     }
 
     permission = {
@@ -55,7 +60,10 @@ export class PermissionService {
     const permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Permission not found',
+        AuthErrorCode.PERMISSION_FIND_FAILED,
+      );
     }
 
     const permissionDeleted =

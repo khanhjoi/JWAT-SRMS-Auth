@@ -30,7 +30,9 @@ export class AuthService {
     );
 
     if (!isMatchPassword) {
-      throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST, {
+        cause: { errorCode: 10001 },
+      });
     }
 
     let { accessToken, refreshToken } = await this.generateRefreshToken({
@@ -99,7 +101,7 @@ export class AuthService {
   }
 
   async refreshTokens(email: string, token: string): Promise<AuthResponse> {
-    const user = await this.userService.findUserByEmail(email); 
+    const user = await this.userService.findUserByEmail(email);
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -108,7 +110,6 @@ export class AuthService {
     const refreshTokenDB = await this.refreshTokenService.findTokenOfUserId(
       user.id,
     );
-
 
     if (!refreshTokenDB || refreshTokenDB.id !== token) {
       throw new ForbiddenException('User not Authenticated');

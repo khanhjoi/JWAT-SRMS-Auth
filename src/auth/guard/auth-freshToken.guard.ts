@@ -6,8 +6,8 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
 import configEnv from '../../../config-env';
+import { Request } from 'express';
 import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
 
 @Injectable()

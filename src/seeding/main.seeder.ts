@@ -74,7 +74,6 @@ export class MainSeeder implements Seeder {
     supperAdmin.role = supperAdminRole;
 
     await userRepo.save(supperAdmin);
-
     this.logger.verbose(`Seeding User successfully`);
   }
 }

@@ -4,6 +4,8 @@ import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { PermissionRepository } from 'src/permission/permission.repository';
+import { NotFoundException } from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class RoleService {
@@ -26,7 +28,10 @@ export class RoleService {
     let role = await this.roleRepository.findRoleById(id);
 
     if (!role) {
-      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Role not found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
     }
 
     if (updateRoleDTO.permissions) {
@@ -50,7 +55,10 @@ export class RoleService {
     const role = await this.roleRepository.findRoleById(id);
 
     if (!role) {
-      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Role not found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
     }
 
     const roleDeleted = await this.roleRepository.deleteRole(role);

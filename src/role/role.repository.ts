@@ -4,6 +4,8 @@ import { Role } from './entity/role.entity';
 import { Repository } from 'typeorm';
 import { RpcException } from '@nestjs/microservices';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
+import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class RoleRepository {
@@ -17,9 +19,9 @@ export class RoleRepository {
       return role;
     } catch (error) {
       if (error) {
-        throw new HttpException(
+        throw new BadRequestException(
           'Find role failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          AuthErrorCode.DEFAULT_ERROR,
         );
       }
     }
@@ -35,9 +37,9 @@ export class RoleRepository {
       return roles;
     } catch (error) {
       if (error) {
-        throw new HttpException(
-          'Find Role had some issues',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+        throw new BadRequestException(
+          'Find role failed',
+          AuthErrorCode.DEFAULT_ERROR,
         );
       }
     }
@@ -49,9 +51,9 @@ export class RoleRepository {
       return roleUpdate;
     } catch (error) {
       if (error) {
-        throw new HttpException(
-          'Update role had some issues',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+        throw new BadRequestException(
+          'Update role failed',
+          AuthErrorCode.DEFAULT_ERROR,
         );
       }
     }
@@ -63,9 +65,9 @@ export class RoleRepository {
       return role;
     } catch (error) {
       if (error) {
-        throw new HttpException(
-          'Create Role had some issues',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+        throw new BadRequestException(
+          'Create role failed',
+          AuthErrorCode.DEFAULT_ERROR,
         );
       }
     }
@@ -77,9 +79,9 @@ export class RoleRepository {
       return roleDeleted;
     } catch (error) {
       if (error) {
-        throw new HttpException(
-          'Delete Role had some issues',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+        throw new BadRequestException(
+          'Delete role failed',
+          AuthErrorCode.DEFAULT_ERROR,
         );
       }
     }

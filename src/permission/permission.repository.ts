@@ -5,6 +5,8 @@ import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 import { permission } from 'process';
+import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class PermissionRepository {
@@ -19,9 +21,9 @@ export class PermissionRepository {
       return permissions;
     } catch (error) {
       if (error) {
-        throw new HttpException(
+        throw new BadRequestException(
           'Get permissions failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          AuthErrorCode.DATABASE_ERROR,
         );
       }
     }
@@ -32,9 +34,9 @@ export class PermissionRepository {
       const permission = await this.permissionRepository.findOneBy({ id: id });
       return permission;
     } catch (error) {
-      throw new HttpException(
-        'Find permission with ID failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new BadRequestException(
+        'Find permission with id failed',
+        AuthErrorCode.DATABASE_ERROR,
       );
     }
   }
@@ -47,9 +49,9 @@ export class PermissionRepository {
       return permissions;
     } catch (error) {
       if (error) {
-        throw new HttpException(
-          'Find permissions failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+        throw new BadRequestException(
+          'Find permission with list id failed',
+          AuthErrorCode.DATABASE_ERROR,
         );
       }
     }
@@ -64,9 +66,9 @@ export class PermissionRepository {
       return permission;
     } catch (error) {
       if (error) {
-        throw new HttpException(
-          'Create Permission failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+        throw new BadRequestException(
+          'Create database failed' ,
+          AuthErrorCode.DATABASE_ERROR,
         );
       }
     }
@@ -77,9 +79,9 @@ export class PermissionRepository {
       const updatePermission = await this.permissionRepository.save(permission);
       return updatePermission;
     } catch (error) {
-      throw new HttpException(
-        'Update permission failed',
-        HttpStatus.INTERNAL_SERVER_ERROR,
+      throw new BadRequestException(
+        'Upload database failed' ,
+        AuthErrorCode.DATABASE_ERROR,
       );
     }
   }
