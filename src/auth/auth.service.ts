@@ -12,6 +12,8 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthResponse, TokenType } from './dto/response/Auth-response';
 import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
+import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class AuthService {
@@ -30,9 +32,10 @@ export class AuthService {
     );
 
     if (!isMatchPassword) {
-      throw new HttpException('Invalid password', HttpStatus.BAD_REQUEST, {
-        cause: { errorCode: 10001 },
-      });
+      throw new BadRequestException(
+        'Invalid password',
+        AuthErrorCode.INPUT_IS_NOT_VALID 
+      );
     }
 
     let { accessToken, refreshToken } = await this.generateRefreshToken({

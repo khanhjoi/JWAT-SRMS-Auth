@@ -1,9 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { BadRequestException, NotFoundException } from '@khanhjoi/protos/dist/errors/http';
+import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
@@ -17,7 +17,10 @@ export class UserRepository {
       const user = await this.userRepository.save(createUserDTO);
       return user;
     } catch (error) {
-      throw new BadRequestException('Create user failed', AuthErrorCode.DATABASE_ERROR);
+      throw new BadRequestException(
+        'Create user failed',
+        AuthErrorCode.DATABASE_ERROR,
+      );
     }
   }
 
@@ -33,8 +36,10 @@ export class UserRepository {
       });
       return user;
     } catch (error) {
-      throw new BadRequestException('Find user failed', AuthErrorCode.DATABASE_ERROR);
-
+      throw new BadRequestException(
+        'Find user failed',
+        AuthErrorCode.DATABASE_ERROR,
+      );
     }
   }
 
@@ -54,7 +59,10 @@ export class UserRepository {
       return user;
     } catch (error) {
       console.log(error);
-      throw new BadRequestException('Find user failed', AuthErrorCode.DATABASE_ERROR);
+      throw new BadRequestException(
+        'Find user failed',
+        AuthErrorCode.DATABASE_ERROR,
+      );
     }
   }
 
@@ -63,7 +71,10 @@ export class UserRepository {
       const userUpdate = await this.userRepository.save(user);
       return userUpdate;
     } catch (error) {
-      throw new BadRequestException('Update user failed', AuthErrorCode.DATABASE_ERROR);
+      throw new BadRequestException(
+        'Update user failed',
+        AuthErrorCode.DATABASE_ERROR,
+      );
     }
   }
 }

@@ -7,14 +7,13 @@ import {
 import { Response } from 'express';
 import { HttpCommonException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
-// import {} from '../../../node_modules/protos/dist/errors/http'
 
-@Catch(HttpException)
+@Catch(HttpException, HttpCommonException)
 export class HttpExceptionFilter implements ExceptionFilter {
-  catch(exception: HttpException | HttpCommonException, host: ArgumentsHost) {
+  catch(exception: HttpCommonException | HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-
+   
     if (exception instanceof HttpCommonException) {
       const error = exception.toJson();
       response.status(error.statusCode).json(error);
@@ -22,14 +21,17 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     const messageFromPipes: any = exception.getResponse();
-    const statusCode = exception.getStatus();
+    const statusCode = exception.getStatus(); 
+    console.log(statusCode)
     const cause = (exception.cause as { errorCode: number }) || {
       errorCode: 10001,
     };
 
     return response.status(statusCode).json({
       statusCode: statusCode,
-      errorCode: messageFromPipes.message ? AuthErrorCode.INPUT_IS_NOT_VALID : cause.errorCode,
+      errorCode: messageFromPipes.message
+        ? AuthErrorCode.INPUT_IS_NOT_VALID
+        : cause.errorCode,
       message: messageFromPipes.message || exception.message,
       timeStamp: new Date().toISOString(),
     });

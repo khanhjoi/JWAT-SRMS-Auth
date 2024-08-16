@@ -1,8 +1,7 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entity/role.entity';
 import { Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';

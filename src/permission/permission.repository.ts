@@ -1,10 +1,8 @@
-import { HttpException, HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { Permission } from './entity/permission.entity';
 import { In, Repository } from 'typeorm';
-import { RpcException } from '@nestjs/microservices';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
-import { permission } from 'process';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
@@ -67,7 +65,7 @@ export class PermissionRepository {
     } catch (error) {
       if (error) {
         throw new BadRequestException(
-          'Create database failed' ,
+          'Create database failed',
           AuthErrorCode.DATABASE_ERROR,
         );
       }
@@ -80,7 +78,7 @@ export class PermissionRepository {
       return updatePermission;
     } catch (error) {
       throw new BadRequestException(
-        'Upload database failed' ,
+        'Upload database failed',
         AuthErrorCode.DATABASE_ERROR,
       );
     }
@@ -93,7 +91,7 @@ export class PermissionRepository {
       return permissionDeleted;
     } catch (error) {
       if (error) {
-        throw new HttpException(
+        throw new BadRequestException(
           'Delete permission failed',
           HttpStatus.INTERNAL_SERVER_ERROR,
         );

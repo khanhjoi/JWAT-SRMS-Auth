@@ -3,11 +3,12 @@ import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
-import {
-  BadRequestException,
-  NotFoundException,
-} from '@khanhjoi/protos/dist/errors/http';
+// import {
+//   HttpException,
+//   HttpException,
+// } from 'protos/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 
 @Injectable()
 export class UserService {
@@ -42,7 +43,7 @@ export class UserService {
     const userIsExit = await this.userRepository.findUserByEmail(email);
 
     if (!userIsExit) {
-      throw new NotFoundException(
+      throw new BadRequestException(
         'User not found',
         AuthErrorCode.USER_NOT_FOUND,
       );
@@ -60,7 +61,10 @@ export class UserService {
     ]);
 
     if (!userIsExit) {
-      throw new NotFoundException('User not found', AuthErrorCode.USER_NOT_FOUND);
+      throw new BadRequestException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
     }
 
     return userIsExit;

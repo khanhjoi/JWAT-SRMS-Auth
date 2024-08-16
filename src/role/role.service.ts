@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';

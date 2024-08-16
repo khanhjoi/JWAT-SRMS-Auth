@@ -1,14 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entity/permission.entity';
 import { Repository } from 'typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 
-import { RpcException } from '@nestjs/microservices';
-import { DeletePermissionDTO } from './dto/delete-permission.dto';
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
 import { PermissionRepository } from './permission.repository';
-import { NotFoundException } from '../../../protos/errors/http';
+import { NotFoundException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
