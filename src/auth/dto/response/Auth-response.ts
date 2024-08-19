@@ -1,4 +1,5 @@
 import { userInfo } from 'os';
+import { IPermission } from 'src/permission/entity/permission.interface';
 import { IUser } from 'src/user/entity/user.interface';
 
 export type AuthResponse = TokenType & {

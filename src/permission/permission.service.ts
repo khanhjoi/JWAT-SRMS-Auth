@@ -11,15 +11,16 @@ import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class PermissionService {
-  constructor(
-    @InjectRepository(Permission)
-    private permissionRep: Repository<Permission>,
-    private permissionRepository: PermissionRepository,
-  ) {}
+  constructor(private permissionRepository: PermissionRepository) {}
 
   async getPermissions(): Promise<Permission[]> {
     const permissions = await this.permissionRepository.getPermissions();
     return permissions;
+  }
+
+  async getDetailPermission(id: string): Promise<Permission> {
+    const permission = await this.permissionRepository.findPermissionWithId(id);
+    return permission;
   }
 
   async createPermission(

@@ -22,7 +22,6 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     const messageFromPipes: any = exception.getResponse();
     const statusCode = exception.getStatus(); 
-    console.log(statusCode)
     const cause = (exception.cause as { errorCode: number }) || {
       errorCode: 10001,
     };

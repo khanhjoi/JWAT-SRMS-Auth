@@ -16,13 +16,13 @@ import { AuthResponse } from './dto/response/Auth-response';
 import { AuthRefreshGuard } from './guard/auth-freshToken.guard';
 
 @Controller('/auth')
-export class AuthController {
+export class AuthController { 
   constructor(private authService: AuthService) {}
 
   @Post('/login')
   async login(@Body() data: LoginRequestDTO): Promise<AuthResponse> {
     const res = await this.authService.login(data);
-    return res;
+    return res; 
   }
 
   @Post('/register')

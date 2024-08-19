@@ -7,29 +7,53 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { Role } from './entity/role.entity';
+import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { PermissionsGuard } from 'src/auth/guard/permission.guard';
+import { CheckPermissions } from 'src/common/decorators/abilities.decorator';
+import { Action } from 'src/common/enums/action.enum';
+import { User } from 'src/user/entity/user.entity';
+import { AssignRoleDto } from './dto/request/assign-permission.dto';
 
 @Controller('role')
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get('')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.READ, 'User']])
   async getAllRoles(): Promise<Role[]> {
     const res = await this.roleService.getRoles();
     return res;
   }
 
   @Post('')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.WRITE, 'User']])
   async createRole(@Body() data: CreateRoleDTO): Promise<Role> {
     const res = await this.roleService.createRole(data);
     return res;
   }
 
+  @Post('/:userId/assign-role/:roleId')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([
+    [Action.WRITE, 'User'],
+  ])
+  async assignRole(@Param() params: AssignRoleDto): Promise<User> {
+    const { userId, roleId } = params;
+    const res = await this.roleService.assignRole(userId, roleId);
+    return res;
+  }
+
   @Put('/:id')
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.UPDATE, 'User']])
   async updateRole(
     @Body() data: UpdateRoleDTO,
     @Param('id', ParseUUIDPipe) id: string,
@@ -39,18 +63,10 @@ export class RoleController {
   }
 
   @Delete('/:id')
-  deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Role> {
-    return this.roleService.deleteRole(id);
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.DELETE, 'User']])
+  async deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Role> {
+    const res = await this.roleService.deleteRole(id);
+    return res;
   }
-
-  // @UseFilters(new RpcValidationFilter())
-  // @MessagePattern({ cmd: { url: '/role-assign-permission', method: 'POST' } })
-  // assignPermission(
-  //   @Payload() assignPermissionDTO: AssignPermissionDTO,
-  // ): Promise<Role> {
-  //   return this.roleService.assignPermission(
-  //     assignPermissionDTO.data,
-  //     assignPermissionDTO.query,
-  //   );
-  // }
 }

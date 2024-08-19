@@ -14,32 +14,45 @@ import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { RoleService } from 'src/role/role.service';
+import { Permission } from 'src/permission/entity/permission.entity';
+import { PermissionGetByRoleDTO } from 'src/role/dto/response/permission.dto';
+import { subject } from '@casl/ability';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
+    private roleService: RoleService,
     private jwtService: JwtService,
     private refreshTokenService: RefreshTokenService,
   ) {}
 
   async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
-    const user = await this.userService.findUserByEmail(loginRequestDTO.email);
+    const user = await this.userService.findUserByEmail(
+      loginRequestDTO.email,
+      ['id', 'firstName', 'lastName', 'email','password'],
+      ['role'],
+    );
 
     const isMatchPassword = await bcrypt.compare(
-      loginRequestDTO.password,
-      user.password,
+      loginRequestDTO?.password,
+      user?.password,
     );
 
     if (!isMatchPassword) {
       throw new BadRequestException(
         'Invalid password',
-        AuthErrorCode.INPUT_IS_NOT_VALID 
+        AuthErrorCode.INPUT_IS_NOT_VALID,
       );
     }
 
     let { accessToken, refreshToken } = await this.generateRefreshToken({
-      sub: user.id,
+      sub: user?.id,
+      roleId: user?.role?.id || '',
+      permission: user?.role?.permissions
+        ? await this.getPermissions(user.role.permissions)
+        : [],
     });
 
     const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
@@ -135,7 +148,11 @@ export class AuthService {
     };
   }
 
-  async generateRefreshToken(payload: { sub: string }): Promise<TokenType> {
+  async generateRefreshToken(payload: {
+    sub: string;
+    roleId?: string;
+    permission?: PermissionGetByRoleDTO[];
+  }): Promise<TokenType> {
     const accessToken = await this.jwtService.signAsync(payload, {
       expiresIn: '10m',
     });
@@ -146,5 +163,20 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  async getPermissions(
+    permissions: Permission[],
+  ): Promise<PermissionGetByRoleDTO[]> {
+    let permissionDTO = [];
+
+    for (const permission of permissions) {
+      permissionDTO.push({
+        action: permission.action,
+        subject: permission.subject,
+      });
+    }
+
+    return permissionDTO;
   }
 }

@@ -1,24 +1,11 @@
-import { Type } from 'class-transformer';
-import { IsArray, IsNotEmpty, IsUUID, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsUUID } from 'class-validator';
 
-export class AssignPermissionPayload {
-  @IsNotEmpty()
-  @IsArray()
-  permissions: string[];
-}
-
-export class AssignPermissionQuery {
+export class AssignRoleDto {
   @IsNotEmpty()
   @IsUUID()
-  id: string;
-}
+  userId: string;
 
-export class AssignPermissionDTO {
-  @ValidateNested()
-  @Type(() => AssignPermissionPayload)
-  data: AssignPermissionPayload;
-
-  @ValidateNested()
-  @Type(() => AssignPermissionQuery)
-  query: AssignPermissionQuery;
+  @IsNotEmpty()
+  @IsUUID()
+  roleId: string;
 }

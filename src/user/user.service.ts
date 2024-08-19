@@ -8,11 +8,20 @@ import { UserRepository } from './user.repository';
 //   HttpException,
 // } from 'protos/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
-import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
+import { Role } from 'src/role/entity/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(private userRepository: UserRepository) {}
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.userRepository.findAllUser();
+    return users;
+  }
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
     const isUserExit = await this.userRepository.findUserByEmail(
@@ -39,8 +48,16 @@ export class UserService {
     return newUser;
   }
 
-  async findUserByEmail(email: string): Promise<User> {
-    const userIsExit = await this.userRepository.findUserByEmail(email);
+  async findUserByEmail(
+    email: string,
+    select?: (keyof User)[],
+    relations?: (keyof User)[],
+  ): Promise<User> {
+    const userIsExit = await this.userRepository.findUserByEmail(
+      email,
+      select,
+      relations,
+    );
 
     if (!userIsExit) {
       throw new BadRequestException(
@@ -52,21 +69,39 @@ export class UserService {
     return userIsExit;
   }
 
-  async findUserById(userId: string): Promise<User> {
-    const userIsExit = await this.userRepository.findUserById(userId, [
-      'id',
-      'email',
-      'firstName',
-      'lastName',
-    ]);
+  async findUserById(
+    userId: string,
+    select?: (keyof User)[],
+    relations?: (keyof User)[],
+  ): Promise<User> {
+    const userIsExit = await this.userRepository.findUserById(
+      userId,
+      select,
+      relations,
+    );
 
     if (!userIsExit) {
-      throw new BadRequestException(
+      throw new NotFoundException(
         'User not found',
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
 
     return userIsExit;
+  }
+
+  async updateUser(user: User): Promise<User> {
+    const userIsExit = await this.userRepository.findUserById(user.id);
+
+    if (!userIsExit) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    const userUpdated = await this.userRepository.updateUser(user);
+
+    return userUpdated;
   }
 }

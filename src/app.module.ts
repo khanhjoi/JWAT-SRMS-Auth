@@ -8,6 +8,7 @@ import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
 import { RefreshTokenModule } from './RefreshToken/refreshToken.module';
+import { CaslModule } from './casl/casl.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { RefreshTokenModule } from './RefreshToken/refreshToken.module';
     PermissionModule,
     RoleModule,
     RefreshTokenModule,
+    CaslModule,
   ],
   controllers: [],
   providers: [],

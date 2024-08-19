@@ -1,4 +1,5 @@
 export default () => ({
+  super_Admin_Id: process.env.SUPER_ADMIN_ID,
   jwt_secret: process.env.JWT_SECRET,
   jwt_expires: process.env.JWT_EXPIRES || '10m',
   database: {

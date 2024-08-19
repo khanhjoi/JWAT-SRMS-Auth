@@ -10,6 +10,7 @@ import { User } from '../user/entity/user.entity';
 
 import { permissionsSeedData } from './data/permission.seedData';
 import {
+  roleRouteManagerSeedData,
   roleSupperAdminSeedData,
   roleUserManagerSeedData,
 } from './data/role.seedData';
@@ -44,6 +45,12 @@ export class MainSeeder implements Seeder {
       },
     });
 
+    const permissionRouteManager = await permissionRepo.find({
+      where: {
+        id: In(roleRouteManagerSeedData.permissions),
+      },
+    });
+
     const roleSupperAdmin = new Role();
     roleSupperAdmin.title = roleSupperAdminSeedData.title;
     roleSupperAdmin.description = roleSupperAdminSeedData.description;
@@ -56,9 +63,16 @@ export class MainSeeder implements Seeder {
     roleUserManager.active = roleUserManagerSeedData.active;
     roleUserManager.permissions = permissionUserManager;
 
+    const roleRouteManager = new Role();
+    roleRouteManager.title = roleRouteManagerSeedData.title;
+    roleRouteManager.description = roleRouteManagerSeedData.description;
+    roleRouteManager.active = roleRouteManagerSeedData.active;
+    roleRouteManager.permissions = permissionRouteManager;
+
     const supperAdminRole = await roleRepo.save(roleSupperAdmin);
     await roleRepo.save(roleUserManager);
-    
+    await roleRepo.save(roleRouteManager);
+
     this.logger.verbose(`Seeding Role success`);
 
     this.logger.verbose(`Seeding User.....`);

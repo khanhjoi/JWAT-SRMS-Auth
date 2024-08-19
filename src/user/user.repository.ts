@@ -12,10 +12,24 @@ export class UserRepository {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async createNewUser(createUserDTO: CreateUserDTO): Promise<User> {
+  async findAllUser(
+    select?: (keyof User)[],
+    relations?: (keyof User)[],
+  ): Promise<User[]> {
     try {
-      const user = await this.userRepository.save(createUserDTO);
-      return user;
+      const users = await this.userRepository.find({
+        select: select ? select : undefined,
+        relations: relations
+          ? relations.reduce(
+              (acc, relation) => {
+                acc[relation] = true;
+                return acc;
+              },
+              {} as Record<string, boolean>,
+            )
+          : {},
+      });
+      return users;
     } catch (error) {
       throw new BadRequestException(
         'Create user failed',
@@ -27,17 +41,27 @@ export class UserRepository {
   async findUserByEmail(
     email: string,
     select?: (keyof User)[],
-    relations?: boolean,
+    relations?: (keyof User)[],
   ): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
-        where: { email: email },
-        select: select ? select : undefined,
+        where: { email },
+        select: select || undefined,
+        relations: relations
+          ? relations.reduce(
+              (acc, relation) => {
+                acc[relation] = true;
+                return acc;
+              },
+              {} as Record<string, boolean>,
+            )
+          : {},
       });
+
       return user;
     } catch (error) {
       throw new BadRequestException(
-        'Find user failed',
+        'Failed to find user',
         AuthErrorCode.DATABASE_ERROR,
       );
     }
@@ -46,21 +70,38 @@ export class UserRepository {
   async findUserById(
     id: string,
     select?: (keyof User)[],
-    relations?: boolean,
+    relations?: (keyof User)[],
   ): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
-        where: { id: id },
-        select: select ? select : undefined,
-        relations: {
-          role: true,
-        },
+        where: { id },
+        select: select || undefined,
+        relations: relations
+          ? relations.reduce(
+              (acc, relation) => {
+                acc[relation] = true;
+                return acc;
+              },
+              {} as Record<string, boolean>,
+            )
+          : {},
       });
       return user;
     } catch (error) {
-      console.log(error);
       throw new BadRequestException(
-        'Find user failed',
+        'Failed to find user',
+        AuthErrorCode.DATABASE_ERROR,
+      );
+    }
+  }
+
+  async createNewUser(createUserDTO: CreateUserDTO): Promise<User> {
+    try {
+      const user = await this.userRepository.save(createUserDTO);
+      return user;
+    } catch (error) {
+      throw new BadRequestException(
+        'Create user failed',
         AuthErrorCode.DATABASE_ERROR,
       );
     }

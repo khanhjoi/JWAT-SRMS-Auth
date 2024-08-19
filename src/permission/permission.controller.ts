@@ -15,19 +15,24 @@ import { PermissionService } from './permission.service';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { PermissionsGuard } from 'src/auth/guard/permission.guard';
+import { CheckPermissions } from 'src/common/decorators/abilities.decorator';
+import { Action } from 'src/common/enums/action.enum';
 
 @Controller('permission')
 export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
   @Get('')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.READ, 'User']])
   async getAllPermission(): Promise<Permission[]> {
     return await this.permissionService.getPermissions();
   }
 
   @Post('')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.WRITE, 'User']])
   createRole(
     @Body() createPermission: CreatePermissionDTO,
   ): Promise<Permission> {
@@ -35,7 +40,8 @@ export class PermissionController {
   }
 
   @Put('/:id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.UPDATE, 'User']])
   updateRole(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePermissionDTO: UpdatePermissionDTO,
@@ -44,7 +50,8 @@ export class PermissionController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard, PermissionsGuard)
+  @CheckPermissions([[Action.DELETE, 'User']])
   deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Permission> {
     return this.permissionService.deletePermission(id);
   }

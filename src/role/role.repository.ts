@@ -12,9 +12,13 @@ export class RoleRepository {
     @InjectRepository(Role) private roleRepository: Repository<Role>,
   ) {}
 
-  async findRoleById(roleId: string): Promise<Role> {
+  async findRoleById(roleId: string, select?: (keyof Role)[]): Promise<Role> {
     try {
-      const role = await this.roleRepository.findOneBy({ id: roleId });
+      const role = await this.roleRepository.findOne({
+        where: { id: roleId },
+        select: select || undefined,
+      });
+
       return role;
     } catch (error) {
       if (error) {

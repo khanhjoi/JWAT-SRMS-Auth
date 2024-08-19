@@ -9,6 +9,6 @@ import { PermissionRepository } from './permission.repository';
   imports: [TypeOrmModule.forFeature([Permission])],
   controllers: [PermissionController],
   providers: [PermissionService, PermissionRepository],
-  exports: [PermissionRepository]
+  exports: [PermissionRepository, PermissionService]
 })
 export class PermissionModule {}
