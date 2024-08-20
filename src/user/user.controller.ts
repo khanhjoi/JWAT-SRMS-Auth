@@ -14,15 +14,18 @@ export class UserController {
   @Get('/profile')
   @UseGuards(AuthGuard)
   async getProfile(@Request() req): Promise<User> {
-    const res = await this.userService.findUserById(req.user.sub);
+    const res = await this.userService.findUserById(req.user.sub, [
+      'lastName',
+      'firstName',
+      'email',
+      'createdAt',
+    ]);
     return res;
   }
 
   @Get('/admin')
   @UseGuards(AuthGuard, PermissionsGuard)
-  @CheckPermissions([
-    [Action.READ, 'User']
-  ])
+  @CheckPermissions([[Action.READ, 'User']])
   async getUserAdmin(): Promise<User[]> {
     const res = await this.userService.getAllUsers();
     return res;

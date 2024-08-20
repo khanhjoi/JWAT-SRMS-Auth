@@ -12,12 +12,14 @@ import { JwtService } from '@nestjs/jwt';
 import { AuthResponse, TokenType } from './dto/response/Auth-response';
 import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
-import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 import { RoleService } from 'src/role/role.service';
 import { Permission } from 'src/permission/entity/permission.entity';
 import { PermissionGetByRoleDTO } from 'src/role/dto/response/permission.dto';
-import { subject } from '@casl/ability';
 
 @Injectable()
 export class AuthService {
@@ -31,7 +33,7 @@ export class AuthService {
   async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
     const user = await this.userService.findUserByEmail(
       loginRequestDTO.email,
-      ['id', 'firstName', 'lastName', 'email','password'],
+      ['id', 'firstName', 'lastName', 'email', 'password'],
       ['role'],
     );
 
@@ -178,5 +180,38 @@ export class AuthService {
     }
 
     return permissionDTO;
+  }
+
+  async changePassword(
+    userId: string,
+    oldPassword: string,
+    newPassword: string,
+  ) {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException(
+        `User ${userId} not found`,
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    const isMatchPassword = await bcrypt.compare(oldPassword, user?.password);
+
+    if (!isMatchPassword) {
+      throw new BadRequestException(
+        'Password is not match',
+        AuthErrorCode.USER_UPDATE_FAILED,
+      );
+    }
+
+    const getSalt = await bcrypt.genSalt();
+    const newPasswordHash = await bcrypt.hash(newPassword, getSalt);
+    
+    user.password = newPasswordHash;
+
+    const userUpdate = await this.userService.updateUser(user);
+
+    return userUpdate
   }
 }

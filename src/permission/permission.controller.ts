@@ -20,18 +20,17 @@ import { CheckPermissions } from 'src/common/decorators/abilities.decorator';
 import { Action } from 'src/common/enums/action.enum';
 
 @Controller('permission')
+@UseGuards(AuthGuard, PermissionsGuard)
 export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
   @Get('')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.READ, 'User']])
   async getAllPermission(): Promise<Permission[]> {
     return await this.permissionService.getPermissions();
   }
 
   @Post('')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.WRITE, 'User']])
   createRole(
     @Body() createPermission: CreatePermissionDTO,
@@ -40,7 +39,6 @@ export class PermissionController {
   }
 
   @Put('/:id')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.UPDATE, 'User']])
   updateRole(
     @Param('id', ParseUUIDPipe) id: string,
@@ -50,7 +48,6 @@ export class PermissionController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.DELETE, 'User']])
   deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Permission> {
     return this.permissionService.deletePermission(id);

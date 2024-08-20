@@ -6,6 +6,8 @@ import {
   HttpStatus,
   Param,
   Post,
+  Put,
+  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -14,15 +16,17 @@ import { RegisterRequestDTO } from './dto/request/register-request.dto';
 import { LoginRequestDTO } from './dto/request/login-request.dto';
 import { AuthResponse } from './dto/response/Auth-response';
 import { AuthRefreshGuard } from './guard/auth-freshToken.guard';
+import { ChangePasswordDTO } from './dto/request/change-password-request.dto';
+import { AuthGuard } from './guard/auth.guard';
 
 @Controller('/auth')
-export class AuthController { 
+export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('/login')
   async login(@Body() data: LoginRequestDTO): Promise<AuthResponse> {
     const res = await this.authService.login(data);
-    return res; 
+    return res;
   }
 
   @Post('/register')
@@ -38,6 +42,22 @@ export class AuthController {
     refreshToken: string;
   }> {
     const res = await this.authService.refreshTokens(req.email, req.token);
+    return res;
+  }
+
+  @Put('/change-password')
+  @UseGuards(AuthGuard)
+  async changePassword(
+    @Body() changePasswordDTO: ChangePasswordDTO,
+    @Request() req,
+  ) {
+    const user = req.user;
+
+    const res = await this.authService.changePassword(
+      user.sub,
+      changePasswordDTO.oldPassword,
+      changePasswordDTO.newPassword,
+    );
     return res;
   }
 }

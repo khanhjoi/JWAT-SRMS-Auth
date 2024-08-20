@@ -21,11 +21,11 @@ import { User } from 'src/user/entity/user.entity';
 import { AssignRoleDto } from './dto/request/assign-permission.dto';
 
 @Controller('role')
+@UseGuards(AuthGuard, PermissionsGuard)
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get('')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.READ, 'User']])
   async getAllRoles(): Promise<Role[]> {
     const res = await this.roleService.getRoles();
@@ -33,7 +33,6 @@ export class RoleController {
   }
 
   @Post('')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.WRITE, 'User']])
   async createRole(@Body() data: CreateRoleDTO): Promise<Role> {
     const res = await this.roleService.createRole(data);
@@ -41,10 +40,7 @@ export class RoleController {
   }
 
   @Post('/:userId/assign-role/:roleId')
-  @UseGuards(AuthGuard, PermissionsGuard)
-  @CheckPermissions([
-    [Action.WRITE, 'User'],
-  ])
+  @CheckPermissions([[Action.WRITE, 'User']])
   async assignRole(@Param() params: AssignRoleDto): Promise<User> {
     const { userId, roleId } = params;
     const res = await this.roleService.assignRole(userId, roleId);
@@ -52,7 +48,6 @@ export class RoleController {
   }
 
   @Put('/:id')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.UPDATE, 'User']])
   async updateRole(
     @Body() data: UpdateRoleDTO,
@@ -63,7 +58,6 @@ export class RoleController {
   }
 
   @Delete('/:id')
-  @UseGuards(AuthGuard, PermissionsGuard)
   @CheckPermissions([[Action.DELETE, 'User']])
   async deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Role> {
     const res = await this.roleService.deleteRole(id);
