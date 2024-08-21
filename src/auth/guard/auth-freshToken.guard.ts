@@ -4,11 +4,9 @@ import {
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
-import configEnv from '../../../config-env';
 import { Request } from 'express';
 import { RefreshTokenService } from 'src/Token/refreshToken.service';
+import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
 export class AuthRefreshGuard implements CanActivate {
@@ -18,7 +16,10 @@ export class AuthRefreshGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
     const email = request.headers['email'];
-    const refreshToken = await this.tokenService.findTokenWithEmail(email);
+    const refreshToken = await this.tokenService.findTokenWithEmail(
+      email,
+      TypeToken.REFRESH_TOKEN,
+    );
 
     if (!token || !refreshToken) {
       throw new UnauthorizedException();

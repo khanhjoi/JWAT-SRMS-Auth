@@ -74,7 +74,7 @@ export class UserRepository {
   ): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
-        where: { id },
+        where: { id: id },
         select: select || undefined,
         relations: relations
           ? relations.reduce(

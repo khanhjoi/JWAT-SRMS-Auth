@@ -10,7 +10,6 @@ import { LoginRequestDTO } from './dto/request/login-request.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { AuthResponse, TokenType } from './dto/response/Auth-response';
-import { v4 as uuidv4 } from 'uuid';
 import { RefreshTokenService } from 'src/Token/refreshToken.service';
 import {
   BadRequestException,
@@ -20,6 +19,7 @@ import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 import { Permission } from 'src/permission/entity/permission.entity';
 import { PermissionGetByRoleDTO } from 'src/role/dto/response/permission.dto';
 import { nanoid } from 'nanoid';
+import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
 export class AuthService {
@@ -58,14 +58,14 @@ export class AuthService {
 
     const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
       user.id,
+      TypeToken.REFRESH_TOKEN,
     );
 
     if (isRefreshTokenExit) {
       await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
-
       return {
         accessToken: accessToken,
-        refreshToken: isRefreshTokenExit.id,
+        refreshToken: isRefreshTokenExit.token,
         userInfo: {
           firstName: user.firstName,
           lastName: user.lastName,
@@ -73,10 +73,14 @@ export class AuthService {
         },
       };
     } else {
-      await this.refreshTokenService.createRefreshToken(refreshToken, user.id);
+      const newToken = await this.refreshTokenService.createRefreshToken(
+        refreshToken,
+        user.id,
+      );
+
       return {
         accessToken: accessToken,
-        refreshToken: refreshToken,
+        refreshToken: newToken.token,
         userInfo: {
           firstName: user.firstName,
           lastName: user.lastName,
@@ -88,21 +92,22 @@ export class AuthService {
 
   async register(registerDto: RegisterRequestDTO): Promise<AuthResponse> {
     const newUser = await this.userService.createUser(registerDto);
-
+  
     const { accessToken, refreshToken } = await this.generateRefreshToken({
       sub: newUser.id,
     });
 
     const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
       newUser.id,
+      TypeToken.REFRESH_TOKEN,
     );
 
     if (isRefreshTokenExit) {
       await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
     } else {
       await this.refreshTokenService.createRefreshToken(
-        refreshToken,
         newUser.id,
+        refreshToken,
       );
     }
 
@@ -126,9 +131,10 @@ export class AuthService {
 
     const refreshTokenDB = await this.refreshTokenService.findTokenOfUserId(
       user.id,
+      TypeToken.REFRESH_TOKEN,
     );
 
-    if (!refreshTokenDB || refreshTokenDB.id !== token) {
+    if (!refreshTokenDB || refreshTokenDB.token !== token) {
       throw new ForbiddenException('User not Authenticated');
     }
 
@@ -136,7 +142,10 @@ export class AuthService {
       sub: user.id,
     });
 
-    await this.refreshTokenService.updateRefreshToken(refreshTokenDB.id);
+    await this.refreshTokenService.updateRefreshToken(
+      refreshTokenDB.id,
+      refreshToken,
+    );
 
     return {
       accessToken,
@@ -158,7 +167,7 @@ export class AuthService {
       expiresIn: '10m',
     });
 
-    const refreshToken = await uuidv4();
+    const refreshToken = nanoid();
 
     return {
       accessToken,

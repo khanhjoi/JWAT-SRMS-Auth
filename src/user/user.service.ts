@@ -74,6 +74,7 @@ export class UserService {
     select?: (keyof User)[],
     relations?: (keyof User)[],
   ): Promise<User> {
+    
     const userIsExit = await this.userRepository.findUserById(
       userId,
       select,

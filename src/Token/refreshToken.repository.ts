@@ -3,8 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 
 import { DeleteResult, Repository } from 'typeorm';
 import { CreateTokenDto } from './dto/request/create-token.dto';
-import { UpdateTokenDto } from './dto/request/update-token.dto';
 import { Token } from './entity/token.entity';
+import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
 export class RefreshRepository {
@@ -13,11 +13,12 @@ export class RefreshRepository {
     private refreshRepository: Repository<Token>,
   ) {}
 
-  async findRefreshTokenWithTokenId(tokenId: string): Promise<Token> {
+  async findToken(tokenId: string, typeToken: TypeToken): Promise<Token> {
     try {
       const token = await this.refreshRepository.findOne({
         where: {
           id: tokenId,
+          type: typeToken,
         },
       });
       return token;
@@ -29,10 +30,14 @@ export class RefreshRepository {
     }
   }
 
-  async findRefreshTokenWithUserId(userId: string): Promise<Token> {
+  async findRefreshTokenWithUserId(
+    userId: string,
+    typeToken: TypeToken,
+  ): Promise<Token> {
     try {
       const token = await this.refreshRepository.findOne({
         where: {
+          type: typeToken,
           user: {
             id: userId,
           },
@@ -47,15 +52,15 @@ export class RefreshRepository {
     }
   }
 
-  async createRefreshToken(
-    createTokenDto: CreateTokenDto,
-  ): Promise<Token> {
+  async createToken(createTokenDto: CreateTokenDto): Promise<Token> {
     try {
       const newToken = await this.refreshRepository.save({
-        id: createTokenDto.id,
-        expiresAt: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        type: createTokenDto.type,
+        token: createTokenDto.token,
+        expiresAt: new Date(Date.now() + createTokenDto.expiresAt),
         user: createTokenDto.user,
       });
+
       return newToken;
     } catch (error) {
       throw new HttpException(
@@ -65,7 +70,7 @@ export class RefreshRepository {
     }
   }
 
-  async updateRefreshToken(token: Token): Promise<Token> {
+  async updateToken(token: Token): Promise<Token> {
     try {
       const tokenUpdate = await this.refreshRepository.save(token);
       return tokenUpdate;
@@ -77,9 +82,15 @@ export class RefreshRepository {
     }
   }
 
-  async deleteRefreshToken(tokenId: string): Promise<DeleteResult> {
+  async deleteToken(
+    tokenId: string,
+    typeToken: TypeToken,
+  ): Promise<DeleteResult> {
     try {
-      const token = await this.refreshRepository.delete({ id: tokenId });
+      const token = await this.refreshRepository.delete({
+        id: tokenId,
+        type: typeToken,
+      });
       return token;
     } catch (error) {
       throw new HttpException(
