@@ -1,8 +1,8 @@
 import { HttpException, Injectable } from '@nestjs/common';
 import { RefreshRepository } from './refreshToken.repository';
-import { RefreshToken } from './entity/refresh-token.entity';
 import { UserService } from 'src/user/user.service';
 import { DeleteResult } from 'typeorm';
+import { Token } from './entity/token.entity';
 
 @Injectable()
 export class RefreshTokenService {
@@ -11,12 +11,12 @@ export class RefreshTokenService {
     private userRepo: UserService,
   ) {}
 
-  async findTokenOfUserId(userId: string): Promise<RefreshToken> {
+  async findTokenOfUserId(userId: string): Promise<Token> {
     const refresh = await this.refreshRepo.findRefreshTokenWithUserId(userId);
     return refresh;
   }
 
-  async findTokenWithEmail(email: string): Promise<RefreshToken> {
+  async findTokenWithEmail(email: string): Promise<Token> {
     const user = await this.userRepo.findUserByEmail(email);
 
     const refresh = await this.findTokenOfUserId(user.id);
@@ -27,7 +27,7 @@ export class RefreshTokenService {
   async createRefreshToken(
     tokenId: string,
     userId: string,
-  ): Promise<RefreshToken> {
+  ): Promise<Token> {
     const user = await this.userRepo.findUserById(userId);
 
     const newToken = await this.refreshRepo.createRefreshToken({
@@ -38,7 +38,7 @@ export class RefreshTokenService {
     return newToken;
   }
 
-  async updateRefreshToken(tokenId: string): Promise<RefreshToken> {
+  async updateRefreshToken(tokenId: string): Promise<Token> {
     const token = await this.refreshRepo.findRefreshTokenWithTokenId(tokenId);
 
     token.expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);

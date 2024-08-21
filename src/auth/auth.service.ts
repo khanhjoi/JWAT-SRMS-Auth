@@ -11,21 +11,20 @@ import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { AuthResponse, TokenType } from './dto/response/Auth-response';
 import { v4 as uuidv4 } from 'uuid';
-import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
+import { RefreshTokenService } from 'src/Token/refreshToken.service';
 import {
   BadRequestException,
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
-import { RoleService } from 'src/role/role.service';
 import { Permission } from 'src/permission/entity/permission.entity';
 import { PermissionGetByRoleDTO } from 'src/role/dto/response/permission.dto';
+import { nanoid } from 'nanoid';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
-    private roleService: RoleService,
     private jwtService: JwtService,
     private refreshTokenService: RefreshTokenService,
   ) {}
@@ -207,11 +206,22 @@ export class AuthService {
 
     const getSalt = await bcrypt.genSalt();
     const newPasswordHash = await bcrypt.hash(newPassword, getSalt);
-    
+
     user.password = newPasswordHash;
 
     const userUpdate = await this.userService.updateUser(user);
 
-    return userUpdate
+    return userUpdate;
+  }
+
+  async forgotPassword(email: string) {
+    const user = await this.userService.findUserByEmail(email);
+
+    if (user) {
+      const resetToken = nanoid(64);
+      console.log(resetToken);
+    }
+
+    return '';
   }
 }

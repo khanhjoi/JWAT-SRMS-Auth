@@ -8,7 +8,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import configEnv from '../../../config-env';
 import { Request } from 'express';
-import { RefreshTokenService } from 'src/RefreshToken/refreshToken.service';
+import { RefreshTokenService } from 'src/Token/refreshToken.service';
 
 @Injectable()
 export class AuthRefreshGuard implements CanActivate {

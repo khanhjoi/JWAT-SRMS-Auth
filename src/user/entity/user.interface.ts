@@ -1,5 +1,6 @@
-import { RefreshToken } from 'src/RefreshToken/entity/refresh-token.entity';
+
 import { Role } from 'src/role/entity/role.entity';
+import { Token } from 'src/Token/entity/token.entity';
 
 export interface IUser {
   id: string;
@@ -7,7 +8,7 @@ export interface IUser {
   lastName: string;
   email: string;
   createdAt: Date;
-  refreshTokens: RefreshToken;
+  tokens: Token;
   password: string;
   role: Role;
 }

@@ -1,12 +1,12 @@
 import { Global, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { RefreshToken } from './entity/refresh-token.entity';
 import { RefreshRepository } from './refreshToken.repository';
 import { RefreshTokenService } from './refreshToken.service';
+import { Token } from './entity/token.entity';
 
 @Global()
 @Module({
-  imports: [TypeOrmModule.forFeature([RefreshToken])],
+  imports: [TypeOrmModule.forFeature([Token])],
   controllers: [],
   providers: [RefreshRepository, RefreshTokenService],
   exports: [RefreshTokenService],

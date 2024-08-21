@@ -6,7 +6,7 @@ import { User } from './entity/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserRepository } from './user.repository';
-import { RefreshToken } from 'src/RefreshToken/entity/refresh-token.entity';
+import { Token } from 'src/Token/entity/token.entity';
 
 @Global()
 @Module({
@@ -24,7 +24,7 @@ import { RefreshToken } from 'src/RefreshToken/entity/refresh-token.entity';
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User, RefreshToken]),
+    TypeOrmModule.forFeature([User, Token]),
   ],
   controllers: [UserController],
   providers: [UserService, UserRepository],

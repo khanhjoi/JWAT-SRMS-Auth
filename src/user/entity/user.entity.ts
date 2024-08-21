@@ -3,14 +3,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { IUser } from './user.interface';
-import { RefreshToken } from '../../RefreshToken/entity/refresh-token.entity';
+import { Token } from '../../Token/entity/token.entity';
+
 
 @Entity()
 @Unique(['email'])
@@ -33,8 +33,8 @@ export class User implements IUser {
   @Column()
   password: string;
 
-  @OneToMany(() => RefreshToken, (refreshToken) => refreshToken.user)
-  refreshTokens: RefreshToken;
+  @OneToMany(() => Token, (token) => token.user)
+  tokens: Token;
 
   @ManyToOne(() => Role, (role) => role.users)
   role: Role;

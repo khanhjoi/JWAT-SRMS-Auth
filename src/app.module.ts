@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
-import { RefreshTokenModule } from './RefreshToken/refreshToken.module';
+import { RefreshTokenModule } from './Token/refreshToken.module';
 import { CaslModule } from './casl/casl.module';
 
 @Module({

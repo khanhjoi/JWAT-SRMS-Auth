@@ -21,7 +21,7 @@ export const roleUserManagerSeedData = {
 };
 
 export const roleRouteManagerSeedData = {
-  id: '93d13875-ae1d-4283-a877-ab1eac71e066',
+  id: '2f286c56-a68f-4f05-a583-1f3aab1815d1',
   title: 'Route manager',
   description: 'only available with manager route',
   active: true,

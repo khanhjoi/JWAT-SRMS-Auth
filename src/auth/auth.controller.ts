@@ -18,6 +18,7 @@ import { AuthResponse } from './dto/response/Auth-response';
 import { AuthRefreshGuard } from './guard/auth-freshToken.guard';
 import { ChangePasswordDTO } from './dto/request/change-password-request.dto';
 import { AuthGuard } from './guard/auth.guard';
+import { ForgotPasswordDTO } from './dto/request/forgot-password-request.dto';
 
 @Controller('/auth')
 export class AuthController {
@@ -58,6 +59,13 @@ export class AuthController {
       changePasswordDTO.oldPassword,
       changePasswordDTO.newPassword,
     );
+
     return res;
+  }
+
+  @Post('/forgot-password')
+  async forgotPassword(@Body() forgotPasswordDTO: ForgotPasswordDTO) {
+    const res = await this.authService.forgotPassword(forgotPasswordDTO.email);
+    return res
   }
 }

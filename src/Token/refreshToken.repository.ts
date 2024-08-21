@@ -2,18 +2,18 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { DeleteResult, Repository } from 'typeorm';
-import { RefreshToken } from './entity/refresh-token.entity';
 import { CreateTokenDto } from './dto/request/create-token.dto';
 import { UpdateTokenDto } from './dto/request/update-token.dto';
+import { Token } from './entity/token.entity';
 
 @Injectable()
 export class RefreshRepository {
   constructor(
-    @InjectRepository(RefreshToken)
-    private refreshRepository: Repository<RefreshToken>,
+    @InjectRepository(Token)
+    private refreshRepository: Repository<Token>,
   ) {}
 
-  async findRefreshTokenWithTokenId(tokenId: string): Promise<RefreshToken> {
+  async findRefreshTokenWithTokenId(tokenId: string): Promise<Token> {
     try {
       const token = await this.refreshRepository.findOne({
         where: {
@@ -29,7 +29,7 @@ export class RefreshRepository {
     }
   }
 
-  async findRefreshTokenWithUserId(userId: string): Promise<RefreshToken> {
+  async findRefreshTokenWithUserId(userId: string): Promise<Token> {
     try {
       const token = await this.refreshRepository.findOne({
         where: {
@@ -49,7 +49,7 @@ export class RefreshRepository {
 
   async createRefreshToken(
     createTokenDto: CreateTokenDto,
-  ): Promise<RefreshToken> {
+  ): Promise<Token> {
     try {
       const newToken = await this.refreshRepository.save({
         id: createTokenDto.id,
@@ -65,7 +65,7 @@ export class RefreshRepository {
     }
   }
 
-  async updateRefreshToken(token: RefreshToken): Promise<RefreshToken> {
+  async updateRefreshToken(token: Token): Promise<Token> {
     try {
       const tokenUpdate = await this.refreshRepository.save(token);
       return tokenUpdate;
