@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable, Type } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { DeleteResult, Repository } from 'typeorm';
@@ -7,15 +7,48 @@ import { Token } from './entity/token.entity';
 import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
-export class RefreshRepository {
+export class TokenRepository {
   constructor(
     @InjectRepository(Token)
-    private refreshRepository: Repository<Token>,
+    private tokenRepository: Repository<Token>,
   ) {}
 
-  async findToken(tokenId: string, typeToken: TypeToken): Promise<Token> {
+  async findTokenWithToken(
+    tokenDTO: string,
+    typeToken: TypeToken,
+  ): Promise<Token> {
     try {
-      const token = await this.refreshRepository.findOne({
+      const token = await this.tokenRepository.findOne({
+        where: {
+          token: tokenDTO,
+          type: typeToken,
+        },
+        relations: ['user'],
+        select: {
+          user: {
+            id: true,
+          },
+        },
+      });
+      return token;
+    } catch (error) {
+      console.error(error);
+      throw new HttpException(
+        'Find Refresh Token Failed',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+  }
+
+  /**
+   * Find token with given:
+   * @param tokenId id of token
+   * @param typeToken type of token
+   * @returns entity @Token
+   */
+  async findTokenWithId(tokenId: string, typeToken: TypeToken): Promise<Token> {
+    try {
+      const token = await this.tokenRepository.findOne({
         where: {
           id: tokenId,
           type: typeToken,
@@ -30,12 +63,18 @@ export class RefreshRepository {
     }
   }
 
+  /**
+   * Find token with the given:
+   * @param userId
+   * @param typeToken
+   * @returns entity @Token
+   */
   async findRefreshTokenWithUserId(
     userId: string,
     typeToken: TypeToken,
   ): Promise<Token> {
     try {
-      const token = await this.refreshRepository.findOne({
+      const token = await this.tokenRepository.findOne({
         where: {
           type: typeToken,
           user: {
@@ -52,9 +91,14 @@ export class RefreshRepository {
     }
   }
 
+  /**
+   * Create a new Token of user
+   * @param createTokenDto
+   * @returns Entity @Token
+   */
   async createToken(createTokenDto: CreateTokenDto): Promise<Token> {
     try {
-      const newToken = await this.refreshRepository.save({
+      const newToken = await this.tokenRepository.save({
         type: createTokenDto.type,
         token: createTokenDto.token,
         expiresAt: new Date(Date.now() + createTokenDto.expiresAt),
@@ -70,9 +114,14 @@ export class RefreshRepository {
     }
   }
 
+  /**
+   * update the token with given:
+   * @param token Token entity need to be updated
+   * @returns entity Tokens
+   */
   async updateToken(token: Token): Promise<Token> {
     try {
-      const tokenUpdate = await this.refreshRepository.save(token);
+      const tokenUpdate = await this.tokenRepository.save(token);
       return tokenUpdate;
     } catch (error) {
       throw new HttpException(
@@ -82,16 +131,18 @@ export class RefreshRepository {
     }
   }
 
-  async deleteToken(
-    tokenId: string,
-    typeToken: TypeToken,
-  ): Promise<DeleteResult> {
+  /**
+   * Delete a token by given
+   * @param token : Entity of the Token to delete
+   * @returns DeleteResult<Token>
+   */
+  async deleteToken(token: Token): Promise<DeleteResult> {
     try {
-      const token = await this.refreshRepository.delete({
-        id: tokenId,
-        type: typeToken,
+      const tokenDeleted = await this.tokenRepository.delete({
+        id: token.id,
+        type: token.type,
       });
-      return token;
+      return tokenDeleted;
     } catch (error) {
       throw new HttpException(
         'Delete Refresh Token Failed',

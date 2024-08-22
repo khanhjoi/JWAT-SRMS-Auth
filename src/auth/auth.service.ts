@@ -5,13 +5,13 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
-import { RegisterRequestDTO } from './dto/request/register-request.dto';
-import { LoginRequestDTO } from './dto/request/login-request.dto';
+import { RegisterRequestDTO } from './dto/request/register.dto';
+import { LoginRequestDTO } from './dto/request/login.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { AuthResponse, TokenType } from './dto/response/Auth-response';
-import { RefreshTokenService } from 'src/Token/refreshToken.service';
+import { AuthResponse, TokenType } from './dto/response/Auth.dto';
 import {
+  AuthorizationException,
   BadRequestException,
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
@@ -20,13 +20,16 @@ import { Permission } from 'src/permission/entity/permission.entity';
 import { PermissionGetByRoleDTO } from 'src/role/dto/response/permission.dto';
 import { nanoid } from 'nanoid';
 import { TypeToken } from 'src/common/enums/typeToken.enum';
+import { TokenService } from 'src/Token/token.service';
+import { ResetPasswordDTO } from './dto/response/reset-password.dto';
+import { ResetPasswordReqDTO } from './dto/request/reset-password.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private userService: UserService,
     private jwtService: JwtService,
-    private refreshTokenService: RefreshTokenService,
+    private tokenService: TokenService,
   ) {}
 
   async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
@@ -56,13 +59,13 @@ export class AuthService {
         : [],
     });
 
-    const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
+    const isRefreshTokenExit = await this.tokenService.findTokenOfUserId(
       user.id,
       TypeToken.REFRESH_TOKEN,
     );
 
     if (isRefreshTokenExit) {
-      await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
+      await this.tokenService.updateRefreshToken(isRefreshTokenExit.id);
       return {
         accessToken: accessToken,
         refreshToken: isRefreshTokenExit.token,
@@ -73,9 +76,9 @@ export class AuthService {
         },
       };
     } else {
-      const newToken = await this.refreshTokenService.createRefreshToken(
-        refreshToken,
+      const newToken = await this.tokenService.createRefreshToken(
         user.id,
+        refreshToken,
       );
 
       return {
@@ -92,23 +95,20 @@ export class AuthService {
 
   async register(registerDto: RegisterRequestDTO): Promise<AuthResponse> {
     const newUser = await this.userService.createUser(registerDto);
-  
+
     const { accessToken, refreshToken } = await this.generateRefreshToken({
       sub: newUser.id,
     });
 
-    const isRefreshTokenExit = await this.refreshTokenService.findTokenOfUserId(
+    const isRefreshTokenExit = await this.tokenService.findTokenOfUserId(
       newUser.id,
       TypeToken.REFRESH_TOKEN,
     );
 
     if (isRefreshTokenExit) {
-      await this.refreshTokenService.updateRefreshToken(isRefreshTokenExit.id);
+      await this.tokenService.updateRefreshToken(isRefreshTokenExit.id);
     } else {
-      await this.refreshTokenService.createRefreshToken(
-        newUser.id,
-        refreshToken,
-      );
+      await this.tokenService.createRefreshToken(newUser.id, refreshToken);
     }
 
     return {
@@ -129,7 +129,7 @@ export class AuthService {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
     }
 
-    const refreshTokenDB = await this.refreshTokenService.findTokenOfUserId(
+    const refreshTokenDB = await this.tokenService.findTokenOfUserId(
       user.id,
       TypeToken.REFRESH_TOKEN,
     );
@@ -142,14 +142,11 @@ export class AuthService {
       sub: user.id,
     });
 
-    await this.refreshTokenService.updateRefreshToken(
-      refreshTokenDB.id,
-      refreshToken,
-    );
+    await this.tokenService.updateRefreshToken(refreshTokenDB.id, refreshToken);
 
     return {
       accessToken,
-      refreshToken: refreshTokenDB.id,
+      refreshToken: refreshTokenDB.token,
       userInfo: {
         firstName: user.firstName,
         lastName: user.lastName,
@@ -223,14 +220,60 @@ export class AuthService {
     return userUpdate;
   }
 
-  async forgotPassword(email: string) {
+  async forgotPassword(email: string): Promise<ResetPasswordDTO> {
     const user = await this.userService.findUserByEmail(email);
 
     if (user) {
-      const resetToken = nanoid(64);
-      console.log(resetToken);
+      const resetPasswordToken = nanoid(64);
+
+      const token = await this.tokenService.createResetToken(
+        user.id,
+        resetPasswordToken,
+      );
+
+      console.log(token);
+      // Send email to user: by provide the link
     }
 
-    return '';
+    return {
+      message: 'Please Check mail, if your email is valid!!',
+    };
+  }
+
+  async resetPassword(
+    tokenDTO: string,
+    resetPassword: ResetPasswordReqDTO,
+  ): Promise<{
+    message: string;
+  }> {
+    const token = await this.tokenService.findTokenByToken(tokenDTO);
+
+    if (!token || token.expiresAt <= new Date()) {
+      throw new AuthorizationException(
+        'Invalid Link',
+        AuthErrorCode.UNAUTHORIZED_ACCESS,
+      );
+    }
+
+    const user = await this.userService.findUserById(token?.user.id);
+
+    if (!user) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    const salt = await bcrypt.genSalt();
+    const newPassword = await bcrypt.hash(resetPassword.newPassword, salt);
+
+    user.password = newPassword;
+
+    await this.userService.updateUser(user);
+    await this.tokenService.deleteResetToken(token.id);
+
+    return {
+      message: 'Password updated successfully',
+    };
   }
 }

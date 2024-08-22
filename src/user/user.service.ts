@@ -59,13 +59,6 @@ export class UserService {
       relations,
     );
 
-    if (!userIsExit) {
-      throw new BadRequestException(
-        'User not found',
-        AuthErrorCode.USER_NOT_FOUND,
-      );
-    }
-
     return userIsExit;
   }
 
@@ -74,19 +67,11 @@ export class UserService {
     select?: (keyof User)[],
     relations?: (keyof User)[],
   ): Promise<User> {
-    
     const userIsExit = await this.userRepository.findUserById(
       userId,
       select,
       relations,
     );
-
-    if (!userIsExit) {
-      throw new NotFoundException(
-        'User not found',
-        AuthErrorCode.USER_NOT_FOUND,
-      );
-    }
 
     return userIsExit;
   }

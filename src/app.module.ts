@@ -7,7 +7,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import ConfigurationEnv, { databaseConfigType } from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
-import { RefreshTokenModule } from './Token/refreshToken.module';
+import { TokenModule } from './Token/token.module';
 import { CaslModule } from './casl/casl.module';
 
 @Module({
@@ -41,7 +41,7 @@ import { CaslModule } from './casl/casl.module';
     UserModule,
     PermissionModule,
     RoleModule,
-    RefreshTokenModule,
+    TokenModule,
     CaslModule,
   ],
   controllers: [],

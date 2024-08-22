@@ -5,12 +5,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Request } from 'express';
-import { RefreshTokenService } from 'src/Token/refreshToken.service';
+import { TokenService } from 'src/Token/token.service';
 import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
 export class AuthRefreshGuard implements CanActivate {
-  constructor(private tokenService: RefreshTokenService) {}
+  constructor(private tokenService: TokenService) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
