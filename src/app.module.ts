@@ -9,6 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
 import { TokenModule } from './Token/token.module';
 import { CaslModule } from './casl/casl.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -35,6 +36,9 @@ import { CaslModule } from './casl/casl.module';
         };
       },
       inject: [ConfigService],
+    }),
+    CacheModule.register({
+      isGlobal: true,
     }),
     SharedJwtModule,
     AuthModule,
