@@ -30,7 +30,7 @@ export class AuthGrpcController implements AuthServiceController {
     | Promise<GetInfoUserResponse>
     | Observable<GetInfoUserResponse>
     | GetInfoUserResponse {
-      const user = this.userService.findUserByEmail(request.email);
-      return user;
+    const user = this.userService.findUserByEmail(request.email);
+    return user;
   }
 }

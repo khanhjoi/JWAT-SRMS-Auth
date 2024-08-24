@@ -67,12 +67,12 @@ export class RoleRepository {
       const role = await this.roleRepository.save(createRoleDTO);
       return role;
     } catch (error) {
-      if (error) {
-        throw new BadRequestException(
-          'Create role failed',
-          AuthErrorCode.DEFAULT_ERROR,
-        );
-      }
+      console.log(error);
+
+      throw new BadRequestException(
+        'Create role failed',
+        AuthErrorCode.DEFAULT_ERROR,
+      );
     }
   }
 
@@ -81,12 +81,11 @@ export class RoleRepository {
       const roleDeleted = await this.roleRepository.remove(role);
       return roleDeleted;
     } catch (error) {
-      if (error) {
-        throw new BadRequestException(
-          'Delete role failed',
-          AuthErrorCode.DEFAULT_ERROR,
-        );
-      }
+      console.log(error);
+      throw new BadRequestException(
+        'Delete role failed',
+        AuthErrorCode.DEFAULT_ERROR,
+      );
     }
   }
 }

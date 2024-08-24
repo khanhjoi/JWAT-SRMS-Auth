@@ -10,7 +10,7 @@ import { AuthGrpcController } from './auth.grpc.controller';
 @Module({
   imports: [TypeOrmModule.forFeature([Token]), UserModule, RoleModule],
   controllers: [AuthController, AuthGrpcController],
-  providers: [AuthService, ],
+  providers: [AuthService],
   exports: [AuthService],
 })
 export class AuthModule {}

@@ -1,12 +1,12 @@
-import { CustomDecorator, SetMetadata } from '@nestjs/common';
-import { Action } from '../enums/action.enum';
-import { PermissionObjectType } from 'src/casl/casl-ability.factory/casl-ability.factory';
-// action, object
-export type RequiredPermission = [Action, PermissionObjectType];
+import { SetMetadata } from '@nestjs/common';
 
-export const PERMISSION_CHECKER_KEY = 'permission_checker_params_key';
+export const CHECK_ABILITY = 'check_ability';
 
+export interface RequiredRule {
+  action: string 
+  subject: string
+  conditions?: any;
+}
 
-export const CheckPermissions = (
-  actions: [Action, string][],
-): CustomDecorator<string> => SetMetadata(PERMISSION_CHECKER_KEY, actions);
+export const CheckAbilities = (...requirements: RequiredRule[]) =>
+  SetMetadata(CHECK_ABILITY, requirements);

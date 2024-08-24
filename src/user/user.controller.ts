@@ -2,10 +2,9 @@ import { Controller, Get, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { PermissionsGuard } from 'src/auth/guard/permission.guard';
-
-import { CheckPermissions } from 'src/common/decorators/abilities.decorator';
 import { Action } from 'src/common/enums/action.enum';
+import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
+import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
 
 @Controller('user')
 export class UserController {
@@ -24,8 +23,10 @@ export class UserController {
   }
 
   @Get('/admin')
-  @UseGuards(AuthGuard, PermissionsGuard)
-  @CheckPermissions([[Action.READ, 'User']])
+  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @UseGuards(AuthGuard, AbilitiesGuard)
+  // @UseGuards(AuthGuard, PermissionsGuard)
+  // @CheckPermissions([[Action.READ, 'User']])
   async getUserAdmin(): Promise<User[]> {
     const res = await this.userService.getAllUsers();
     return res;

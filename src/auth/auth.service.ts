@@ -123,7 +123,11 @@ export class AuthService {
   }
 
   async refreshTokens(email: string, token: string): Promise<AuthResponse> {
-    const user = await this.userService.findUserByEmail(email);
+    const user = await this.userService.findUserByEmail(
+      email,
+      ['id', 'firstName', 'lastName', 'email', 'password'],
+      ['role'],
+    );
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);
@@ -140,6 +144,10 @@ export class AuthService {
 
     const { accessToken, refreshToken } = await this.generateRefreshToken({
       sub: user.id,
+      roleId: user?.role?.id || '',
+      permission: user?.role?.permissions
+        ? await this.getPermissions(user.role.permissions)
+        : [],
     });
 
     await this.tokenService.updateRefreshToken(refreshTokenDB.id, refreshToken);

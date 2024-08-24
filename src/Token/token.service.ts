@@ -101,7 +101,7 @@ export class TokenService {
     );
 
     token.expiresAt = new Date(Date.now() + TimeToken.REFRESH_TOKEN);
-    token.token = newToken ? newToken : token.token;
+    // token.token = newToken ? newToken : token.token; clear old token
 
     await this.tokenRepository.updateToken(token);
 
