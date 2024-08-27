@@ -5,8 +5,10 @@ import {
   AppAbility,
   CaslAbilityFactory,
 } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { PERMISSION_CHECKER_KEY, RequiredPermission } from 'src/common/decorators/permission.decorator';
-
+import {
+  PERMISSION_CHECKER_KEY,
+  RequiredPermission,
+} from 'src/common/decorators/permission.decorator';
 
 @Injectable()
 export class PermissionsGuard implements CanActivate {

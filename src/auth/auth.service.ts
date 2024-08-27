@@ -23,6 +23,7 @@ import { TypeToken } from 'src/common/enums/typeToken.enum';
 import { TokenService } from 'src/Token/token.service';
 import { ResetPasswordDTO } from './dto/response/reset-password.dto';
 import { ResetPasswordReqDTO } from './dto/request/reset-password.dto';
+import { NotificationClient } from './auth.Client.service';
 
 @Injectable()
 export class AuthService {
@@ -30,6 +31,7 @@ export class AuthService {
     private userService: UserService,
     private jwtService: JwtService,
     private tokenService: TokenService,
+    private notificationClient: NotificationClient,
   ) {}
 
   async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
@@ -110,6 +112,13 @@ export class AuthService {
     } else {
       await this.tokenService.createRefreshToken(newUser.id, refreshToken);
     }
+
+    // send email by using kafka
+    this.notificationClient.sendWelcomeMail({
+      email: newUser.email,
+      userName: `${newUser.firstName} ${newUser.lastName}`,
+      notificationMessage: 'Welcome to Application',
+    });
 
     return {
       accessToken: accessToken,
@@ -239,8 +248,12 @@ export class AuthService {
         resetPasswordToken,
       );
 
-      console.log(token);
       // Send email to user: by provide the link
+      this.notificationClient.sendForgotMail({
+        email: user.email,
+        userName: `${user.firstName} ${user.lastName}`,
+        resetPasswordUrl: token.token,
+      });
     }
 
     return {
@@ -279,7 +292,11 @@ export class AuthService {
 
     await this.userService.updateUser(user);
     await this.tokenService.deleteResetToken(token.id);
-
+  // send email by using kafka
+  this.notificationClient.sendResetPasswordSuccess({
+    email: user.email,
+    userName: `${user.firstName} ${user.lastName}`,
+  });
     return {
       message: 'Password updated successfully',
     };

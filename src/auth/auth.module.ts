@@ -6,11 +6,32 @@ import { RoleModule } from 'src/role/role.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Token } from 'src/Token/entity/token.entity';
 import { AuthGrpcController } from './auth.grpc.controller';
+import { NotificationClient } from './auth.Client.service';
+import { ClientsModule, Transport } from '@nestjs/microservices';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Token]), UserModule, RoleModule],
+  imports: [
+    ClientsModule.register([
+      {
+        name: 'NOTIFICATION_SERVICE',
+        transport: Transport.KAFKA,
+        options: {
+          client: {
+            clientId: 'notification_1',
+            brokers: ['localhost:9092']
+          },
+          consumer: {
+            groupId: 'notification-consumer',
+          },
+        }
+      }
+    ]),
+    TypeOrmModule.forFeature([Token]),
+    UserModule,
+    RoleModule,
+  ],
   controllers: [AuthController, AuthGrpcController],
-  providers: [AuthService],
+  providers: [AuthService, NotificationClient],
   exports: [AuthService],
 })
 export class AuthModule {}

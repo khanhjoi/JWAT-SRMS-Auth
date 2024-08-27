@@ -59,6 +59,13 @@ export class UserService {
       relations,
     );
 
+    if (!userIsExit) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
     return userIsExit;
   }
 
@@ -72,6 +79,13 @@ export class UserService {
       select,
       relations,
     );
+
+    if (!userIsExit) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
 
     return userIsExit;
   }
