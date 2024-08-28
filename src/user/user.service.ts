@@ -1,13 +1,27 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { RpcException } from '@nestjs/microservices';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
+// import {
+//   HttpException,
+//   HttpException,
+// } from 'protos/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
+import { Role } from 'src/role/entity/role.entity';
 
 @Injectable()
 export class UserService {
   constructor(private userRepository: UserRepository) {}
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await this.userRepository.findAllUser();
+    return users;
+  }
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
     const isUserExit = await this.userRepository.findUserByEmail(
@@ -15,7 +29,10 @@ export class UserService {
     );
 
     if (isUserExit) {
-      throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException(
+        'User already exists',
+        AuthErrorCode.USER_CREATE_FAILED,
+      );
     }
 
     const salt = await bcrypt.genSalt();
@@ -31,46 +48,60 @@ export class UserService {
     return newUser;
   }
 
-  async findUserByEmail(email: string): Promise<User> {
-    const userIsExit = await this.userRepository.findUserByEmail(email);
-
-    if (!userIsExit) {
-      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-    }
-
-    return userIsExit;
-  }
-
-  async findUserById(userId: string): Promise<User> {
-    const userIsExit = await this.userRepository.findUserById(userId);
-
-    if (!userIsExit) {
-      throw new HttpException(
-        'User not found',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    return userIsExit;
-  }
-
-  async updateUserWithRefreshToken(
-    userId: string,
-    refreshToken: string,
+  async findUserByEmail(
+    email: string,
+    select?: (keyof User)[],
+    relations?: (keyof User)[],
   ): Promise<User> {
-    const user = await this.userRepository.findUserById(userId);
+    const userIsExit = await this.userRepository.findUserByEmail(
+      email,
+      select,
+      relations,
+    );
 
-    if (!user) {
-      throw new HttpException(
+    if (!userIsExit) {
+      throw new NotFoundException(
         'User not found',
-        HttpStatus.NOT_FOUND,
+        AuthErrorCode.USER_NOT_FOUND,
       );
     }
 
-    user.refreshToken = refreshToken;
+    return userIsExit;
+  }
 
-    const updateUser = await this.userRepository.updateUser(user);
-  
-    return updateUser;
+  async findUserById(
+    userId: string,
+    select?: (keyof User)[],
+    relations?: (keyof User)[],
+  ): Promise<User> {
+    const userIsExit = await this.userRepository.findUserById(
+      userId,
+      select,
+      relations,
+    );
+
+    if (!userIsExit) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    return userIsExit;
+  }
+
+  async updateUser(user: User): Promise<User> {
+    const userIsExit = await this.userRepository.findUserById(user.id);
+
+    if (!userIsExit) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    const userUpdated = await this.userRepository.updateUser(user);
+
+    return userUpdated;
   }
 }

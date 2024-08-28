@@ -7,7 +7,7 @@ import {
 import { IUser } from '../entity/user.interface';
 import { Role } from 'src/role/entity/role.entity';
 
-export class UpdateUserDTO implements Omit<IUser, 'id'> {
+export class UpdateUserDTO implements Omit<IUser, 'id' | 'tokens'> {
   @IsString()
   firstName: string;
 

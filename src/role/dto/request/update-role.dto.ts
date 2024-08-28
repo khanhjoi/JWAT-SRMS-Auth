@@ -5,10 +5,11 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
+import { Permission } from 'src/permission/entity/permission.entity';
 import { IRole } from 'src/role/entity/role.interface';
 
 export class UpdateRoleDTO
-  implements Omit<IRole, 'createdAt' | 'users' | 'permissions'| 'id'>
+  implements Omit<IRole, 'createdAt' | 'users' | 'permissions' | 'id'>
 {
   @IsNotEmpty()
   @IsString()
@@ -18,7 +19,7 @@ export class UpdateRoleDTO
   @IsString()
   description: string;
 
-  permissions?: Permissions[];
+  permissions?: Permission[];
 
   @IsNotEmpty()
   @IsBoolean()

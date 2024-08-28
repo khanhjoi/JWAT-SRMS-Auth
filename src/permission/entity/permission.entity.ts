@@ -4,17 +4,32 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { IPermission } from './permission.interface';
+import { Action } from '../../common/enums/action.enum';
 
 @Entity()
-export class Permission {
+export class Permission implements IPermission {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column()
   title: string;
 
+  @Column(
+    {
+      type: 'enum',
+      enum: Action
+    }
+  )
+  action: Action;
+
   @Column()
-  description: string;
+  subject: string;
+
+  @Column({
+    nullable: true,
+  })
+  condition: string;
 
   @Column({
     default: true,

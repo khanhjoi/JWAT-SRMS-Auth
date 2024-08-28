@@ -1,25 +1,26 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entity/permission.entity';
 import { Repository } from 'typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 
-import { RpcException } from '@nestjs/microservices';
-import { DeletePermissionDTO } from './dto/delete-permission.dto';
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
 import { PermissionRepository } from './permission.repository';
+import { NotFoundException } from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class PermissionService {
-  constructor(
-    @InjectRepository(Permission)
-    private permissionRep: Repository<Permission>,
-    private permissionRepository: PermissionRepository,
-  ) {}
+  constructor(private permissionRepository: PermissionRepository) {}
 
   async getPermissions(): Promise<Permission[]> {
     const permissions = await this.permissionRepository.getPermissions();
     return permissions;
+  }
+
+  async getDetailPermission(id: string): Promise<Permission> {
+    const permission = await this.permissionRepository.findPermissionWithId(id);
+    return permission;
   }
 
   async createPermission(
@@ -37,7 +38,10 @@ export class PermissionService {
     let permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Permission not found',
+        AuthErrorCode.PERMISSION_FIND_FAILED,
+      );
     }
 
     permission = {
@@ -55,7 +59,10 @@ export class PermissionService {
     const permission = await this.permissionRepository.findPermissionWithId(id);
 
     if (!permission) {
-      throw new HttpException('Permission not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Permission not found',
+        AuthErrorCode.PERMISSION_FIND_FAILED,
+      );
     }
 
     const permissionDeleted =

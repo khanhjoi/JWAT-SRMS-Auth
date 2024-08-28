@@ -1,13 +1,16 @@
-import { Role } from 'src/role/entity/role.entity';
+import { Role } from '../../role/entity/role.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { IUser } from './user.interface';
+import { Token } from '../../Token/entity/token.entity';
+
 
 @Entity()
 @Unique(['email'])
@@ -24,17 +27,15 @@ export class User implements IUser {
   @Column()
   email: string;
 
-
-
   @CreateDateColumn()
   createdAt: Date;
 
   @Column()
   password: string;
 
-  @Column({ nullable: true })
-  refreshToken: string | null;
+  @OneToMany(() => Token, (token) => token.user)
+  tokens: Token;
 
-  @OneToMany(() => Role, (role) => role.users)
+  @ManyToOne(() => Role, (role) => role.users)
   role: Role;
 }

@@ -1,4 +1,5 @@
 export default () => ({
+  super_Admin_Id: process.env.SUPER_ADMIN_ID,
   jwt_secret: process.env.JWT_SECRET,
   jwt_expires: process.env.JWT_EXPIRES || '10m',
   database: {
@@ -9,6 +10,13 @@ export default () => ({
     password: process.env.DB_PASSWORD,
     dbName: process.env.DB_NAME,
   },
+  services: [
+    {
+      notification_kafka: process.env.NOTIFICATION_KAFKA_CLIENT_ID,
+      notification_broker: process.env.NOTIFICATION_KAFKA_BROKER,
+      notification_group_id: process.env.NOTIFICATION_KAFKA_GROUP_ID,
+    },
+  ],
 });
 
 export type databaseConfigType = {

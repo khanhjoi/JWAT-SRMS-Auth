@@ -1,20 +1,43 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { PermissionRepository } from 'src/permission/permission.repository';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { Permission } from 'src/permission/entity/permission.entity';
+import { PermissionGetByRoleDTO } from './dto/response/permission.dto';
+import { UserService } from 'src/user/user.service';
+import { User } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class RoleService {
   constructor(
     private roleRepository: RoleRepository,
+    private userService: UserService,
     private permissionsRepository: PermissionRepository,
   ) {}
 
   async getRoles(): Promise<Role[]> {
     const roles = await this.roleRepository.getRoles();
     return roles;
+  }
+
+  async getPermissionOfRole(id: string): Promise<Permission[]> {
+    const role = await this.roleRepository.findRoleById(id);
+
+    if (!role) {
+      throw new BadRequestException(
+        'Role Not Found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
+    }
+
+    return role.permissions;
   }
 
   async createRole(createRolePayLoad: CreateRoleDTO): Promise<Role> {
@@ -26,7 +49,10 @@ export class RoleService {
     let role = await this.roleRepository.findRoleById(id);
 
     if (!role) {
-      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Role not found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
     }
 
     if (updateRoleDTO.permissions) {
@@ -50,7 +76,10 @@ export class RoleService {
     const role = await this.roleRepository.findRoleById(id);
 
     if (!role) {
-      throw new HttpException('Role not found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(
+        'Role not found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
     }
 
     const roleDeleted = await this.roleRepository.deleteRole(role);
@@ -58,32 +87,29 @@ export class RoleService {
     return roleDeleted;
   }
 
-  // async assignPermission(
-  //   assignPermissionPayload: AssignPermissionPayload,
-  //   assignPermissionQuery: AssignPermissionQuery,
-  // ): Promise<Role> {
-  //   const role = await this.roleRep.findOne({
-  //     where: {
-  //       id: assignPermissionQuery.id,
-  //     },
-  //     relations: ['permissions'],
-  //   });
+  async assignRole(userId: string, roleId: string): Promise<User> {
+    const user = await this.userService.findUserById(userId);
 
-  //   if (!role) {
-  //     throw new RpcException({
-  //       statusCode: HttpStatus.NOT_FOUND,
-  //       message: 'Role does not exist',
-  //     });
-  //   }
+    if (!user) {
+      throw new NotFoundException(
+        `User ${userId} does not exist`,
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
 
-  //   const permissionsToAssign = await this.permissionRep.findByIds(
-  //     assignPermissionPayload.permissions,
-  //   );
+    const role = await this.roleRepository.findRoleById(roleId);
 
-  //   role.permissions = permissionsToAssign;
+    if (!role) {
+      throw new NotFoundException(
+        `role ${roleId} does not exist`,
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
 
-  //   const roleAsAssign = await this.roleRep.save(role);
+    user.role = role;
+    
+    const userUpdated = await this.userService.updateUser(user);
 
-  //   return roleAsAssign;
-  // }
+    return userUpdated;
+  }
 }
