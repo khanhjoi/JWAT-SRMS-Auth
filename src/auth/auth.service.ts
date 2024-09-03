@@ -24,6 +24,7 @@ import { TokenService } from 'src/Token/token.service';
 import { ResetPasswordDTO } from './dto/response/reset-password.dto';
 import { ResetPasswordReqDTO } from './dto/request/reset-password.dto';
 import { NotificationClient } from './auth.Client.service';
+import { LogoutDto } from './dto/request/logout.dto';
 
 @Injectable()
 export class AuthService {
@@ -68,6 +69,7 @@ export class AuthService {
 
     if (isRefreshTokenExit) {
       await this.tokenService.updateRefreshToken(isRefreshTokenExit.id);
+
       return {
         accessToken: accessToken,
         refreshToken: isRefreshTokenExit.token,
@@ -131,9 +133,9 @@ export class AuthService {
     };
   }
 
-  async refreshTokens(email: string, token: string): Promise<AuthResponse> {
-    const user = await this.userService.findUserByEmail(
-      email,
+  async refreshTokens(id: string, token: string): Promise<AuthResponse> {
+    const user = await this.userService.findUserById(
+      id,
       ['id', 'firstName', 'lastName', 'email', 'password'],
       ['role'],
     );
@@ -267,7 +269,10 @@ export class AuthService {
   ): Promise<{
     message: string;
   }> {
-    const token = await this.tokenService.findTokenByToken(tokenDTO);
+    const token = await this.tokenService.findTokenByToken(
+      tokenDTO,
+      TypeToken.RESET_PASSWORD,
+    );
 
     if (!token || token.expiresAt <= new Date()) {
       throw new AuthorizationException(
@@ -292,13 +297,29 @@ export class AuthService {
 
     await this.userService.updateUser(user);
     await this.tokenService.deleteResetToken(token.id);
-  // send email by using kafka
-  this.notificationClient.sendResetPasswordSuccess({
-    email: user.email,
-    userName: `${user.firstName} ${user.lastName}`,
-  });
+    // send email by using kafka
+    this.notificationClient.sendResetPasswordSuccess({
+      email: user.email,
+      userName: `${user.firstName} ${user.lastName}`,
+    });
     return {
       message: 'Password updated successfully',
     };
+  }
+
+  async logout(userId: string): Promise<void> {
+    const token = await this.tokenService.findTokenOfUserId(
+      userId,
+      TypeToken.REFRESH_TOKEN,
+    );
+
+    if (!token) {
+      throw new AuthorizationException(
+        'Invalid Token',
+        AuthErrorCode.UNAUTHORIZED_ACCESS,
+      );
+    }
+
+    await this.tokenService.deleteRefreshToken(token.id);
   }
 }

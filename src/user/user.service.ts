@@ -1,25 +1,28 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
-// import {
-//   HttpException,
-//   HttpException,
-// } from 'protos/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 import {
   BadRequestException,
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
-import { Role } from 'src/role/entity/role.entity';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 
 @Injectable()
 export class UserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(private readonly userRepository: UserRepository) {}
 
-  async getAllUsers(): Promise<User[]> {
-    const users = await this.userRepository.findAllUser();
+  async getAllUsers(
+    userQueryPagination: OffsetPaginationDto,
+  ): Promise<IOffsetPaginatedType<User>> {
+    const users = await this.userRepository.findAllUser(
+      userQueryPagination,
+      ['id', 'lastName', 'firstName', 'email', 'createdAt', 'role'],
+      ['role'],
+    );
     return users;
   }
 

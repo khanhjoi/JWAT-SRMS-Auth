@@ -6,6 +6,9 @@ import { CreateUserDTO } from './dto/create-user.dto';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+
 @Injectable()
 export class UserRepository {
   constructor(
@@ -13,30 +16,79 @@ export class UserRepository {
   ) {}
 
   async findAllUser(
+    userQueryPagination: OffsetPaginationDto,
     select?: (keyof User)[],
     relations?: (keyof User)[],
-  ): Promise<User[]> {
+  ): Promise<IOffsetPaginatedType<User>> {
     try {
-      const users = await this.userRepository.find({
-        select: select ? select : undefined,
-        relations: relations
-          ? relations.reduce(
-              (acc, relation) => {
-                acc[relation] = true;
-                return acc;
-              },
-              {} as Record<string, boolean>,
-            )
-          : {},
-      });
-      return users;
+      const { limit, page, search, sortOrder, sortOrderBy } =
+        userQueryPagination;
+      const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+      if (select) {
+        queryBuilder.select(select.map((field) => `user.${field}`));
+      }
+
+      if (relations) {
+        relations.forEach((relation) => {
+          queryBuilder.leftJoinAndSelect(`user.${relation}`, relation);
+        });
+      }
+
+      if (search) {
+        queryBuilder.andWhere(
+          '(user.firstName LIKE :search OR user.lastName LIKE :search OR user.email LIKE :search)',
+          { search: `%${search}%` },
+        );
+      }
+
+      if (sortOrder && sortOrderBy) {
+        queryBuilder.orderBy(`user.${sortOrderBy}`, sortOrder);
+      }
+
+      queryBuilder.skip(limit * (page - 1)).take(limit);
+
+      const [users, itemCount] = await queryBuilder.getManyAndCount();
+
+      return {
+        data: users,
+        pageNumber: page,
+        totalCount: itemCount,
+        pageSize: limit,
+      };
     } catch (error) {
       throw new BadRequestException(
-        'Create user failed',
+        'Fetch users failed',
         AuthErrorCode.DATABASE_ERROR,
       );
     }
   }
+
+  // async findAllUser(
+  //   select?: (keyof User)[],
+  //   relations?: (keyof User)[],
+  // ): Promise<PageDto<User[]>> {
+  //   try {
+  //     const users = await this.userRepository.find({
+  //       select: select ? select : undefined,
+  //       relations: relations
+  //         ? relations.reduce(
+  //             (acc, relation) => {
+  //               acc[relation] = true;
+  //               return acc;
+  //             },
+  //             {} as Record<string, boolean>,
+  //           )
+  //         : {},
+  //     });
+  //     return users;
+  //   } catch (error) {
+  //     throw new BadRequestException(
+  //       'Create user failed',
+  //       AuthErrorCode.DATABASE_ERROR,
+  //     );
+  //   }
+  // }
 
   async findUserByEmail(
     email: string,

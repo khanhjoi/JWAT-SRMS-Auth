@@ -69,7 +69,7 @@ export class TokenRepository {
    * @param typeToken
    * @returns entity @Token
    */
-  async findRefreshTokenWithUserId(
+  async findTokenWithUserId(
     userId: string,
     typeToken: TypeToken,
   ): Promise<Token> {

@@ -5,8 +5,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entity/user.entity';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { UserRepository } from './user.repository';
 import { Token } from 'src/Token/entity/token.entity';
+import { UserRepository } from './user.repository';
 
 @Global()
 @Module({

@@ -15,10 +15,10 @@ export class TokenService {
     private userRepo: UserService,
   ) {}
 
-  async findTokenByToken(tokenDto: string): Promise<Token> {
+  async findTokenByToken(tokenDto: string, typeToken:TypeToken): Promise<Token> {
     const token = await this.tokenRepository.findTokenWithToken(
       tokenDto,
-      TypeToken.RESET_PASSWORD,
+      typeToken,
     );
     return token;
   }
@@ -27,7 +27,7 @@ export class TokenService {
     userId: string,
     typeToken: TypeToken,
   ): Promise<Token> {
-    const refresh = await this.tokenRepository.findRefreshTokenWithUserId(
+    const refresh = await this.tokenRepository.findTokenWithUserId(
       userId,
       typeToken,
     );
@@ -82,17 +82,6 @@ export class TokenService {
 
     return newToken;
   }
-
-  // async createValidationToken(token: string, userId: string): Promise<Token> {
-  //   const user = await this.userRepo.findUserById(userId);
-
-  //   const newToken = await this.tokenRepository.createRefreshToken({
-  //     token: token,
-  //     user: user,
-  //   });
-
-  //   return newToken;
-  // }
 
   async updateRefreshToken(tokenId: string, newToken?: string): Promise<Token> {
     const token = await this.tokenRepository.findTokenWithId(

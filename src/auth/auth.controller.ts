@@ -21,6 +21,7 @@ import { ChangePasswordDTO } from './dto/request/change-password.dto';
 import { AuthGuard } from './guard/auth.guard';
 import { ForgotPasswordDTO } from './dto/request/forgot-password.dto';
 import { ResetPasswordReqDTO } from './dto/request/reset-password.dto';
+import { LogoutDto } from './dto/request/logout.dto';
 
 @Controller('/auth')
 export class AuthController {
@@ -38,13 +39,26 @@ export class AuthController {
     return res;
   }
 
+  @Post('/forgot-password')
+  async forgotPassword(@Body() forgotPasswordDTO: ForgotPasswordDTO) {
+    const res = await this.authService.forgotPassword(forgotPasswordDTO.email);
+    return res;
+  }
+
+  @Get('/logout')
+  @UseGuards(AuthGuard)
+  async logout(@Request() req) {
+    const res = await this.authService.logout(req.user.sub);
+    return res;
+  }
+
   @Get('/refreshToken')
   @UseGuards(AuthRefreshGuard)
   async refreshToken(@Request() req): Promise<{
     accessToken: string;
     refreshToken: string;
   }> {
-    const res = await this.authService.refreshTokens(req.email, req.token);
+    const res = await this.authService.refreshTokens(req.id, req.token);
     return res;
   }
 
@@ -62,12 +76,6 @@ export class AuthController {
       changePasswordDTO.newPassword,
     );
 
-    return res;
-  }
-
-  @Post('/forgot-password')
-  async forgotPassword(@Body() forgotPasswordDTO: ForgotPasswordDTO) {
-    const res = await this.authService.forgotPassword(forgotPasswordDTO.email);
     return res;
   }
 

@@ -15,9 +15,8 @@ export class AuthRefreshGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
-    const email = request.headers['email'];
-    const refreshToken = await this.tokenService.findTokenWithEmail(
-      email,
+    const refreshToken = await this.tokenService.findTokenByToken(
+      token,
       TypeToken.REFRESH_TOKEN,
     );
 
@@ -31,7 +30,7 @@ export class AuthRefreshGuard implements CanActivate {
     }
 
     request['token'] = token;
-    request['email'] = email;
+    request['id'] = refreshToken.user.id;
     return true;
   }
 
