@@ -8,32 +8,26 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
-import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
-import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-
-  async getAllUsers(
-    userQueryPagination: OffsetPaginationDto,
-  ): Promise<IOffsetPaginatedType<User>> {
-    const users = await this.userRepository.findAllUser(
-      userQueryPagination,
-      ['id', 'lastName', 'firstName', 'email', 'createdAt', 'role'],
-      ['role'],
-    );
-    return users;
-  }
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
     const isUserExit = await this.userRepository.findUserByEmail(
       createUserDto.email,
     );
 
-    if (isUserExit) {
+    if (isUserExit && !isUserExit.isDelete) {
       throw new BadRequestException(
         'User already exists',
+        AuthErrorCode.USER_CREATE_FAILED,
+      );
+    }
+
+    if (isUserExit && isUserExit.isDelete) {
+      throw new BadRequestException(
+        'User was deactivated. Please contact admin for further detail',
         AuthErrorCode.USER_CREATE_FAILED,
       );
     }
@@ -56,20 +50,20 @@ export class UserService {
     select?: (keyof User)[],
     relations?: (keyof User)[],
   ): Promise<User> {
-    const userIsExit = await this.userRepository.findUserByEmail(
+    const userExists = await this.userRepository.findUserByEmail(
       email,
       select,
       relations,
     );
 
-    if (!userIsExit) {
+    if (!userExists) {
       throw new NotFoundException(
         'User not found',
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
 
-    return userIsExit;
+    return userExists;
   }
 
   async findUserById(

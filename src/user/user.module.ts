@@ -7,6 +7,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Token } from 'src/Token/entity/token.entity';
 import { UserRepository } from './user.repository';
+import { AdminController } from './admin.controller';
+import { AdminUserService } from './admin.service';
 
 @Global()
 @Module({
@@ -26,8 +28,8 @@ import { UserRepository } from './user.repository';
     }),
     TypeOrmModule.forFeature([User, Token]),
   ],
-  controllers: [UserController],
-  providers: [UserService, UserRepository],
+  controllers: [UserController, AdminController],
+  providers: [UserService, AdminUserService, UserRepository],
   exports: [UserService],
 })
 export class UserModule {}

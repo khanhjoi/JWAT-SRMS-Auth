@@ -38,15 +38,22 @@ export class AuthService {
   async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
     const user = await this.userService.findUserByEmail(
       loginRequestDTO.email,
-      ['id', 'firstName', 'lastName', 'email', 'password'],
+      ['id', 'firstName', 'lastName', 'email', 'password', 'isDelete'],
       ['role'],
     );
+
+    if(user.isDelete) {
+      throw new BadRequestException(
+        'User was deactivated. Please contact admin for further detail',
+        AuthErrorCode.UNAUTHORIZED_ACCESS,
+      );
+    }
 
     const isMatchPassword = await bcrypt.compare(
       loginRequestDTO?.password,
       user?.password,
     );
-
+ 
     if (!isMatchPassword) {
       throw new BadRequestException(
         'Invalid password',

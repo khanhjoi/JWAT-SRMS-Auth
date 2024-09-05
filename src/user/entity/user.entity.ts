@@ -11,7 +11,6 @@ import {
 import { IUser } from './user.interface';
 import { Token } from '../../Token/entity/token.entity';
 
-
 @Entity()
 @Unique(['email'])
 export class User implements IUser {
@@ -26,6 +25,11 @@ export class User implements IUser {
 
   @Column()
   email: string;
+
+  @Column({
+    default: false,
+  })
+  isDelete: boolean;
 
   @CreateDateColumn()
   createdAt: Date;

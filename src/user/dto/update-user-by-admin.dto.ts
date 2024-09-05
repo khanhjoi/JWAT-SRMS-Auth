@@ -6,9 +6,15 @@ import {
   IsStrongPassword,
 } from 'class-validator';
 import { IUser } from '../entity/user.interface';
-import { Role } from 'src/role/entity/role.entity';
 
-export class UpdateUserDTO implements Omit<IUser, 'id' | 'tokens'> {
+export class UpdateUserByAdminDTO
+  implements
+    Pick<IUser, 'id' | 'firstName' | 'lastName' | 'email' | 'password'>
+{
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
   @IsNotEmpty()
   @IsString()
   firstName: string;
@@ -21,19 +27,6 @@ export class UpdateUserDTO implements Omit<IUser, 'id' | 'tokens'> {
   email: string;
 
   @IsNotEmpty()
-  createdAt: Date;
-
-  @IsNotEmpty()
-  @IsBoolean()
-  isDelete: boolean;
-
-  @IsNotEmpty()
-  @IsString()
-  refreshToken: string;
-
-  @IsNotEmpty()
-  @IsString()
+  @IsStrongPassword()
   password: string;
-
-  role: Role;
 }

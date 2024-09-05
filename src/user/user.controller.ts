@@ -5,11 +5,10 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { Action } from 'src/common/enums/action.enum';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
-
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 
-@Controller('user')
+@Controller('/user')
 export class UserController {
   constructor(private userService: UserService) {}
 
@@ -25,13 +24,4 @@ export class UserController {
     return res;
   }
 
-  @Get('/admin')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
-  @UseGuards(AuthGuard, AbilitiesGuard)
-  async getUserAdmin(
-    @Query() userQueryPagination: OffsetPaginationDto,
-  ): Promise<IOffsetPaginatedType<User>> {
-    const res = await this.userService.getAllUsers(userQueryPagination);
-    return res;
-  }
 }

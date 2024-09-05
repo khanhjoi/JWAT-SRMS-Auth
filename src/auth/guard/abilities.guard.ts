@@ -22,7 +22,10 @@ import { EntityManager } from 'typeorm';
 import { Role } from 'src/role/entity/role.entity';
 import { ConfigService } from '@nestjs/config';
 import { AppAbility } from 'src/casl/casl-ability.factory/casl-ability.factory';
-import { CHECK_ABILITY, RequiredRule } from 'src/common/decorators/abilities.decorator';
+import {
+  CHECK_ABILITY,
+  RequiredRule,
+} from 'src/common/decorators/abilities.decorator';
 
 @Injectable()
 export class AbilitiesGuard implements CanActivate {
@@ -45,6 +48,12 @@ export class AbilitiesGuard implements CanActivate {
 
     if (currentUser?.roleId === superAdmin) {
       return true;
+    }
+
+    if (!currentUser.roleId) {
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
     }
 
     const userPermissions = await this.entityManager

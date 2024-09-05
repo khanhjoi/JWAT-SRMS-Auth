@@ -9,6 +9,7 @@ export interface IUser {
   email: string;
   createdAt: Date;
   tokens: Token;
+  isDelete: boolean;
   password: string;
   role: Role;
 }

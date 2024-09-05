@@ -1,7 +1,7 @@
 import { IUser } from '../../user/entity/user.interface';
 
 export const usersData: Array<
-  Omit<IUser, 'id' | 'createdAt' | 'password' | 'tokens' | 'role'> & {
+  Pick<IUser, 'email' | 'firstName' | 'lastName'> & {
     roleId: string;
   }
 > = [

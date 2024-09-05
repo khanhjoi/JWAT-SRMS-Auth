@@ -5,7 +5,6 @@ import { Repository } from 'typeorm';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
-
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 
@@ -42,8 +41,8 @@ export class UserRepository {
         );
       }
 
-      if (sortOrder && sortOrderBy) {
-        queryBuilder.orderBy(`user.${sortOrderBy}`, sortOrder);
+      if (sortOrder) {
+        queryBuilder.orderBy(`user.${sortOrderBy || 'createdAt'}`, sortOrder);
       }
 
       queryBuilder.skip(limit * (page - 1)).take(limit);
@@ -63,32 +62,6 @@ export class UserRepository {
       );
     }
   }
-
-  // async findAllUser(
-  //   select?: (keyof User)[],
-  //   relations?: (keyof User)[],
-  // ): Promise<PageDto<User[]>> {
-  //   try {
-  //     const users = await this.userRepository.find({
-  //       select: select ? select : undefined,
-  //       relations: relations
-  //         ? relations.reduce(
-  //             (acc, relation) => {
-  //               acc[relation] = true;
-  //               return acc;
-  //             },
-  //             {} as Record<string, boolean>,
-  //           )
-  //         : {},
-  //     });
-  //     return users;
-  //   } catch (error) {
-  //     throw new BadRequestException(
-  //       'Create user failed',
-  //       AuthErrorCode.DATABASE_ERROR,
-  //     );
-  //   }
-  // }
 
   async findUserByEmail(
     email: string,
