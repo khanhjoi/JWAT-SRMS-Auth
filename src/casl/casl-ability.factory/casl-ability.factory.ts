@@ -20,7 +20,7 @@ export class CaslAbilityFactory {
     private userService: UserService,
   ) {}
   async createForUser(userId: string): Promise<AppAbility> {
-    const user = await this.userService.findUserById(userId, ['id'], ['role']);
+    const user = await this.userService.findUserById(userId, ['id']);
 
     if (!user?.role || !user?.role?.id) {
       throw new ForbiddenException("You don't have permission to access this!");

@@ -1,4 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';
@@ -10,9 +10,11 @@ import {
 } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 import { Permission } from 'src/permission/entity/permission.entity';
-import { PermissionGetByRoleDTO } from './dto/response/permission.dto';
 import { UserService } from 'src/user/user.service';
 import { User } from 'src/user/entity/user.entity';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
+import { UpdateStatusRole } from './dto/request/update-status-role.dto';
 
 @Injectable()
 export class RoleService {
@@ -22,9 +24,29 @@ export class RoleService {
     private permissionsRepository: PermissionRepository,
   ) {}
 
-  async getRoles(): Promise<Role[]> {
-    const roles = await this.roleRepository.getRoles();
+  async getRolesWithPagination(
+    queryPagination: OffsetPaginationDto,
+  ): Promise<IOffsetPaginatedType<Role>> {
+    const roles =
+      await this.roleRepository.getRolesWithPagination(queryPagination);
     return roles;
+  }
+
+  async getRoles():Promise<Role[]> {
+    const roles = await this.roleRepository.getRoles();
+    return roles
+  }
+  async getRoleWithId(id: string): Promise<Role> {
+    const role = await this.roleRepository.findRoleById(id);
+
+    if (!role) {
+      throw new BadRequestException(
+        'Role Not Found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
+    }
+
+    return role;
   }
 
   async getPermissionOfRole(id: string): Promise<Permission[]> {
@@ -72,6 +94,17 @@ export class RoleService {
     return updateRole;
   }
 
+  async updateStatusRole(
+    roleId: string,
+    data: UpdateStatusRole,
+  ): Promise<Role> {
+    const roleUpdated = await this.roleRepository.updateStatusRole(
+      roleId,
+      data.status,
+    );
+    return roleUpdated;
+  }
+
   async deleteRole(id: string): Promise<Role> {
     const role = await this.roleRepository.findRoleById(id);
 
@@ -107,7 +140,7 @@ export class RoleService {
     }
 
     user.role = role;
-    
+
     const userUpdated = await this.userService.updateUser(user);
 
     return userUpdated;

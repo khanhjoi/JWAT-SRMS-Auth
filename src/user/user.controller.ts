@@ -2,11 +2,6 @@ import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { Action } from 'src/common/enums/action.enum';
-import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
-import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
-import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
-import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 
 @Controller('/user')
 export class UserController {
@@ -16,12 +11,13 @@ export class UserController {
   @UseGuards(AuthGuard)
   async getProfile(@Request() req): Promise<User> {
     const res = await this.userService.findUserById(req.user.sub, [
+      'id',
       'lastName',
       'firstName',
       'email',
       'createdAt',
+      'role'
     ]);
     return res;
   }
-
 }

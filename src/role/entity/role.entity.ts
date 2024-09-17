@@ -11,7 +11,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IRole } from './role.interface';
+import { IRole } from '../interface/role.interface';
 
 @Entity()
 export class Role implements IRole {

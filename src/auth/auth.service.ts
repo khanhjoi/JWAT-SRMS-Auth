@@ -24,7 +24,6 @@ import { TokenService } from 'src/Token/token.service';
 import { ResetPasswordDTO } from './dto/response/reset-password.dto';
 import { ResetPasswordReqDTO } from './dto/request/reset-password.dto';
 import { NotificationClient } from './auth.Client.service';
-import { LogoutDto } from './dto/request/logout.dto';
 
 @Injectable()
 export class AuthService {
@@ -42,7 +41,7 @@ export class AuthService {
       ['role'],
     );
 
-    if(user.isDelete) {
+    if (user.isDelete) {
       throw new BadRequestException(
         'User was deactivated. Please contact admin for further detail',
         AuthErrorCode.UNAUTHORIZED_ACCESS,
@@ -53,7 +52,7 @@ export class AuthService {
       loginRequestDTO?.password,
       user?.password,
     );
- 
+
     if (!isMatchPassword) {
       throw new BadRequestException(
         'Invalid password',
@@ -80,11 +79,6 @@ export class AuthService {
       return {
         accessToken: accessToken,
         refreshToken: isRefreshTokenExit.token,
-        userInfo: {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
       };
     } else {
       const newToken = await this.tokenService.createRefreshToken(
@@ -95,11 +89,6 @@ export class AuthService {
       return {
         accessToken: accessToken,
         refreshToken: newToken.token,
-        userInfo: {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-        },
       };
     }
   }
@@ -132,11 +121,6 @@ export class AuthService {
     return {
       accessToken: accessToken,
       refreshToken: refreshToken,
-      userInfo: {
-        firstName: newUser.firstName,
-        lastName: newUser.lastName,
-        email: newUser.email,
-      },
     };
   }
 
@@ -144,7 +128,7 @@ export class AuthService {
     const user = await this.userService.findUserById(
       id,
       ['id', 'firstName', 'lastName', 'email', 'password'],
-      ['role'],
+
     );
 
     if (!user) {
@@ -173,11 +157,6 @@ export class AuthService {
     return {
       accessToken,
       refreshToken: refreshTokenDB.token,
-      userInfo: {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-      },
     };
   }
 

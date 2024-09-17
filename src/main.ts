@@ -8,9 +8,12 @@ import { RpcValidationFilter } from './common/exceptions/rpc-exception.filter';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { ReflectionService } from '@grpc/reflection';
 import { join } from 'path';
+import * as cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.use(cookieParser());
 
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,

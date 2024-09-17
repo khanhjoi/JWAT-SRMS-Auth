@@ -1,5 +1,5 @@
-import { ForcedSubject, MongoAbility } from "@casl/ability";
-import { Action } from "src/common/enums/action.enum";
+import { ForcedSubject, MongoAbility } from '@casl/ability';
+import { Action } from 'src/common/enums/action.enum';
 
 export const actions = [
   Action.READ,
@@ -11,6 +11,9 @@ export const actions = [
 
 export const subjects = ['Route', 'User', 'all'] as const;
 
+/**
+ * Define all action and subjects in application
+ */
 export type Abilities = [
   (typeof actions)[number],
   (

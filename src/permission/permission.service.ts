@@ -1,19 +1,29 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { Permission } from './entity/permission.entity';
-import { Repository } from 'typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
 import { PermissionRepository } from './permission.repository';
 import { NotFoundException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 
 @Injectable()
 export class PermissionService {
   constructor(private permissionRepository: PermissionRepository) {}
 
-  async getPermissions(): Promise<Permission[]> {
+  async getPermissionsWithPagination(
+    queryPagination: OffsetPaginationDto,
+  ): Promise<IOffsetPaginatedType<Permission>> {
+    const permissions =
+      await this.permissionRepository.getPermissionsWithPagination(
+        queryPagination,
+      );
+    return permissions;
+  }
+
+  async getPermissions():Promise<Permission[]> {
     const permissions = await this.permissionRepository.getPermissions();
     return permissions;
   }

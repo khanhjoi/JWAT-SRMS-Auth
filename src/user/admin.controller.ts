@@ -4,11 +4,11 @@ import {
   Delete,
   Get,
   Param,
+  Post,
   Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserService } from './user.service';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
@@ -18,10 +18,15 @@ import { User } from './entity/user.entity';
 import { Action } from 'src/common/enums/action.enum';
 import { UpdateUserByAdminDTO } from './dto/update-user-by-admin.dto';
 import { AdminUserService } from './admin.service';
+import { UserService } from './user.service';
+import { CreateUserDTO } from './dto/create-user.dto';
 
 @Controller('/admin')
 export class AdminController {
-  constructor(private adminUserService: AdminUserService) {}
+  constructor(
+    private adminUserService: AdminUserService,
+    private userService: UserService,
+  ) {}
 
   @Get('/users')
   @CheckAbilities({ action: Action.READ, subject: 'User' })
@@ -29,8 +34,16 @@ export class AdminController {
   async getUsersAdmin(
     @Query() userQueryPagination: OffsetPaginationDto,
   ): Promise<IOffsetPaginatedType<User>> {
-    const res = await this.adminUserService.getAllUsers(userQueryPagination);
+    const res = await this.adminUserService.findAllUserWithPagination(userQueryPagination);
     return res;
+  }
+
+  @Post('/user')
+  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
+  @UseGuards(AuthGuard, AbilitiesGuard)
+  async addUserAdmin(@Body() createUserDto: CreateUserDTO): Promise<User> {
+    const res = await this.userService.createUser(createUserDto);
+    return res; 
   }
 
   @Put('/user')
@@ -45,7 +58,7 @@ export class AdminController {
   @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
   @UseGuards(AuthGuard, AbilitiesGuard)
   async activeUser(@Param('id') userId: string): Promise<User> {
-    const res = await this.adminUserService.activeUser(userId)
+    const res = await this.adminUserService.activeUser(userId);
     return res;
   }
 

@@ -1,4 +1,4 @@
-import { IUser } from '../../user/entity/user.interface';
+import { IUser } from '../../user/interface/user.interface';
 
 export const usersData: Array<
   Pick<IUser, 'email' | 'firstName' | 'lastName'> & {

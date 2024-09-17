@@ -6,7 +6,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { Permission } from 'src/permission/entity/permission.entity';
-import { IRole } from 'src/role/entity/role.interface';
+import { IRole } from 'src/role/interface/role.interface';
 
 export class UpdateRoleDTO
   implements Omit<IRole, 'createdAt' | 'users' | 'permissions' | 'id'>
@@ -19,9 +19,7 @@ export class UpdateRoleDTO
   @IsString()
   description: string;
 
-  permissions?: Permission[];
+  permissions?: string[] | Permission[]| any;
 
-  @IsNotEmpty()
-  @IsBoolean()
   active: boolean;
 }

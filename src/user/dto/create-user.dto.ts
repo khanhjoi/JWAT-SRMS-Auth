@@ -4,7 +4,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { IUser } from '../entity/user.interface';
+import { IUser } from '../interface/user.interface';
 
 export class CreateUserDTO
   implements Pick<IUser, 'firstName' | 'lastName' | 'email' | 'password'>

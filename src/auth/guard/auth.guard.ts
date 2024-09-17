@@ -8,7 +8,6 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 
-
 @Injectable()
 export class AuthGuard implements CanActivate {
   constructor(
@@ -18,7 +17,7 @@ export class AuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = this.extractTokenFromHeader(request);
+    const token = this.extractTokenFromCookie(request);
     // const token = this.extractTokenFromHeader(request);
 
     if (!token) {
@@ -29,25 +28,14 @@ export class AuthGuard implements CanActivate {
         secret: this.configService.get<string>('jwt_secret'),
       });
       request['user'] = payload;
-      request['token'] = token
+      request['token'] = token;
     } catch {
       throw new UnauthorizedException();
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
-    const [type, token] = request.headers.authorization?.split(' ') ?? [];
-    return type === 'Bearer' ? token : undefined;
+  private extractTokenFromCookie(request: Request): string | undefined {
+    return request.cookies['accessToken']; // 'access_token' is the name of the cookie storing the JWT
   }
-
-  // private extractToken(request: Request): string | undefined {
-  //   // Prioritize the cookie token over the header token for better security
-  //   const tokenFromCookie = request.cookies['accessToken'];
-  //   if (tokenFromCookie) {
-  //     return tokenFromCookie;
-  //   }
-  //   // Fall back to header token if cookie is not present
-  //   return this.extractTokenFromHeader(request);
-  // }
 }

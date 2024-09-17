@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 
 @Injectable()
 export class PermissionRepository {
@@ -13,10 +15,51 @@ export class PermissionRepository {
     private permissionRepository: Repository<Permission>,
   ) {}
 
-  async getPermissions(): Promise<Permission[]> {
+  async getPermissionsWithPagination(
+    queryPagination: OffsetPaginationDto,
+    select?: (keyof Permission)[],
+    relation?: (keyof Permission)[],
+  ): Promise<IOffsetPaginatedType<Permission>> {
     try {
-      const permissions = await this.permissionRepository.find();
-      return permissions;
+      const { limit, page, search, sortOrder, sortOrderBy } = queryPagination;
+
+      const queryBuilder =
+        this.permissionRepository.createQueryBuilder('permission');
+
+      if (select) {
+        queryBuilder.select(select.map((field) => `permission.${field}`));
+      }
+
+      if (relation) {
+        relation.forEach((relation) => {
+          queryBuilder.leftJoinAndSelect(`permission.${relation}`, relation);
+        });
+      }
+
+      if (search) {
+        queryBuilder.andWhere(
+          `(permission.title like :search or permission.action like :search or permission.subject like: search)`,
+          { search: `%${search}%` },
+        );
+      }
+
+      if (sortOrder) {
+        queryBuilder.orderBy(
+          `permission.${sortOrderBy || 'createdAt'}`,
+          sortOrder,
+        );
+      }
+
+      queryBuilder.skip(limit * (page - 1)).take(limit);
+
+      const [permissions, itemCount] = await queryBuilder.getManyAndCount();
+
+      return {
+        data: permissions,
+        totalCount: itemCount,
+        pageNumber: page,
+        pageSize: limit,
+      };
     } catch (error) {
       if (error) {
         throw new BadRequestException(
@@ -24,6 +67,18 @@ export class PermissionRepository {
           AuthErrorCode.DATABASE_ERROR,
         );
       }
+    }
+  }
+
+  async getPermissions(): Promise<Permission[]> {
+    try {
+      const permissions = await this.permissionRepository.find();
+      return permissions;
+    } catch (error) {
+      throw new BadRequestException(
+        'Get permissions failed',
+        AuthErrorCode.DATABASE_ERROR,
+      );
     }
   }
 

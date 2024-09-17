@@ -5,7 +5,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { IUser } from '../entity/user.interface';
+import { IUser } from '../interface/user.interface';
 import { Role } from 'src/role/entity/role.entity';
 
 export class UpdateUserDTO implements Omit<IUser, 'id' | 'tokens'> {

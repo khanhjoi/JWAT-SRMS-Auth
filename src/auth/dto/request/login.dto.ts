@@ -1,5 +1,5 @@
 import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
-import { IUser } from 'src/user/entity/user.interface';
+import { IUser } from 'src/user/interface/user.interface';
 
 export class LoginRequestDTO implements Pick<IUser, 'email' | 'password'> {
   @IsString({ message: 'Email must be a string' })

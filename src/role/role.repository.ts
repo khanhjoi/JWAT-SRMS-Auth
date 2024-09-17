@@ -3,8 +3,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './entity/role.entity';
 import { Repository } from 'typeorm';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
-import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 
 @Injectable()
 export class RoleRepository {
@@ -30,14 +35,49 @@ export class RoleRepository {
     }
   }
 
-  async getRoles(): Promise<Role[]> {
+  async getRolesWithPagination(
+    queryPagination: OffsetPaginationDto,
+    select?: (keyof Role)[],
+    relations?: (keyof Role)[],
+  ): Promise<IOffsetPaginatedType<Role>> {
     try {
-      const roles = await this.roleRepository.find({
-        relations: {
-          permissions: true,
-        },
-      });
-      return roles;
+      const { limit, page, search, sortOrder, sortOrderBy } = queryPagination;
+
+      const queryBuilder = this.roleRepository.createQueryBuilder('role');
+
+      // Get select if user want
+      if (select) {
+        queryBuilder.select(select.map((field) => `role.${field}`));
+      }
+      
+      // get relations if user want
+      if (relations) {
+        relations.forEach((relation) => {
+          queryBuilder.leftJoinAndSelect(`role.${relation}`, relation);
+        });
+      }
+
+      if (search) {
+        queryBuilder.andWhere(
+          '(role.title LIKE :search OR role.description LIKE :search)',
+          { search: `%${search}%` },
+        );
+      }
+
+      if (sortOrder) {
+        queryBuilder.orderBy(`role.${sortOrderBy || 'createdAt'}`, sortOrder);
+      }
+
+      queryBuilder.skip(limit * (page - 1)).take(limit);
+
+      const [roles, itemCount] = await queryBuilder.getManyAndCount();
+
+      return {
+        data: roles,
+        totalCount: itemCount,
+        pageNumber: page,
+        pageSize: limit,
+      };
     } catch (error) {
       if (error) {
         throw new BadRequestException(
@@ -46,6 +86,11 @@ export class RoleRepository {
         );
       }
     }
+  }
+
+  async getRoles():Promise<Role[]> {
+    const roles = await this.roleRepository.find();
+    return roles
   }
 
   async updateRole(role: Role): Promise<Role> {
@@ -59,6 +104,36 @@ export class RoleRepository {
           AuthErrorCode.DEFAULT_ERROR,
         );
       }
+    }
+  }
+
+  async updateStatusRole(roleId: string, status: boolean): Promise<Role> {
+    try {
+      const role = await this.roleRepository.findOne({
+        where: {
+          id: roleId,
+        },
+      });
+
+      if (!role) {
+        throw new NotFoundException(
+          'Role not found',
+          AuthErrorCode.ROLE_FIND_FAILED,
+        );
+      }
+
+      role.active = status;
+
+      const roleUpdated = await this.roleRepository.save(role);
+
+      return roleUpdated;
+    } catch (error) {
+      console.log(error);
+
+      throw new BadRequestException(
+        'Update status role failed',
+        AuthErrorCode.DEFAULT_ERROR,
+      );
     }
   }
 

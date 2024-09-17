@@ -4,7 +4,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IPermission } from './permission.interface';
+import { IPermission } from '../interface/permission.interface';
 import { Action } from '../../common/enums/action.enum';
 
 @Entity()

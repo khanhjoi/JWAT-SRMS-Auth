@@ -48,7 +48,7 @@ export class UserService {
   async findUserByEmail(
     email: string,
     select?: (keyof User)[],
-    relations?: (keyof User)[],
+    relations?: any[], // list relations ['role']
   ): Promise<User> {
     const userExists = await this.userRepository.findUserByEmail(
       email,
@@ -69,13 +69,8 @@ export class UserService {
   async findUserById(
     userId: string,
     select?: (keyof User)[],
-    relations?: (keyof User)[],
   ): Promise<User> {
-    const userIsExit = await this.userRepository.findUserById(
-      userId,
-      select,
-      relations,
-    );
+    const userIsExit = await this.userRepository.findUserById(userId, select);
 
     if (!userIsExit) {
       throw new NotFoundException(

@@ -16,10 +16,10 @@ import { DeleteResult } from 'typeorm';
 export class AdminUserService {
   constructor(private userRepository: UserRepository) {}
 
-  async getAllUsers(
+  async findAllUserWithPagination(
     userQueryPagination: OffsetPaginationDto,
   ): Promise<IOffsetPaginatedType<User>> {
-    const users = await this.userRepository.findAllUser(
+    const users = await this.userRepository.findAllUserWithPagination(
       userQueryPagination,
       ['id', 'lastName', 'firstName', 'email', 'createdAt', 'role', 'isDelete'],
       ['role'],

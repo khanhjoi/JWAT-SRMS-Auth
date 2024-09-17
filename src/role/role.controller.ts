@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { RoleService } from './role.service';
@@ -19,17 +20,35 @@ import { User } from 'src/user/entity/user.entity';
 import { AssignRoleDto } from './dto/request/assign-permission.dto';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
+import { UpdateStatusRole } from './dto/request/update-status-role.dto';
 
-@Controller('role')
+@Controller('roles')
 @UseGuards(AuthGuard, AbilitiesGuard)
 export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get('')
-  // @CheckPermissions([[Action.READ, 'User']])
+  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  async getRolesWithPagination(
+    @Query() queryPagination: OffsetPaginationDto,
+  ): Promise<IOffsetPaginatedType<Role>> {
+    const res = await this.roleService.getRolesWithPagination(queryPagination);
+    return res;
+  }
+
+  @Get('/withoutPagination')
   @CheckAbilities({ action: Action.READ, subject: 'User' })
   async getAllRoles(): Promise<Role[]> {
     const res = await this.roleService.getRoles();
+    return res;
+  }
+
+  @Get('/:id')
+  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  async getRoles(@Param('id') roleId: string): Promise<Role> {
+    const res = await this.roleService.getRoleWithId(roleId);
     return res;
   }
 
@@ -55,6 +74,16 @@ export class RoleController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Role> {
     const res = await this.roleService.updateRole(id, data);
+    return res;
+  }
+
+  @Put('/:id/status')
+  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  async activeRole(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() data: UpdateStatusRole,
+  ): Promise<Role> {
+    const res = await this.roleService.updateStatusRole(id, data);
     return res;
   }
 

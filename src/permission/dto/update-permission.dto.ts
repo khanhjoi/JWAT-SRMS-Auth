@@ -6,7 +6,7 @@ import {
   IsString,
   IsUUID,
 } from 'class-validator';
-import { IPermission } from '../entity/permission.interface';
+import { IPermission } from '../interface/permission.interface';
 import { Action } from '../../common/enums/action.enum';
 
 export class UpdatePermissionDTO
@@ -25,6 +25,6 @@ export class UpdatePermissionDTO
   subject: string;
 
   @IsBoolean()
-  @IsNotEmpty()
+
   active: boolean;
 }

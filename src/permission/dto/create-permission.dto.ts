@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { IPermission } from '../entity/permission.interface';
+import { IPermission } from '../interface/permission.interface';
 import { Action } from 'src/common/enums/action.enum';
 
 export class CreatePermissionDTO

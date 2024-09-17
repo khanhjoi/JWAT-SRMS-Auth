@@ -9,10 +9,10 @@ export class LoggingInterceptor implements NestInterceptor {
     const ctx = context.switchToHttp();
     const request = ctx.getRequest();
     
-    this.logger.verbose(`Request URL: ${request.url}`)
+    this.logger.verbose(`Request URL Before call handle(): ${request.url}`)
 
     return next.handle().pipe(
-      tap(() => console.log(`Response sent for: ${request.url}`)),
+      tap(() =>  this.logger.log(`Response sent when calling handle() for: ${request.url}`)),
     );
   }
 }

@@ -7,6 +7,7 @@ import {
   ParseUUIDPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -18,16 +19,29 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { Action } from 'src/common/enums/action.enum';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
+import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
+import { get } from 'http';
 
-@Controller('permission')
+@Controller('permissions')
 @UseGuards(AuthGuard, AbilitiesGuard)
 export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
   @Get('')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
-  async getAllPermission(): Promise<Permission[]> {
-    return await this.permissionService.getPermissions();
+  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  async getPermissionsWithPagination(
+    @Query() queryPagination: OffsetPaginationDto,
+  ): Promise<IOffsetPaginatedType<Permission>> {
+    return await this.permissionService.getPermissionsWithPagination(
+      queryPagination,
+    );
+  }
+
+  @Get('/withoutPagination')
+  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  async getPermission(): Promise<Permission[]> {
+    return this.permissionService.getPermissions();
   }
 
   @Post('')

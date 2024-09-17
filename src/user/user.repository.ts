@@ -14,7 +14,7 @@ export class UserRepository {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async findAllUser(
+  async findAllUserWithPagination(
     userQueryPagination: OffsetPaginationDto,
     select?: (keyof User)[],
     relations?: (keyof User)[],
@@ -35,9 +35,10 @@ export class UserRepository {
       }
 
       if (search) {
+        const searchTerm = search.toLowerCase().replace(/\s/g, '');
         queryBuilder.andWhere(
-          '(user.firstName LIKE :search OR user.lastName LIKE :search OR user.email LIKE :search)',
-          { search: `%${search}%` },
+          "(LOWER(REPLACE(user.firstName, ' ', '')) LIKE :search OR LOWER(REPLACE(user.lastName, ' ', '')) LIKE :search OR LOWER(REPLACE(user.email, ' ', '')) LIKE :search)",
+          { search: `%${searchTerm}%` },
         );
       }
 
@@ -66,21 +67,13 @@ export class UserRepository {
   async findUserByEmail(
     email: string,
     select?: (keyof User)[],
-    relations?: (keyof User)[],
+    relations?: any[],
   ): Promise<User> {
     try {
       const user = await this.userRepository.findOne({
         where: { email },
         select: select || undefined,
-        relations: relations
-          ? relations.reduce(
-              (acc, relation) => {
-                acc[relation] = true;
-                return acc;
-              },
-              {} as Record<string, boolean>,
-            )
-          : {},
+        relations: relations,
       });
 
       return user;
@@ -92,27 +85,55 @@ export class UserRepository {
     }
   }
 
-  async findUserById(
-    id: string,
-    select?: (keyof User)[],
-    relations?: (keyof User)[],
-  ): Promise<User> {
+  // async findUserById(id: string, select?: (keyof User)[]): Promise<User> {
+  //   try {
+  //     const user = await this.userRepository.findOne({
+  //       where: { id: id },
+  //       select: select || undefined,
+  //       relations: {
+  //         role: true
+  //       },
+  //     });
+
+  //     return user;
+  //   } catch (error) {
+  //     console.log(error);
+  //     throw new BadRequestException(
+  //       'Failed to find user',
+  //       AuthErrorCode.DATABASE_ERROR,
+  //     );
+  //   }
+  // }
+  async findUserById(id: string, select?: (keyof User)[]): Promise<User> {
     try {
-      const user = await this.userRepository.findOne({
-        where: { id: id },
-        select: select || undefined,
-        relations: relations
-          ? relations.reduce(
-              (acc, relation) => {
-                acc[relation] = true;
-                return acc;
-              },
-              {} as Record<string, boolean>,
-            )
-          : {},
-      });
+      const query = this.userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.role', 'role', 'role.active = true')
+        .leftJoinAndSelect(
+          'role.permissions',
+          'permission',
+          'permission.active = true',
+        )
+        .where('user.id = :id', { id: id });
+
+      if (select && select.length > 0) {
+        query.select([
+          ...select.map((field) => `user.${field}`), // Select specified user fields
+          'role.id', // Always include the role and permission fields
+          'role.title',
+          'permission.id',
+          'permission.title',
+          'permission.subject',
+          'permission.action',
+        ]);
+      }
+
+      const user = await query.getOne();
+
+      console.log(user);
       return user;
     } catch (error) {
+      console.log(error);
       throw new BadRequestException(
         'Failed to find user',
         AuthErrorCode.DATABASE_ERROR,

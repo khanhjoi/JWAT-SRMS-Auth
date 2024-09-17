@@ -1,5 +1,5 @@
 import { Action } from '../../common/enums/action.enum';
-import { IPermission } from 'src/permission/entity/permission.interface';
+import { IPermission } from 'src/permission/interface/permission.interface';
 
 export const permissionsSeedData: Omit<
   IPermission,

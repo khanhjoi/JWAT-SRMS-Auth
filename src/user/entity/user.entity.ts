@@ -8,7 +8,7 @@ import {
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
-import { IUser } from './user.interface';
+import { IUser } from '../interface/user.interface'
 import { Token } from '../../Token/entity/token.entity';
 
 @Entity()

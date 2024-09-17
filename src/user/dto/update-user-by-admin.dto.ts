@@ -5,7 +5,7 @@ import {
   IsString,
   IsStrongPassword,
 } from 'class-validator';
-import { IUser } from '../entity/user.interface';
+import { IUser } from '../interface/user.interface';
 
 export class UpdateUserByAdminDTO
   implements
