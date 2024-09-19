@@ -13,7 +13,7 @@ import { UserService } from 'src/user/user.service';
 @AuthServiceControllerMethods()
 export class AuthGrpcController implements AuthServiceController {
   constructor(private userService: UserService) {}
-
+ 
   getInfoById(
     request: GetInfoUserByIdRequest,
   ):

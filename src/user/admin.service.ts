@@ -10,11 +10,16 @@ import {
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
 import * as bcrypt from 'bcrypt';
-import { DeleteResult } from 'typeorm';
+import { UserService } from './user.service';
+import { RoleRepository } from 'src/role/role.repository';
 
 @Injectable()
 export class AdminUserService {
-  constructor(private userRepository: UserRepository) {}
+  constructor(
+    private userRepository: UserRepository,
+    private userService: UserService,
+    private roleRepository: RoleRepository,
+  ) {}
 
   async findAllUserWithPagination(
     userQueryPagination: OffsetPaginationDto,
@@ -99,5 +104,31 @@ export class AdminUserService {
     const userActive = await this.userRepository.updateUser(userIsExit);
 
     return userActive;
+  }
+
+  async assignRole(userId: string, roleId: string): Promise<User> {
+    const user = await this.userService.findUserById(userId);
+
+    if (!user) {
+      throw new NotFoundException(
+        `User ${userId} does not exist`,
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    const role = await this.roleRepository.findRoleById(roleId);
+
+    if (!role) {
+      throw new NotFoundException(
+        `role ${roleId} does not exist`,
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    user.role = role;
+
+    const userUpdated = await this.userService.updateUser(user);
+
+    return userUpdated;
   }
 }

@@ -125,11 +125,13 @@ export class AuthService {
   }
 
   async refreshTokens(id: string, token: string): Promise<AuthResponse> {
-    const user = await this.userService.findUserById(
-      id,
-      ['id', 'firstName', 'lastName', 'email', 'password'],
-
-    );
+    const user = await this.userService.findUserById(id, [
+      'id',
+      'firstName',
+      'lastName',
+      'email',
+      'password',
+    ]);
 
     if (!user) {
       throw new HttpException('User not found', HttpStatus.NOT_FOUND);

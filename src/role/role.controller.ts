@@ -16,8 +16,6 @@ import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { Role } from './entity/role.entity';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { Action } from 'src/common/enums/action.enum';
-import { User } from 'src/user/entity/user.entity';
-import { AssignRoleDto } from './dto/request/assign-permission.dto';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
@@ -56,14 +54,6 @@ export class RoleController {
   @CheckAbilities({ action: Action.WRITE, subject: 'User' })
   async createRole(@Body() data: CreateRoleDTO): Promise<Role> {
     const res = await this.roleService.createRole(data);
-    return res;
-  }
-
-  @Post('/:userId/assign-role/:roleId')
-  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
-  async assignRole(@Param() params: AssignRoleDto): Promise<User> {
-    const { userId, roleId } = params;
-    const res = await this.roleService.assignRole(userId, roleId);
     return res;
   }
 

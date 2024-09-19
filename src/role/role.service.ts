@@ -20,7 +20,6 @@ import { UpdateStatusRole } from './dto/request/update-status-role.dto';
 export class RoleService {
   constructor(
     private roleRepository: RoleRepository,
-    private userService: UserService,
     private permissionsRepository: PermissionRepository,
   ) {}
 
@@ -32,10 +31,11 @@ export class RoleService {
     return roles;
   }
 
-  async getRoles():Promise<Role[]> {
+  async getRoles(): Promise<Role[]> {
     const roles = await this.roleRepository.getRoles();
-    return roles
+    return roles;
   }
+  
   async getRoleWithId(id: string): Promise<Role> {
     const role = await this.roleRepository.findRoleById(id);
 
@@ -120,29 +120,5 @@ export class RoleService {
     return roleDeleted;
   }
 
-  async assignRole(userId: string, roleId: string): Promise<User> {
-    const user = await this.userService.findUserById(userId);
-
-    if (!user) {
-      throw new NotFoundException(
-        `User ${userId} does not exist`,
-        AuthErrorCode.USER_NOT_FOUND,
-      );
-    }
-
-    const role = await this.roleRepository.findRoleById(roleId);
-
-    if (!role) {
-      throw new NotFoundException(
-        `role ${roleId} does not exist`,
-        AuthErrorCode.USER_NOT_FOUND,
-      );
-    }
-
-    user.role = role;
-
-    const userUpdated = await this.userService.updateUser(user);
-
-    return userUpdated;
-  }
+ 
 }

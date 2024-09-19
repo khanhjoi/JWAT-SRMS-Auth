@@ -49,7 +49,7 @@ export class RoleRepository {
       if (select) {
         queryBuilder.select(select.map((field) => `role.${field}`));
       }
-      
+
       // get relations if user want
       if (relations) {
         relations.forEach((relation) => {
@@ -88,9 +88,9 @@ export class RoleRepository {
     }
   }
 
-  async getRoles():Promise<Role[]> {
+  async getRoles(): Promise<Role[]> {
     const roles = await this.roleRepository.find();
-    return roles
+    return roles;
   }
 
   async updateRole(role: Role): Promise<Role> {
@@ -156,9 +156,15 @@ export class RoleRepository {
       const roleDeleted = await this.roleRepository.remove(role);
       return roleDeleted;
     } catch (error) {
-      console.log(error);
+      if (error?.code === '23503') {
+        // Foreign key violation
+        throw new BadRequestException(
+          'Cannot delete role. It is being referenced by other entities.',
+          AuthErrorCode.ROLE_DELETE_FAILED,
+        );
+      }
       throw new BadRequestException(
-        'Delete role failed',
+        'Delete role failed ',
         AuthErrorCode.DEFAULT_ERROR,
       );
     }

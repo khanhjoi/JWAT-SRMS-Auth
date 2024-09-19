@@ -130,7 +130,6 @@ export class UserRepository {
 
       const user = await query.getOne();
 
-      console.log(user);
       return user;
     } catch (error) {
       console.log(error);

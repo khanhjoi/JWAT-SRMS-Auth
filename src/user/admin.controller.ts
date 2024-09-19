@@ -20,8 +20,10 @@ import { UpdateUserByAdminDTO } from './dto/update-user-by-admin.dto';
 import { AdminUserService } from './admin.service';
 import { UserService } from './user.service';
 import { CreateUserDTO } from './dto/create-user.dto';
+import { AssignRoleDto } from 'src/role/dto/request/assign-permission.dto';
 
 @Controller('/admin')
+@UseGuards(AuthGuard, AbilitiesGuard)
 export class AdminController {
   constructor(
     private adminUserService: AdminUserService,
@@ -30,25 +32,47 @@ export class AdminController {
 
   @Get('/users')
   @CheckAbilities({ action: Action.READ, subject: 'User' })
-  @UseGuards(AuthGuard, AbilitiesGuard)
   async getUsersAdmin(
     @Query() userQueryPagination: OffsetPaginationDto,
   ): Promise<IOffsetPaginatedType<User>> {
-    const res = await this.adminUserService.findAllUserWithPagination(userQueryPagination);
+    const res =
+      await this.adminUserService.findAllUserWithPagination(
+        userQueryPagination,
+      );
+    return res;
+  }
+
+  @Get('/users/:id')
+  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  async getUserDetailAdmin(@Param('id') id: string): Promise<User> {
+    const res = await this.userService.findUserById(id, [
+      'id',
+      'lastName',
+      'firstName',
+      'email',
+      'createdAt',
+      'role',
+    ]);
     return res;
   }
 
   @Post('/user')
   @CheckAbilities({ action: Action.WRITE, subject: 'User' })
-  @UseGuards(AuthGuard, AbilitiesGuard)
   async addUserAdmin(@Body() createUserDto: CreateUserDTO): Promise<User> {
     const res = await this.userService.createUser(createUserDto);
-    return res; 
+    return res;
+  }
+
+  @Post('/user/:userId/assign-role/:roleId')
+  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
+  async assignRole(@Param() params: AssignRoleDto): Promise<User> {
+    const { userId, roleId } = params;
+    const res = await this.adminUserService.assignRole(userId, roleId);
+    return res;
   }
 
   @Put('/user')
   @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
-  @UseGuards(AuthGuard, AbilitiesGuard)
   async updateUser(@Body() updateUser: UpdateUserByAdminDTO): Promise<User> {
     const res = await this.adminUserService.updateUser(updateUser);
     return res;
@@ -56,7 +80,6 @@ export class AdminController {
 
   @Put('/user/:id/active')
   @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
-  @UseGuards(AuthGuard, AbilitiesGuard)
   async activeUser(@Param('id') userId: string): Promise<User> {
     const res = await this.adminUserService.activeUser(userId);
     return res;
@@ -64,7 +87,6 @@ export class AdminController {
 
   @Delete('/user/:id')
   @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
-  @UseGuards(AuthGuard, AbilitiesGuard)
   async delete(@Param('id') userId: string): Promise<User> {
     const res = await this.adminUserService.deleteUser(userId);
     return res;

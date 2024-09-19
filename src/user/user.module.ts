@@ -9,6 +9,8 @@ import { Token } from 'src/Token/entity/token.entity';
 import { UserRepository } from './user.repository';
 import { AdminController } from './admin.controller';
 import { AdminUserService } from './admin.service';
+import { Role } from 'src/role/entity/role.entity';
+import { RoleRepository } from 'src/role/role.repository';
 
 @Global()
 @Module({
@@ -26,10 +28,10 @@ import { AdminUserService } from './admin.service';
       },
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User, Token]),
+    TypeOrmModule.forFeature([User, Token, Role]),
   ],
   controllers: [UserController, AdminController],
-  providers: [UserService, AdminUserService, UserRepository],
+  providers: [UserService, AdminUserService, UserRepository, RoleRepository],
   exports: [UserService],
 })
 export class UserModule {}

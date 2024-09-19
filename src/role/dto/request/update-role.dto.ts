@@ -19,7 +19,7 @@ export class UpdateRoleDTO
   @IsString()
   description: string;
 
-  permissions?: string[] | Permission[]| any;
+  permissions?: string[] | Permission[] | any;
 
   active: boolean;
 }
