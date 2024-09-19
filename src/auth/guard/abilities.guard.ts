@@ -41,6 +41,7 @@ export class AbilitiesGuard implements CanActivate {
   };
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    //get List rule to access function
     const rules: any =
       this.reflector.get<RequiredRule[]>(CHECK_ABILITY, context.getHandler()) ||
       [];
@@ -48,6 +49,8 @@ export class AbilitiesGuard implements CanActivate {
     const currentUser: any = context.switchToHttp().getRequest().user;
     const superAdmin = this.configService.get<string>('super_Admin_Id');
 
+
+    // pass when user is a super admin
     if (currentUser?.roleId === superAdmin) {
       return true;
     }
@@ -58,6 +61,8 @@ export class AbilitiesGuard implements CanActivate {
       );
     }
 
+
+    // current user permission
     const userPermissions = await this.entityManager
       .getRepository(Role)
       .findOne({
@@ -98,29 +103,4 @@ export class AbilitiesGuard implements CanActivate {
       throw error;
     }
   }
-
-  // This function is used for some objects that have special conditions
-  // parseCondition(permissions: any, currentUser: User) {
-  //   const data = map(permissions, (permission: any) => {
-  //     if (size(permission.conditions)) {
-  //       const parsedVal = Mustache.render(
-  //         permission.conditions['created_by'],
-  //         currentUser,
-  //       );
-  //       return {
-  //         ...permission,
-  //         conditions: { created_by: +parsedVal },
-  //       };
-  //     }
-  //     return permission;
-  //   });
-  //   return data;
-  // }
-
-  // get subject
-  // async getSubjectById(id: number, subName: string) {
-  //   const subject = await this.entityManager.getRepository(subName);
-  //   if (!subject) throw new NotFoundException(`${subName} not found`);
-  //   return subject;
-  // }
 }

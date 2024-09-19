@@ -31,6 +31,7 @@ export class AdminController {
   ) {}
 
   @Get('/users')
+  
   @CheckAbilities({ action: Action.READ, subject: 'User' })
   async getUsersAdmin(
     @Query() userQueryPagination: OffsetPaginationDto,
