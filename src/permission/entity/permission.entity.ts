@@ -15,12 +15,10 @@ export class Permission implements IPermission {
   @Column()
   title: string;
 
-  @Column(
-    {
-      type: 'enum',
-      enum: Action
-    }
-  )
+  @Column({
+    type: 'enum',
+    enum: Action,
+  })
   action: Action;
 
   @Column()

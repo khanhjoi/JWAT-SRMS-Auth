@@ -1,4 +1,4 @@
-import { Global, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
@@ -30,7 +30,7 @@ import { CacheModule } from '@nestjs/cache-manager';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.dbName,
-          synchronize: false,
+          schema: databaseConfig.dbSchema ,
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
           migrations: [`${__dirname}/../../db/migrations/*{.ts,.js}`],
         };

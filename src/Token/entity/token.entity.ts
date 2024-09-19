@@ -11,10 +11,7 @@ export class Token implements IToken {
   @Column()
   token: string;
 
-  @Column({
-    type: 'enum',
-    enum: TypeToken,
-  })
+  @Column()
   type: TypeToken;
 
   @Column()
