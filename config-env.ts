@@ -9,7 +9,7 @@ export default () => ({
     username: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
     dbName: process.env.DB_NAME,
-    dbSchema: process.env.DB_SCHEMA
+    dbSchema: process.env.DB_SCHEMA,
   },
   services: [
     {
@@ -27,5 +27,5 @@ export type databaseConfigType = {
   username: string;
   password: string;
   dbName: string;
-  dbSchema: string
+  dbSchema: string;
 };

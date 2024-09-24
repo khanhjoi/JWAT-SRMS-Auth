@@ -30,7 +30,7 @@ import { CacheModule } from '@nestjs/cache-manager';
           username: databaseConfig.username,
           password: databaseConfig.password,
           database: databaseConfig.dbName,
-          schema: databaseConfig.dbSchema ,
+          schema: databaseConfig.dbSchema,
           entities: [__dirname + '/../**/*.entity{.ts,.js}'],
           migrations: [`${__dirname}/../../db/migrations/*{.ts,.js}`],
         };

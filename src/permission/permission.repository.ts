@@ -38,7 +38,7 @@ export class PermissionRepository {
 
       if (search) {
         queryBuilder.andWhere(
-          `(permission.title like :search or permission.action like :search or permission.subject like: search)`,
+          `(permission.title LIKE :search OR permission.subject LIKE :search)`,
           { search: `%${search}%` },
         );
       }
@@ -61,6 +61,7 @@ export class PermissionRepository {
         pageSize: limit,
       };
     } catch (error) {
+      console.log(error)
       if (error) {
         throw new BadRequestException(
           'Get permissions failed',

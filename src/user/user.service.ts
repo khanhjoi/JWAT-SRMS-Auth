@@ -66,10 +66,7 @@ export class UserService {
     return userExists;
   }
 
-  async findUserById(
-    userId: string,
-    select?: (keyof User)[],
-  ): Promise<User> {
+  async findUserById(userId: string, select?: (keyof User)[]): Promise<User> {
     const userIsExit = await this.userRepository.findUserById(userId, select);
 
     if (!userIsExit) {
@@ -78,6 +75,8 @@ export class UserService {
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
+
+    console.log(userIsExit);
 
     return userIsExit;
   }

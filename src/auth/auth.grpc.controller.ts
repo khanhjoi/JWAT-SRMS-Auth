@@ -13,7 +13,7 @@ import { UserService } from 'src/user/user.service';
 @AuthServiceControllerMethods()
 export class AuthGrpcController implements AuthServiceController {
   constructor(private userService: UserService) {}
- 
+
   getInfoById(
     request: GetInfoUserByIdRequest,
   ):
@@ -21,6 +21,7 @@ export class AuthGrpcController implements AuthServiceController {
     | Observable<GetInfoUserResponse>
     | GetInfoUserResponse {
     const user = this.userService.findUserById(request.userId);
+
     return user;
   }
 

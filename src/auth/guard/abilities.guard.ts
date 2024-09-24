@@ -62,7 +62,7 @@ export class AbilitiesGuard implements CanActivate {
     }
 
 
-    // current user permission
+    // current user permission & call grpc 
     const userPermissions = await this.entityManager
       .getRepository(Role)
       .findOne({
