@@ -8,6 +8,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -76,8 +77,6 @@ export class UserService {
       );
     }
 
-    console.log(userIsExit);
-
     return userIsExit;
   }
 
@@ -94,5 +93,44 @@ export class UserService {
     const userUpdated = await this.userRepository.updateUser(user);
 
     return userUpdated;
+  }
+
+  async updateProfileUser(
+    userId: string,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<User> {
+    const userIsExit = await this.userRepository.findUserById(userId);
+    const userHasEmail = await this.userRepository.findUserByEmail(
+      updateProfileDto.email,
+    );
+
+    if (!userIsExit) {
+      throw new NotFoundException(
+        'User not found',
+        AuthErrorCode.USER_NOT_FOUND,
+      );
+    }
+
+    if (userHasEmail && userHasEmail.email !== userIsExit.email) {
+      throw new BadRequestException(
+        'Email has already been taken',
+        AuthErrorCode.USER_UPDATE_FAILED,
+      );
+    }
+
+    const getSalt = await bcrypt.genSalt();
+    const newHashPassword = await bcrypt.hash(
+      updateProfileDto.password,
+      getSalt,
+    );
+
+    userIsExit.firstName = updateProfileDto.firstName;
+    userIsExit.lastName = updateProfileDto.lastName;
+    userIsExit.email = updateProfileDto.email;
+    userIsExit.password = newHashPassword;
+
+    const userWasUpdate = await this.userRepository.updateUser(userIsExit);
+
+    return userWasUpdate;
   }
 }

@@ -85,25 +85,6 @@ export class UserRepository {
     }
   }
 
-  // async findUserById(id: string, select?: (keyof User)[]): Promise<User> {
-  //   try {
-  //     const user = await this.userRepository.findOne({
-  //       where: { id: id },
-  //       select: select || undefined,
-  //       relations: {
-  //         role: true
-  //       },
-  //     });
-
-  //     return user;
-  //   } catch (error) {
-  //     console.log(error);
-  //     throw new BadRequestException(
-  //       'Failed to find user',
-  //       AuthErrorCode.DATABASE_ERROR,
-  //     );
-  //   }
-  // }
   async findUserById(id: string, select?: (keyof User)[]): Promise<User> {
     try {
       const query = this.userRepository

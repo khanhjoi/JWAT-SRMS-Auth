@@ -11,6 +11,8 @@ import { AdminController } from './admin.controller';
 import { AdminUserService } from './admin.service';
 import { Role } from 'src/role/entity/role.entity';
 import { RoleRepository } from 'src/role/role.repository';
+import { AuthService } from 'src/auth/auth.service';
+import { TokenModule } from 'src/Token/token.module';
 
 @Global()
 @Module({
@@ -29,6 +31,7 @@ import { RoleRepository } from 'src/role/role.repository';
       inject: [ConfigService],
     }),
     TypeOrmModule.forFeature([User, Token, Role]),
+    TokenModule,
   ],
   controllers: [UserController, AdminController],
   providers: [UserService, AdminUserService, UserRepository, RoleRepository],

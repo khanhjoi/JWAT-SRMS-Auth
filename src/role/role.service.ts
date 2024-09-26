@@ -10,17 +10,17 @@ import {
 } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 import { Permission } from 'src/permission/entity/permission.entity';
-import { UserService } from 'src/user/user.service';
-import { User } from 'src/user/entity/user.entity';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { UpdateStatusRole } from './dto/request/update-status-role.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RoleService {
   constructor(
     private roleRepository: RoleRepository,
     private permissionsRepository: PermissionRepository,
+    private configService: ConfigService,
   ) {}
 
   async getRolesWithPagination(
@@ -35,7 +35,7 @@ export class RoleService {
     const roles = await this.roleRepository.getRoles();
     return roles;
   }
-  
+
   async getRoleWithId(id: string): Promise<Role> {
     const role = await this.roleRepository.findRoleById(id);
 
@@ -98,10 +98,27 @@ export class RoleService {
     roleId: string,
     data: UpdateStatusRole,
   ): Promise<Role> {
+    const role = await this.roleRepository.findRoleById(roleId);
+
+    if (!role) {
+      throw new NotFoundException(
+        'Role not found',
+        AuthErrorCode.ROLE_FIND_FAILED,
+      );
+    }
+
+    if (role.id === this.configService.get<string>('super_Admin_Id')) {
+      throw new BadRequestException(
+        "Super Admin Can't Deactivate",
+        AuthErrorCode.ROLE_UPDATE_FAILED,
+      );
+    }
+
     const roleUpdated = await this.roleRepository.updateStatusRole(
       roleId,
       data.status,
     );
+
     return roleUpdated;
   }
 
@@ -119,6 +136,4 @@ export class RoleService {
 
     return roleDeleted;
   }
-
- 
 }

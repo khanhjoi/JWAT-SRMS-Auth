@@ -12,12 +12,16 @@ import {
 import * as bcrypt from 'bcrypt';
 import { UserService } from './user.service';
 import { RoleRepository } from 'src/role/role.repository';
+import { AuthService } from 'src/auth/auth.service';
+import { TokenService } from 'src/Token/token.service';
+import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
 export class AdminUserService {
   constructor(
     private userRepository: UserRepository,
     private userService: UserService,
+    private tokenService: TokenService,
     private roleRepository: RoleRepository,
   ) {}
 
@@ -81,6 +85,20 @@ export class AdminUserService {
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
+
+    const token = await this.tokenService.findTokenOfUserId(
+      userIsExit.id,
+      TypeToken.REFRESH_TOKEN,
+    );
+
+    if (!token) {
+      throw new BadRequestException(
+        'Invalid Token',
+        AuthErrorCode.USER_DELETE_FAILED,
+      );
+    }
+
+    await this.tokenService.deleteRefreshToken(token.id);
 
     userIsExit.isDelete = true;
 

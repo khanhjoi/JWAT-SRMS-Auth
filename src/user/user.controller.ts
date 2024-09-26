@@ -1,7 +1,16 @@
-import { Controller, Get, Query, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Put,
+  Query,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { User } from './entity/user.entity';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Controller('/user')
 export class UserController {
@@ -16,8 +25,22 @@ export class UserController {
       'firstName',
       'email',
       'createdAt',
-      'role'
+      'role',
     ]);
     return res;
+  }
+
+  @Put('/profile')
+  @UseGuards(AuthGuard)
+  async updateProfile(
+    @Request() req,
+    @Body() updateProfileDto: UpdateProfileDto,
+  ): Promise<User> {
+    const user = await this.userService.updateProfileUser(
+      req.user.sub,
+      updateProfileDto,
+    );
+    
+    return user;
   }
 }

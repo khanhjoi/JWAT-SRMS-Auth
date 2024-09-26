@@ -115,13 +115,6 @@ export class RoleRepository {
         },
       });
 
-      if (!role) {
-        throw new NotFoundException(
-          'Role not found',
-          AuthErrorCode.ROLE_FIND_FAILED,
-        );
-      }
-
       role.active = status;
 
       const roleUpdated = await this.roleRepository.save(role);
