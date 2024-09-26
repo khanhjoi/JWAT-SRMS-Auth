@@ -12,8 +12,7 @@ import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { Controller } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import { Observable } from 'rxjs';
-import { RoleService } from 'src/role/role.service';
+
 import { UserService } from 'src/user/user.service';
 
 @Controller()

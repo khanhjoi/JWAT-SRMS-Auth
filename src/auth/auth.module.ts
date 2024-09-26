@@ -18,7 +18,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         options: {
           client: {
             clientId: 'notification_1',
-            brokers: ['localhost:9092']
+            brokers: ['localhost:9092'] // this is call cluster -> many broker
           },
           consumer: {
             groupId: 'notification-consumer',

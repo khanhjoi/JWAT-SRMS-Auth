@@ -5,6 +5,8 @@ import {
   RawRuleOf,
   ForbiddenError,
   createMongoAbility,
+  AbilityBuilder,
+  Ability,
 } from '@casl/ability';
 
 import {
@@ -17,11 +19,12 @@ import {
 import { EntityManager } from 'typeorm';
 import { Role } from 'src/role/entity/role.entity';
 import { ConfigService } from '@nestjs/config';
-import { AppAbility } from 'src/casl/casl-ability.factory/ability.factory';
 import {
   CHECK_ABILITY,
   RequiredRule,
 } from 'src/common/decorators/abilities.decorator';
+import { AppAbility } from 'src/casl/casl-ability.factory/ability.factory';
+import { User } from 'src/user/entity/user.entity';
 
 @Injectable()
 export class AbilitiesGuard implements CanActivate {
@@ -32,16 +35,23 @@ export class AbilitiesGuard implements CanActivate {
   ) {}
 
   /**
-   * this will return the PureAbility to use for Authentication
-   * @param rules list permission
+   * This will return the PureAbility to use for Authentication
+   * @param rules List of permissions
    * @returns
    */
   createAbility = (rules: RawRuleOf<AppAbility>[]) => {
-    return createMongoAbility<AppAbility>(rules);
+    const { can, build } = new AbilityBuilder(Ability);
+
+    // Create rules from the provided permissions
+    for (const rule of rules) {
+      can(rule.action, rule.subject);
+    }
+
+    return build();
   };
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    //get List rule to access function
+    // Get list of rules to access the function
     const rules: any =
       this.reflector.get<RequiredRule[]>(CHECK_ABILITY, context.getHandler()) ||
       [];
@@ -49,8 +59,7 @@ export class AbilitiesGuard implements CanActivate {
     const currentUser: any = context.switchToHttp().getRequest().user;
     const superAdmin = this.configService.get<string>('super_Admin_Id');
 
-
-    // pass when user is a super admin
+    // Pass when user is a super admin
     if (currentUser?.roleId === superAdmin) {
       return true;
     }
@@ -61,25 +70,19 @@ export class AbilitiesGuard implements CanActivate {
       );
     }
 
+    // Get current user permissions
 
-    // current user permission & call grpc 
-    const userPermissions = await this.entityManager
-      .getRepository(Role)
-      .findOne({
-        where: {
-          id: currentUser.roleId,
-        },
-        select: {
-          permissions: {
-            action: true,
-            subject: true,
-            condition: true,
-          },
-        },
-      });
+    const user = await this.entityManager.getRepository(User).findOne({
+      where: {
+        id: currentUser.sub,
+      },
+      relations: {
+        role: true,
+      },
+    });
 
     try {
-      const ability = this.createAbility(Object(userPermissions.permissions));
+      const ability = this.createAbility(Object(user.role.permissions));
 
       for await (const rule of rules) {
         let sub = {};
@@ -89,7 +92,7 @@ export class AbilitiesGuard implements CanActivate {
             `You are not allowed to ${error.action} on ${error.subjectType}`,
         );
 
-        // if rule not exit in ability => throw error
+        // If rule does not exist in ability => throw error
         ForbiddenError.from(ability).throwUnlessCan(
           rule.action,
           subject(rule.subject, sub),

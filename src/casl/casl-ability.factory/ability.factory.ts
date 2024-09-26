@@ -1,4 +1,4 @@
-import { ForcedSubject, MongoAbility } from '@casl/ability';
+import { ForcedSubject, MongoAbility, Ability} from '@casl/ability';
 import { Action } from 'src/common/enums/action.enum';
 
 export const actions = [
@@ -22,4 +22,5 @@ export type Abilities = [
   ),
 ];
 
-export type AppAbility = MongoAbility<Abilities>;
+// export type AppAbility = MongoAbility<Abilities>;
+export type AppAbility = Ability<Abilities>;

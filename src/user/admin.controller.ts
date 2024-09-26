@@ -64,7 +64,7 @@ export class AdminController {
   }
 
   @Post('/user/:userId/assign-role/:roleId')
-  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
+  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
   async assignRole(@Param() params: AssignRoleDto): Promise<User> {
     const { userId, roleId } = params;
     const res = await this.adminUserService.assignRole(userId, roleId);
@@ -86,7 +86,7 @@ export class AdminController {
   }
 
   @Delete('/user/:id')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: Action.DELETE, subject: 'User' })
   async delete(@Param('id') userId: string): Promise<User> {
     const res = await this.adminUserService.deleteUser(userId);
     return res;
