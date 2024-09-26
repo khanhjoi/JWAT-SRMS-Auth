@@ -39,6 +39,7 @@ export class AuthController {
       httpOnly: true,
     });
 
+    console.log(accessToken)
     return {
       message: 'Logged in successfully',
     };

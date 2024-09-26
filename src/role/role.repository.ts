@@ -35,6 +35,24 @@ export class RoleRepository {
     }
   }
 
+  async getRoleByUserId(roleId: string, select?: (keyof Role)[]): Promise<Role> {
+    try {
+      const role = await this.roleRepository.findOne({
+        where: { id: roleId },
+        select: select || undefined,
+      });
+
+      return role;
+    } catch (error) {
+      if (error) {
+        throw new BadRequestException(
+          'Find role failed',
+          AuthErrorCode.DEFAULT_ERROR,
+        );
+      }
+    }
+  }
+
   async getRolesWithPagination(
     queryPagination: OffsetPaginationDto,
     select?: (keyof Role)[],

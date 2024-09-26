@@ -9,6 +9,7 @@ import {
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { GetUserResponse } from '@khanhjoi/protos';
 
 @Injectable()
 export class UserService {

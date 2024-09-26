@@ -705,10 +705,10 @@
   resolved "https://registry.npmjs.org/@js-sdsl/ordered-map/-/ordered-map-4.4.2.tgz"
   integrity sha512-iUKgm52T8HOE/makSxjqoWhe95ZJA1/G1sYsGev2JDKUSS14KAgg1LHb+Ba+IPow0xflbnSkOsZcO08C7w1gYw==
 
-"@khanhjoi/protos@^1.1.0":
-  version "1.1.0"
-  resolved "https://registry.npmjs.org/@khanhjoi/protos/-/protos-1.1.0.tgz"
-  integrity sha512-GCGRSmsSufV6igNeKWTng/4jciPEdIaIvdrf78JlS7yBk4sZoc1jJQhB8vxdg0dviaKDRhS79CFEzFvJiszSpw==
+"@khanhjoi/protos@^1.1.1":
+  version "1.1.1"
+  resolved "https://registry.npmjs.org/@khanhjoi/protos/-/protos-1.1.1.tgz"
+  integrity sha512-cveJrFQwpabJBuOrfzIbAUg/3lNDf7oFYC7IryJRPnYLad/85f+31obzmmeMKiQuM+hSpPPABoftsa//hwp8zw==
   dependencies:
     "@nestjs/common" "^10.4.1"
     "@nestjs/microservices" "^10.3.10"
