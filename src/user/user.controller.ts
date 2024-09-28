@@ -26,6 +26,7 @@ export class UserController {
       'email',
       'createdAt',
       'role',
+      'isDelete',
     ]);
     return res;
   }
@@ -40,7 +41,7 @@ export class UserController {
       req.user.sub,
       updateProfileDto,
     );
-    
+
     return user;
   }
 }

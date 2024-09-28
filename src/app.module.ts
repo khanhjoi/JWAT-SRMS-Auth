@@ -4,12 +4,15 @@ import { UserModule } from './user/user.module';
 import { PermissionModule } from './permission/permission.module';
 import { RoleModule } from './role/role.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import ConfigurationEnv, { databaseConfigType } from '../config-env';
+import ConfigurationEnv, {
+  DatabaseConfigType,
+  RedisConfigType,
+} from '../config-env';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
 import { TokenModule } from './Token/token.module';
 import { CaslModule } from './casl/casl.module';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheSharedModule } from './shared/cache/cacheShared.module';
 
 @Module({
   imports: [
@@ -22,7 +25,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const databaseConfig =
-          configService.get<databaseConfigType>('database');
+          configService.get<DatabaseConfigType>('database');
         return {
           type: databaseConfig.type,
           host: databaseConfig.host,
@@ -37,9 +40,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       },
       inject: [ConfigService],
     }),
-    CacheModule.register({
-      isGlobal: true,
-    }),
+    CacheSharedModule,
     SharedJwtModule,
     AuthModule,
     UserModule,

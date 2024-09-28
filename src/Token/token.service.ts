@@ -53,7 +53,6 @@ export class TokenService {
    */
   async createRefreshToken(userId: string, token: string): Promise<Token> {
     const user = await this.userRepo.findUserById(userId);
-
     const newToken = await this.tokenRepository.createToken({
       token: token,
       expiresAt: TimeToken.REFRESH_TOKEN,

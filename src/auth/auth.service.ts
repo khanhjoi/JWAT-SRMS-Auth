@@ -59,7 +59,6 @@ export class AuthService {
         AuthErrorCode.INPUT_IS_NOT_VALID,
       );
     }
-
     let { accessToken, refreshToken } = await this.generateRefreshToken({
       sub: user?.id,
       roleId: user?.role?.id || '',

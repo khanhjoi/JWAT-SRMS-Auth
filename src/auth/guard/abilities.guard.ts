@@ -1,10 +1,8 @@
 import { Reflector } from '@nestjs/core';
-
 import {
   subject,
   RawRuleOf,
   ForbiddenError,
-  createMongoAbility,
   AbilityBuilder,
   Ability,
 } from '@casl/ability';
@@ -17,7 +15,6 @@ import {
 } from '@nestjs/common';
 
 import { EntityManager } from 'typeorm';
-import { Role } from 'src/role/entity/role.entity';
 import { ConfigService } from '@nestjs/config';
 import {
   CHECK_ABILITY,
@@ -64,14 +61,7 @@ export class AbilitiesGuard implements CanActivate {
       return true;
     }
 
-    if (!currentUser.roleId) {
-      throw new ForbiddenException(
-        'You are not allowed to perform this action',
-      );
-    }
-
     // Get current user permissions
-
     const user = await this.entityManager.getRepository(User).findOne({
       where: {
         id: currentUser.sub,
@@ -80,6 +70,12 @@ export class AbilitiesGuard implements CanActivate {
         role: true,
       },
     });
+
+    if (!user.role.id) {
+      throw new ForbiddenException(
+        'You are not allowed to perform this action',
+      );
+    }
 
     try {
       const ability = this.createAbility(Object(user.role.permissions));

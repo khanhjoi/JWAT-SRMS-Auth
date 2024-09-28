@@ -64,6 +64,41 @@ export class UserRepository {
     }
   }
 
+  /**
+   * this method create for find all user with role
+   * Purpose: use to clear cache user when edit role 
+   * @param roleId 
+   * @returns ListUser with id, email, role
+   */
+  async findUsersWithRoleId(roleId: string): Promise<User[]> {
+    try {
+      const users = await this.userRepository.find({
+        where: {
+          role: {
+            id: roleId,
+          },
+          isDelete: false,
+        },
+        select: {
+          id: true,
+          email: true,
+          role: {
+            id: true,
+          },
+        },
+        relations: {
+          role: true,
+        },
+      });
+      return users;
+    } catch (error) {
+      throw new BadRequestException(
+        'Failed to find user with roleId',
+        AuthErrorCode.DATABASE_ERROR,
+      );
+    }
+  }
+
   async findUserByEmail(
     email: string,
     select?: (keyof User)[],

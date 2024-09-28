@@ -9,7 +9,7 @@ import { IUser } from '../interface/user.interface';
 
 export class UpdateUserByAdminDTO
   implements
-    Pick<IUser, 'id' | 'firstName' | 'lastName' | 'email' | 'password'>
+    Pick<IUser, 'id' | 'firstName' | 'lastName' | 'email' >
 {
   @IsNotEmpty()
   @IsString()
@@ -25,8 +25,4 @@ export class UpdateUserByAdminDTO
 
   @IsEmail()
   email: string;
-
-  @IsNotEmpty()
-  @IsStrongPassword()
-  password: string;
 }

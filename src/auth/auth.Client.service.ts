@@ -15,7 +15,7 @@ import { SendEmail, SendMailDTO } from './dto/request/send-email.dto';
 //     requestPatterns.forEach(pattern => this.notificationService.subscribeToResponseOf(pattern));
 //     await this.notificationService.connect();
 //   }
-
+ 
 //   sendWelcomeMail(data: SendMailDTO) {
 //     return this.notificationService.emit(
 //       'send_welcome',

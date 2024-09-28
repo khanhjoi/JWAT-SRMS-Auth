@@ -14,6 +14,8 @@ import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.inte
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { UpdateStatusRole } from './dto/request/update-status-role.dto';
 import { ConfigService } from '@nestjs/config';
+import { UserService } from 'src/user/user.service';
+import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
 
 @Injectable()
 export class RoleService {
@@ -21,6 +23,8 @@ export class RoleService {
     private roleRepository: RoleRepository,
     private permissionsRepository: PermissionRepository,
     private configService: ConfigService,
+    private useService: UserService,
+    private cacheService: CacheSharedService,
   ) {}
 
   async getRolesWithPagination(
@@ -67,8 +71,13 @@ export class RoleService {
     return role;
   }
 
-  async updateRole(id: string, updateRoleDTO: UpdateRoleDTO): Promise<Role> {
-    let role = await this.roleRepository.findRoleById(id);
+  async updateRole(
+    roleId: string,
+    updateRoleDTO: UpdateRoleDTO,
+  ): Promise<Role> {
+    let role = await this.roleRepository.findRoleById(roleId);
+
+    const users = await this.useService.findUsersWithRoleId(roleId);
 
     if (!role) {
       throw new NotFoundException(
@@ -89,6 +98,12 @@ export class RoleService {
       ...updateRoleDTO,
     };
 
+    // clear cache user with this role permission
+    for (const user of users) {
+      await this.cacheService.deleteValue(user.id);
+      await this.cacheService.deleteValue(user.email);
+    }
+
     let updateRole = await this.roleRepository.updateRole(role);
 
     return updateRole;
@@ -99,6 +114,7 @@ export class RoleService {
     data: UpdateStatusRole,
   ): Promise<Role> {
     const role = await this.roleRepository.findRoleById(roleId);
+    const users = await this.useService.findUsersWithRoleId(roleId);
 
     if (!role) {
       throw new NotFoundException(
@@ -114,6 +130,12 @@ export class RoleService {
       );
     }
 
+    // clear cache user with this role permission
+    for (const user of users) {
+      await this.cacheService.deleteValue(user.id);
+      await this.cacheService.deleteValue(user.email);
+    }
+
     const roleUpdated = await this.roleRepository.updateStatusRole(
       roleId,
       data.status,
@@ -122,14 +144,21 @@ export class RoleService {
     return roleUpdated;
   }
 
-  async deleteRole(id: string): Promise<Role> {
-    const role = await this.roleRepository.findRoleById(id);
+  async deleteRole(roleId: string): Promise<Role> {
+    const role = await this.roleRepository.findRoleById(roleId);
+    const users = await this.useService.findUsersWithRoleId(roleId);
 
     if (!role) {
       throw new NotFoundException(
         'Role not found',
         AuthErrorCode.ROLE_FIND_FAILED,
       );
+    }
+
+     // clear cache user with this role permission
+     for (const user of users) {
+      await this.cacheService.deleteValue(user.id);
+      await this.cacheService.deleteValue(user.email);
     }
 
     const roleDeleted = await this.roleRepository.deleteRole(role);

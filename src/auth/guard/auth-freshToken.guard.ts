@@ -15,6 +15,7 @@ export class AuthRefreshGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const token = this.extractTokenFromHeader(request);
+    
     const refreshToken = await this.tokenService.findTokenByToken(
       token,
       TypeToken.REFRESH_TOKEN,

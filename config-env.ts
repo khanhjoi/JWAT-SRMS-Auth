@@ -11,6 +11,11 @@ export default () => ({
     dbName: process.env.DB_NAME,
     dbSchema: process.env.DB_SCHEMA,
   },
+  redis: {
+    host: process.env.REDIS_HOST,
+    port: parseInt(process.env.REDIS_PORT, 10) || 6379,
+    TTL: parseInt(process.env.REDIS_TIME_TO_LIVE, 10) || 86400,
+  },
   services: [
     {
       notification_kafka: process.env.NOTIFICATION_KAFKA_CLIENT_ID,
@@ -20,7 +25,7 @@ export default () => ({
   ],
 });
 
-export type databaseConfigType = {
+export type DatabaseConfigType = {
   type: string | any;
   host: string;
   port: number;
@@ -28,4 +33,10 @@ export type databaseConfigType = {
   password: string;
   dbName: string;
   dbSchema: string;
+};
+
+export type RedisConfigType = {
+  host: string;
+  port: number;
+  TTL: number;
 };

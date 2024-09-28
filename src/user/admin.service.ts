@@ -15,6 +15,7 @@ import { RoleRepository } from 'src/role/role.repository';
 import { AuthService } from 'src/auth/auth.service';
 import { TokenService } from 'src/Token/token.service';
 import { TypeToken } from 'src/common/enums/typeToken.enum';
+import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
 
 @Injectable()
 export class AdminUserService {
@@ -23,6 +24,7 @@ export class AdminUserService {
     private userService: UserService,
     private tokenService: TokenService,
     private roleRepository: RoleRepository,
+    private cacheService: CacheSharedService,
   ) {}
 
   async findAllUserWithPagination(
@@ -63,15 +65,13 @@ export class AdminUserService {
     userIsExit.firstName = updateUserByAdminDto.firstName;
     userIsExit.lastName = updateUserByAdminDto.lastName;
 
-    const getSalt = await bcrypt.genSalt();
-    const newHashPassword = await bcrypt.hash(
-      updateUserByAdminDto.password,
-      getSalt,
-    );
+    // remove cache user if user exit in redis store
+    this.cacheService.deleteValue(userIsExit.email);
+    this.cacheService.deleteValue(userIsExit.id);
 
-    userIsExit.password = newHashPassword;
+    const userUpdated = await this.userRepository.updateUser(userIsExit);
 
-    const userUpdated = this.userRepository.updateUser(userIsExit);
+    userUpdated.password = '';
 
     return userUpdated;
   }
@@ -102,6 +102,10 @@ export class AdminUserService {
 
     userIsExit.isDelete = true;
 
+    // remove cache user if user exit in redis store
+    this.cacheService.deleteValue(userIsExit.email);
+    this.cacheService.deleteValue(userIsExit.id);
+
     const userDeleted = await this.userRepository.updateUser(userIsExit);
 
     return userDeleted;
@@ -118,6 +122,10 @@ export class AdminUserService {
     }
 
     userIsExit.isDelete = false;
+
+    // remove cache user if user exit in redis store
+    this.cacheService.deleteValue(userIsExit.email);
+    this.cacheService.deleteValue(userIsExit.id);
 
     const userActive = await this.userRepository.updateUser(userIsExit);
 
@@ -144,6 +152,9 @@ export class AdminUserService {
     }
 
     user.role = role;
+    // remove cache user if user exit in redis store
+    this.cacheService.deleteValue(user.email);
+    this.cacheService.deleteValue(user.id);
 
     const userUpdated = await this.userService.updateUser(user);
 

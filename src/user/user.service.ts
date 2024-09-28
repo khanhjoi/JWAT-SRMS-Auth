@@ -9,11 +9,14 @@ import {
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { GetUserResponse } from '@khanhjoi/protos';
+import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
 
 @Injectable()
 export class UserService {
-  constructor(private readonly userRepository: UserRepository) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private cacheService: CacheSharedService,
+  ) {}
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
     const isUserExit = await this.userRepository.findUserByEmail(
@@ -47,28 +50,54 @@ export class UserService {
     return newUser;
   }
 
+  async findUsersWithRoleId(roleId: string): Promise<User[]> {
+    const users = this.userRepository.findUsersWithRoleId(roleId);
+    return users;
+  }
+
   async findUserByEmail(
     email: string,
     select?: (keyof User)[],
     relations?: any[], // list relations ['role']
   ): Promise<User> {
-    const userExists = await this.userRepository.findUserByEmail(
+    const userCached: User = await this.cacheService.getValueByKey(email);
+
+    if (userCached) {
+      return userCached;
+    }
+
+    const userIsExist = await this.userRepository.findUserByEmail(
       email,
       select,
       relations,
     );
 
-    if (!userExists) {
+    if (!userIsExist) {
       throw new NotFoundException(
         'User not found',
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
 
-    return userExists;
+    await this.cacheService.setValue(userIsExist.email, userIsExist);
+
+    return userIsExist;
   }
 
   async findUserById(userId: string, select?: (keyof User)[]): Promise<User> {
+    const userCached: User = await this.cacheService.getValueByKey(userId);
+
+    if (userCached?.isDelete) {
+      throw new BadRequestException(
+        'Your account has been deactivated. Please contact the administrator.',
+        AuthErrorCode.USER_FIND_FAILED,
+      );
+    }
+
+    if (userCached) {
+      return userCached;
+    }
+
     const userIsExit = await this.userRepository.findUserById(userId, select);
 
     if (!userIsExit) {
@@ -77,6 +106,15 @@ export class UserService {
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
+
+    if (userIsExit?.isDelete) {
+      throw new BadRequestException(
+        'Your account has been deactivated. Please contact the administrator.',
+        AuthErrorCode.USER_FIND_FAILED,
+      );
+    }
+
+    await this.cacheService.setValue(userIsExit.id, userIsExit);
 
     return userIsExit;
   }
@@ -130,7 +168,13 @@ export class UserService {
     userIsExit.email = updateProfileDto.email;
     userIsExit.password = newHashPassword;
 
+    // delete cache in redis
+    await this.cacheService.deleteValue(userIsExit.email);
+    await this.cacheService.deleteValue(userIsExit.id);
+
     const userWasUpdate = await this.userRepository.updateUser(userIsExit);
+
+    userWasUpdate.password = '';
 
     return userWasUpdate;
   }

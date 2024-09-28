@@ -36,7 +36,10 @@ export class AuthGrpcController implements AuthServiceController {
     return {
       user: {
         ...user,
-        createdAt: user.createdAt.toISOString(),
+        createdAt:
+          user.createdAt instanceof Date
+            ? user.createdAt.toISOString()
+            : user.createdAt,
       },
     };
   }
@@ -47,7 +50,10 @@ export class AuthGrpcController implements AuthServiceController {
     return {
       user: {
         ...user,
-        createdAt: user.createdAt.toISOString(),
+        createdAt:
+          user.createdAt instanceof Date
+            ? user.createdAt.toISOString()
+            : user.createdAt,
       },
     };
   }
@@ -64,10 +70,7 @@ export class AuthGrpcController implements AuthServiceController {
         payload: payload,
       };
     } catch (error) {
-      throw new BadRequestException(
-        `${error}`,
-        AuthErrorCode.UNKNOWN_ERROR,
-      );
+      throw new BadRequestException(`${error}`, AuthErrorCode.UNKNOWN_ERROR);
     }
   }
 }
