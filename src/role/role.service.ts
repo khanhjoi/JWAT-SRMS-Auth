@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { Role } from './entity/role.entity';
 import { RoleRepository } from './role.repository';
@@ -15,7 +15,8 @@ import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { UpdateStatusRole } from './dto/request/update-status-role.dto';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
-import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
+import { CacheSharedService } from '@khanhjoi/protos';
+// import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
 
 @Injectable()
 export class RoleService {
@@ -24,7 +25,7 @@ export class RoleService {
     private permissionsRepository: PermissionRepository,
     private configService: ConfigService,
     private useService: UserService,
-    private cacheService: CacheSharedService,
+    @Inject('CACHE_SERVICE') private cacheService: CacheSharedService,
   ) {}
 
   async getRolesWithPagination(
@@ -155,8 +156,8 @@ export class RoleService {
       );
     }
 
-     // clear cache user with this role permission
-     for (const user of users) {
+    // clear cache user with this role permission
+    for (const user of users) {
       await this.cacheService.deleteValue(user.id);
       await this.cacheService.deleteValue(user.email);
     }

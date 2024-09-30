@@ -4,8 +4,6 @@ import { config } from 'dotenv';
 // must be add this config() -> if not it can get .env in app. it will be get env system
 config();
 
-console.log(`test-----------: ${__dirname}/../**/*`);
-
 export const options: DataSourceOptions = {
   type: 'postgres',
   host: process.env.DB_HOST,

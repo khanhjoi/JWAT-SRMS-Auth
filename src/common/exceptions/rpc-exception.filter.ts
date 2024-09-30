@@ -18,6 +18,7 @@ export type ErrorMessageType = {
 @Catch(RpcException)
 export class RpcValidationFilter implements RpcExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost): Observable<any> {
+    console.log('oke')
     return throwError(() => new BadRequestException('Invalid'));
   }
 }

@@ -12,23 +12,26 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  Inject,
 } from '@nestjs/common';
 
-import { EntityManager } from 'typeorm';
 import { ConfigService } from '@nestjs/config';
 import {
   CHECK_ABILITY,
   RequiredRule,
 } from 'src/common/decorators/abilities.decorator';
 import { AppAbility } from 'src/casl/casl-ability.factory/ability.factory';
-import { User } from 'src/user/entity/user.entity';
+// import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
+import { UserService } from 'src/user/user.service';
+import { CacheSharedService } from '@khanhjoi/protos';
 
 @Injectable()
 export class AbilitiesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private readonly entityManager: EntityManager,
     private configService: ConfigService,
+    private userService: UserService,
+    @Inject('CACHE_SERVICE') private cacheService: CacheSharedService,
   ) {}
 
   /**
@@ -55,21 +58,21 @@ export class AbilitiesGuard implements CanActivate {
 
     const currentUser: any = context.switchToHttp().getRequest().user;
     const superAdmin = this.configService.get<string>('super_Admin_Id');
+    let user;
 
     // Pass when user is a super admin
     if (currentUser?.roleId === superAdmin) {
       return true;
     }
 
-    // Get current user permissions
-    const user = await this.entityManager.getRepository(User).findOne({
-      where: {
-        id: currentUser.sub,
-      },
-      relations: {
-        role: true,
-      },
-    });
+    const cacheValue = await this.cacheService.getValueByKey(currentUser.sub);
+
+    if (cacheValue) {
+      user = cacheValue;
+    } else {
+      // Get current user permissions
+      user = await this.userService.findUserById(currentUser.sub);
+    }
 
     if (!user.role.id) {
       throw new ForbiddenException(

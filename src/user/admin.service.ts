@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 import { User } from './entity/user.entity';
@@ -15,7 +15,8 @@ import { RoleRepository } from 'src/role/role.repository';
 import { AuthService } from 'src/auth/auth.service';
 import { TokenService } from 'src/Token/token.service';
 import { TypeToken } from 'src/common/enums/typeToken.enum';
-import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
+import { CacheSharedService } from '@khanhjoi/protos';
+// import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
 
 @Injectable()
 export class AdminUserService {
@@ -24,7 +25,7 @@ export class AdminUserService {
     private userService: UserService,
     private tokenService: TokenService,
     private roleRepository: RoleRepository,
-    private cacheService: CacheSharedService,
+    @Inject('CACHE_SERVICE') private cacheService: CacheSharedService,
   ) {}
 
   async findAllUserWithPagination(

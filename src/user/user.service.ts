@@ -1,21 +1,22 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User } from './entity/user.entity';
 import { CreateUserDTO } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UserRepository } from './user.repository';
-import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+
 import {
   BadRequestException,
   NotFoundException,
 } from '@khanhjoi/protos/dist/errors/http';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { CacheSharedService } from 'src/shared/cache/cacheShared.service';
+import { CacheSharedService } from '@khanhjoi/protos';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
-    private cacheService: CacheSharedService,
+    @Inject('CACHE_SERVICE') private cacheService: CacheSharedService,
   ) {}
 
   async createUser(createUserDto: CreateUserDTO): Promise<User> {
@@ -60,7 +61,7 @@ export class UserService {
     select?: (keyof User)[],
     relations?: any[], // list relations ['role']
   ): Promise<User> {
-    const userCached: User = await this.cacheService.getValueByKey(email);
+    const userCached: any = await this.cacheService.getValueByKey(email);
 
     if (userCached) {
       return userCached;
@@ -80,12 +81,13 @@ export class UserService {
     }
 
     await this.cacheService.setValue(userIsExist.email, userIsExist);
+    await this.cacheService.setValue(userIsExist.id, userIsExist);
 
     return userIsExist;
   }
 
   async findUserById(userId: string, select?: (keyof User)[]): Promise<User> {
-    const userCached: User = await this.cacheService.getValueByKey(userId);
+    const userCached: any = await this.cacheService.getValueByKey(userId);
 
     if (userCached?.isDelete) {
       throw new BadRequestException(
@@ -115,6 +117,7 @@ export class UserService {
     }
 
     await this.cacheService.setValue(userIsExit.id, userIsExit);
+    await this.cacheService.setValue(userIsExit.email, userIsExit);
 
     return userIsExit;
   }

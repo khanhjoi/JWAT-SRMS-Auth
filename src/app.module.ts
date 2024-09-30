@@ -12,7 +12,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { SharedJwtModule } from './shared/jwt/jwt.module';
 import { TokenModule } from './Token/token.module';
 import { CaslModule } from './casl/casl.module';
-import { CacheSharedModule } from './shared/cache/cacheShared.module';
+import { CacheSharedModule } from '@khanhjoi/protos';
+// import { CacheSharedModule } from './shared/cache/cacheShared.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { CacheSharedModule } from './shared/cache/cacheShared.module';
       },
       inject: [ConfigService],
     }),
+    // CacheSharedModule,
     CacheSharedModule,
     SharedJwtModule,
     AuthModule,
