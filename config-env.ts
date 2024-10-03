@@ -16,6 +16,11 @@ export default () => ({
     port: parseInt(process.env.REDIS_PORT, 10) || 6379,
     TTL: parseInt(process.env.REDIS_TIME_TO_LIVE, 10) || 259200,
   },
+  kafka: {
+    clientId: process.env.NOTIFICATION_KAFKA_CLIENT_ID,
+    broker: process.env.NOTIFICATION_KAFKA_BROKER,
+    groupId: process.env.NOTIFICATION_KAFKA_GROUP_ID,
+  },
   services: [
     {
       notification_kafka: process.env.NOTIFICATION_KAFKA_CLIENT_ID,
@@ -40,3 +45,10 @@ export type RedisConfigType = {
   port: number;
   TTL: number;
 };
+
+export type KafkaConfigType = {
+  clientId: string;
+  broker: string;
+  groupId: string;
+};
+

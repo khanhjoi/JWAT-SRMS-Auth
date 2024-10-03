@@ -66,8 +66,8 @@ export class UserRepository {
 
   /**
    * this method create for find all user with role
-   * Purpose: use to clear cache user when edit role 
-   * @param roleId 
+   * Purpose: use to clear cache user when edit role
+   * @param roleId
    * @returns ListUser with id, email, role
    */
   async findUsersWithRoleId(roleId: string): Promise<User[]> {
@@ -113,6 +113,7 @@ export class UserRepository {
 
       return user;
     } catch (error) {
+      console.log(error);
       throw new BadRequestException(
         'Failed to find user',
         AuthErrorCode.DATABASE_ERROR,

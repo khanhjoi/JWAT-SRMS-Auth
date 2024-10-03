@@ -15,6 +15,16 @@ async function bootstrap() {
 
   app.use(cookieParser());
 
+  app.enableCors({
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:3002',
+      'http://localhost:4000',
+    ],
+    credentials: true,
+    methods: ['*'],
+  });
+
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.GRPC,
     options: {

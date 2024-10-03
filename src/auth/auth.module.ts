@@ -8,23 +8,33 @@ import { Token } from 'src/Token/entity/token.entity';
 import { AuthGrpcController } from './auth.grpc.controller';
 import { NotificationClient } from './auth.Client.service';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { KafkaConfigType } from 'config-env';
 
 @Module({
   imports: [
-    ClientsModule.register([
+    ClientsModule.registerAsync([
       {
+        imports: [ConfigModule],
         name: 'NOTIFICATION_SERVICE',
-        transport: Transport.KAFKA,
-        options: {
-          client: {
-            clientId: 'notification_1',
-            brokers: ['localhost:9092'] // this is call cluster -> many broker
-          },
-          consumer: {
-            groupId: 'notification-consumer',
-          },
-        }
-      }
+        useFactory: async (configService: ConfigService) => {
+          const kafkaConfig = configService.get<KafkaConfigType>('kafka');
+          console.log(kafkaConfig)
+          return {
+            transport: Transport.KAFKA,
+            options: {
+              client: {
+                clientId: kafkaConfig.clientId,
+                brokers: [kafkaConfig.broker], // this is call cluster -> many broker
+              },
+              consumer: {
+                groupId: kafkaConfig.groupId,
+              },
+            },
+          };
+        },
+        inject: [ConfigService],
+      },
     ]),
     TypeOrmModule.forFeature([Token]),
     UserModule,

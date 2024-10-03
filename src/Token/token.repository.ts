@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, Type } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  Logger,
+  Type,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
 import { DeleteResult, Repository } from 'typeorm';
@@ -8,6 +14,7 @@ import { TypeToken } from 'src/common/enums/typeToken.enum';
 
 @Injectable()
 export class TokenRepository {
+  private readonly logger = new Logger(TokenRepository.name);
   constructor(
     @InjectRepository(Token)
     private tokenRepository: Repository<Token>,
@@ -32,7 +39,7 @@ export class TokenRepository {
       });
       return token;
     } catch (error) {
-      console.error(error);
+      this.logger.error(error);
       throw new HttpException(
         'Find Refresh Token Failed',
         HttpStatus.BAD_REQUEST,
@@ -56,6 +63,7 @@ export class TokenRepository {
       });
       return token;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         'Find Refresh Token Failed',
         HttpStatus.BAD_REQUEST,
@@ -74,6 +82,13 @@ export class TokenRepository {
     typeToken: TypeToken,
   ): Promise<Token> {
     try {
+      const tokent = await this.tokenRepository.findOne({
+        where: {
+          id: "d2a99286-8851-466b-b7ab-cc3e0133bae6"
+        }
+      })
+
+      console.log(tokent)
       const token = await this.tokenRepository.findOne({
         where: {
           type: typeToken,
@@ -81,9 +96,16 @@ export class TokenRepository {
             id: userId,
           },
         },
+        relations: {
+          user: true,
+        },
       });
+    
+
       return token;
     } catch (error) {
+      console.log(error)
+      this.logger.error(error);
       throw new HttpException(
         'Find Refresh Token Failed',
         HttpStatus.BAD_REQUEST,
@@ -124,6 +146,7 @@ export class TokenRepository {
       const tokenUpdate = await this.tokenRepository.save(token);
       return tokenUpdate;
     } catch (error) {
+      this.logger.error(error);
       throw new HttpException(
         'Update Refresh Token Failed',
         HttpStatus.BAD_REQUEST,
@@ -144,6 +167,8 @@ export class TokenRepository {
       });
       return tokenDeleted;
     } catch (error) {
+      this.logger.error(error);
+
       throw new HttpException(
         'Delete Refresh Token Failed',
         HttpStatus.BAD_REQUEST,

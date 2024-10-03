@@ -97,6 +97,7 @@ export class UserService {
     }
 
     if (userCached) {
+      userCached.password = '';
       return userCached;
     }
 
@@ -131,6 +132,9 @@ export class UserService {
         AuthErrorCode.USER_NOT_FOUND,
       );
     }
+
+    await this.cacheService.deleteValue(userIsExit.email);
+    await this.cacheService.deleteValue(userIsExit.id);
 
     const userUpdated = await this.userRepository.updateUser(user);
 

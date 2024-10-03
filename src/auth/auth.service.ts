@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   HttpException,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
@@ -24,6 +25,7 @@ import { TokenService } from 'src/Token/token.service';
 import { ResetPasswordDTO } from './dto/response/reset-password.dto';
 import { ResetPasswordReqDTO } from './dto/request/reset-password.dto';
 import { NotificationClient } from './auth.Client.service';
+import { CacheSharedService } from '@khanhjoi/protos';
 
 @Injectable()
 export class AuthService {
@@ -32,12 +34,21 @@ export class AuthService {
     private jwtService: JwtService,
     private tokenService: TokenService,
     private notificationClient: NotificationClient,
+    @Inject('CACHE_SERVICE') private cacheService: CacheSharedService,
   ) {}
 
   async login(loginRequestDTO: LoginRequestDTO): Promise<AuthResponse> {
     const user = await this.userService.findUserByEmail(
       loginRequestDTO.email,
-      ['id', 'firstName', 'lastName', 'email', 'password', 'isDelete'],
+      [
+        'id',
+        'firstName',
+        'lastName',
+        'createdAt',
+        'email',
+        'password',
+        'isDelete',
+      ],
       ['role'],
     );
 
@@ -59,6 +70,7 @@ export class AuthService {
         AuthErrorCode.INPUT_IS_NOT_VALID,
       );
     }
+
     let { accessToken, refreshToken } = await this.generateRefreshToken({
       sub: user?.id,
       roleId: user?.role?.id || '',
@@ -167,7 +179,7 @@ export class AuthService {
     permission?: PermissionGetByRoleDTO[];
   }): Promise<TokenType> {
     const accessToken = await this.jwtService.signAsync(payload, {
-      expiresIn: '10m',
+      expiresIn: '15m',
     });
 
     const refreshToken = nanoid();
@@ -300,6 +312,8 @@ export class AuthService {
       TypeToken.REFRESH_TOKEN,
     );
 
+    const user = await this.userService.findUserById(userId);
+
     if (!token) {
       throw new AuthorizationException(
         'Invalid Token',
@@ -308,5 +322,7 @@ export class AuthService {
     }
 
     await this.tokenService.deleteRefreshToken(token.id);
+    await this.cacheService.deleteValue(user.email);
+    await this.cacheService.deleteValue(user.id);
   }
 }

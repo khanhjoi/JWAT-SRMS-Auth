@@ -13,7 +13,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpCommonException | HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-   
+
     if (exception instanceof HttpCommonException) {
       const error = exception.toJson();
       response.status(error.statusCode).json(error);
@@ -21,7 +21,8 @@ export class HttpExceptionFilter implements ExceptionFilter {
     }
 
     const messageFromPipes: any = exception.getResponse();
-    const statusCode = exception.getStatus(); 
+
+    const statusCode = exception.getStatus();
     const cause = (exception.cause as { errorCode: number }) || {
       errorCode: 10001,
     };
