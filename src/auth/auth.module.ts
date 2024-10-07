@@ -19,7 +19,6 @@ import { KafkaConfigType } from 'config-env';
         name: 'NOTIFICATION_SERVICE',
         useFactory: async (configService: ConfigService) => {
           const kafkaConfig = configService.get<KafkaConfigType>('kafka');
-          console.log(kafkaConfig)
           return {
             transport: Transport.KAFKA,
             options: {

@@ -14,7 +14,7 @@ export class UnknownExceptionsFilter implements ExceptionFilter {
   catch(exception: any, host: ArgumentsHost) {
     // In certain situations `httpAdapter` might not be available in the
     // constructor method, thus we should resolve it he
-    
+    console.log(exception);
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

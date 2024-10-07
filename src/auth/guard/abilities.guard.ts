@@ -29,8 +29,7 @@ import { CacheSharedService } from '@khanhjoi/protos';
 export class AbilitiesGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private configService: ConfigService,
-    private userService: UserService,
+      private userService: UserService,
     @Inject('CACHE_SERVICE') private cacheService: CacheSharedService,
   ) {}
 
@@ -57,13 +56,7 @@ export class AbilitiesGuard implements CanActivate {
       [];
 
     const currentUser: any = context.switchToHttp().getRequest().user;
-    const superAdmin = this.configService.get<string>('super_Admin_Id');
     let user;
-
-    // Pass when user is a super admin
-    if (currentUser?.roleId === superAdmin) {
-      return true;
-    }
 
     const cacheValue = await this.cacheService.getValueByKey(currentUser.sub);
 
@@ -81,6 +74,16 @@ export class AbilitiesGuard implements CanActivate {
     }
 
     try {
+      // Check if the user has the subject 'all' in their permissions
+      const hasAllAccess = user.role.permissions.some(
+        (permission: any) => permission.subject === 'all',
+      );
+
+      // If the user has 'all' as a subject, they get full access
+      if (hasAllAccess) {
+        return true;
+      }
+
       const ability = this.createAbility(Object(user.role.permissions));
 
       for await (const rule of rules) {
