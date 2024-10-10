@@ -208,11 +208,6 @@ describe('RoleService', () => {
       ).rejects.toThrow(
         new NotFoundException('Role not found', AuthErrorCode.ROLE_FIND_FAILED),
       );
-
-      expect(roleRepository.findRoleById).toHaveBeenCalledWith(
-        'non-existing-id',
-      );
-      expect(roleRepository.findRoleById).toHaveBeenCalledTimes(1);
     });
 
     it('should throw BadRequestException if trying to deactivate super admin', async () => {

@@ -61,7 +61,6 @@ export class PermissionRepository {
         pageSize: limit,
       };
     } catch (error) {
-      console.log(error)
       if (error) {
         throw new BadRequestException(
           'Get permissions failed',
@@ -149,7 +148,7 @@ export class PermissionRepository {
       if (error) {
         throw new BadRequestException(
           'Delete permission failed',
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          AuthErrorCode.DATABASE_ERROR,
         );
       }
     }
