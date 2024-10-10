@@ -28,6 +28,7 @@ export class UserController {
       'role',
       'isDelete',
     ]);
+    res.password = '';
     return res;
   }
 

@@ -97,7 +97,6 @@ export class UserService {
     }
 
     if (userCached) {
-      userCached.password = '';
       return userCached;
     }
 
@@ -180,8 +179,6 @@ export class UserService {
     await this.cacheService.deleteValue(userIsExit.id);
 
     const userWasUpdate = await this.userRepository.updateUser(userIsExit);
-
-    userWasUpdate.password = '';
 
     return userWasUpdate;
   }
