@@ -2,7 +2,7 @@ import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 import { User } from 'src/user/entity/user.entity';
 import { UserRepository } from 'src/user/user.repository';
-import { MockType } from 'test/common/mockType.interface.test';
+import { InjectRepoMock, MockType } from 'test/common/mockType.interface.test';
 import { mockCreatedUser, mockListUser, MockUser } from './user.data.mock';
 import { CreateUserDTO } from 'src/user/dto/create-user.dto';
 import { Repository } from 'typeorm';
@@ -54,20 +54,4 @@ export const userRepositoryMock: MockType<UserRepository> = {
   ),
 };
 
-export const userInjectRepoMock: MockType<Repository<User>> = {
-  create: jest.fn(),
-  save: jest.fn(),
-  findOne: jest.fn(),
-  find: jest.fn(),
-  createQueryBuilder: jest.fn().mockReturnValue({
-    select: jest.fn().mockReturnThis(),
-    leftJoinAndSelect: jest.fn().mockReturnThis(),
-    andWhere: jest.fn().mockReturnThis(),
-    orderBy: jest.fn().mockReturnThis(),
-    skip: jest.fn().mockReturnThis(),
-    take: jest.fn().mockReturnThis(),
-    getManyAndCount: jest
-      .fn()
-      .mockResolvedValue([mockListUser, mockListUser.length]),
-  }),
-};
+export const userInjectRepoMock = InjectRepoMock<User>(mockListUser);
