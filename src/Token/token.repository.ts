@@ -129,6 +129,7 @@ export class TokenRepository {
 
       return newToken;
     } catch (error) {
+      console.log(error)
       throw new HttpException(
         'Create Refresh Token Failed',
         HttpStatus.BAD_REQUEST,

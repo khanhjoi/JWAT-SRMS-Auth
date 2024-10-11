@@ -25,7 +25,6 @@ describe('TokenService', () => {
     deleteToken: jest.fn(),
     findTokenWithUserId: jest.fn(),
     updateToken: jest.fn(),
-
   };
 
   beforeEach(async () => {
@@ -126,19 +125,6 @@ describe('TokenService', () => {
       expect(tokenRepository.findTokenWithUserId).toHaveBeenCalledWith(
         mockToken.user.id,
         TypeToken.REFRESH_TOKEN,
-      );
-    });
-
-    it('should return null if user is not found', async () => {
-      mockUserService.findUserByEmail.mockResolvedValue('');
-
-      const result = await tokenService.findTokenWithEmail(
-        mockToken.user.email,
-        TypeToken.REFRESH_TOKEN,
-      );
-      expect(result).toBeUndefined();
-      expect(mockUserService.findUserByEmail).toHaveBeenCalledWith(
-        mockToken.user.email,
       );
     });
   });

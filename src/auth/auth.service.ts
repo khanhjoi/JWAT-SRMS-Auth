@@ -84,6 +84,8 @@ export class AuthService {
       TypeToken.REFRESH_TOKEN,
     );
 
+    console.log('check is exit', isRefreshTokenExit);
+
     if (isRefreshTokenExit) {
       await this.tokenService.updateRefreshToken(isRefreshTokenExit.id);
 
@@ -92,6 +94,7 @@ export class AuthService {
         refreshToken: isRefreshTokenExit.token,
       };
     } else {
+      console.log('create', user.id);
       const newToken = await this.tokenService.createRefreshToken(
         user.id,
         refreshToken,

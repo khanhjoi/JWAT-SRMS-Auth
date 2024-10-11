@@ -15,7 +15,10 @@ export class TokenService {
     private userRepo: UserService,
   ) {}
 
-  async findTokenByToken(tokenDto: string, typeToken:TypeToken): Promise<Token> {
+  async findTokenByToken(
+    tokenDto: string,
+    typeToken: TypeToken,
+  ): Promise<Token> {
     const token = await this.tokenRepository.findTokenWithToken(
       tokenDto,
       typeToken,
@@ -71,6 +74,8 @@ export class TokenService {
    */
   async createResetToken(userId: string, token: string): Promise<Token> {
     const user = await this.userRepo.findUserById(userId);
+
+    console.log(user);
 
     const newToken = await this.tokenRepository.createToken({
       token: token,

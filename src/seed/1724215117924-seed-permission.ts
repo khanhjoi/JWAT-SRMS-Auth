@@ -21,5 +21,14 @@ export class SeedPermission1724215117924 implements MigrationInterface {
     }
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    for (const permission of permissionsSeedData) {
+      await queryRunner.query(
+        `
+          DELETE FROM "permission" WHERE "id" = $1
+        `,
+        [permission.id],
+      );
+    }
+  }
 }

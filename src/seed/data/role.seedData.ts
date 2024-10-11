@@ -33,3 +33,11 @@ export const roleRouteManagerSeedData = {
   ],
 };
 
+export const roleClient = {
+  id: 'ce5c4cd4-07cd-422a-983c-9ea2c90f7230',
+  title: 'Client',
+  description:
+    'This role is for normal users who do not have any permissions in the system',
+  active: true,
+  permissions: [],
+};

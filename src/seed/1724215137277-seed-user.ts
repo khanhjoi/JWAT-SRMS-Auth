@@ -21,5 +21,18 @@ export class SeedUser1724215137277 implements MigrationInterface {
     }
   }
 
-  public async down(queryRunner: QueryRunner): Promise<void> {}
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    const emails = usersData.map((user) => user.email);
+
+    if (emails.length > 0) {
+      const placeholders = emails.map((_, index) => `$${index + 1}`).join(', ');
+
+      await queryRunner.query(
+        `
+        DELETE FROM "user" WHERE "email" IN (${placeholders})
+        `,
+        emails,
+      );
+    }
+  }
 }

@@ -7,7 +7,6 @@ import {
 
 export class SeedRole1724215129385 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
-    // Seed Super Admin role
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
@@ -21,7 +20,6 @@ export class SeedRole1724215129385 implements MigrationInterface {
       ],
     );
 
-    // Insert permissions for Super Admin
     for (const permissionId of roleSupperAdminSeedData.permissions) {
       await queryRunner.query(
         `
@@ -32,7 +30,6 @@ export class SeedRole1724215129385 implements MigrationInterface {
       );
     }
 
-    // Seed User Manager role
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
@@ -46,7 +43,6 @@ export class SeedRole1724215129385 implements MigrationInterface {
       ],
     );
 
-    // Insert permissions for User Manager
     for (const permissionId of roleUserManagerSeedData.permissions) {
       await queryRunner.query(
         `
@@ -57,7 +53,6 @@ export class SeedRole1724215129385 implements MigrationInterface {
       );
     }
 
-    // Seed Route Manager role
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
@@ -71,7 +66,6 @@ export class SeedRole1724215129385 implements MigrationInterface {
       ],
     );
 
-    // Insert permissions for Route Manager
     for (const permissionId of roleRouteManagerSeedData.permissions) {
       await queryRunner.query(
         `
@@ -84,7 +78,6 @@ export class SeedRole1724215129385 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    // Delete role and related permissions
     await queryRunner.query(
       `
             DELETE FROM "role_permission" WHERE "roleId" IN ($1, $2, $3)

@@ -92,14 +92,9 @@ export class AdminUserService {
       TypeToken.REFRESH_TOKEN,
     );
 
-    if (!token) {
-      throw new BadRequestException(
-        'Invalid Token',
-        AuthErrorCode.USER_DELETE_FAILED,
-      );
+    if (token) {
+      await this.tokenService.deleteRefreshToken(token.id);
     }
-
-    await this.tokenService.deleteRefreshToken(token.id);
 
     userIsExit.isDelete = true;
 

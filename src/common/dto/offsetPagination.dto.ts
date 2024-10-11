@@ -1,7 +1,7 @@
 import { Type } from 'class-transformer';
 import { IsEnum, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { SortOrder } from '../enums/order.enum';
-import { EUserOrderBy } from 'src/user/user.enum';
+import { EOrderBy } from 'src/user/user.enum';
 
 export class OffsetPaginationDto {
   @Type(() => Number)
@@ -24,7 +24,7 @@ export class OffsetPaginationDto {
   @IsOptional()
   sortOrder?: SortOrder = SortOrder.ASC;
 
-  @IsEnum(EUserOrderBy)
+  @IsEnum(EOrderBy)
   @IsOptional()
-  sortOrderBy?: EUserOrderBy = EUserOrderBy.createdAt;
+  sortOrderBy?: EOrderBy = EOrderBy.createdAt;
 }

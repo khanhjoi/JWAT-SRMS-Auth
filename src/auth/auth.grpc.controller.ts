@@ -71,7 +71,6 @@ export class AuthGrpcController implements AuthServiceController {
         user: cacheData,
       };
     }
-    console.log('call');
 
     const user = await this.userService.findUserById(request.userId);
 
