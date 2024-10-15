@@ -1,10 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { userServiceMock } from './mocks/user.mockService.mock';
-
-import { Action } from 'src/common/enums/action.enum';
 import { AssignRoleDto } from 'src/role/dto/request/assign-permission.dto';
-import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { AdminController } from '@user/admin.controller';
 import { AdminUserService } from '@user/admin.service';
 import { UserService } from '@user/user.service';

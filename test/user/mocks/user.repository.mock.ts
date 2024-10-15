@@ -21,7 +21,7 @@ export const userRepositoryMock: MockType<UserRepository> = {
   findUserByEmail: jest.fn(
     async (email: string): Promise<Omit<User | {}, 'password' | 'tokens'>> => {
       const user = mockListUser.find((user) => user.email === email);
-      return user;
+      return user ? user : null;
     },
   ),
   findUserById: jest.fn(

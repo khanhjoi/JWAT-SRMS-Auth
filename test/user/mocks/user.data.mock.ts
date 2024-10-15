@@ -114,7 +114,7 @@ export const mockCreatedUser: User = {
   role: null,
 };
 
-export const mockUpdateUser: User = {
+export const mockUpdateUser: User | any = {
   id: '1132e528-c197-48a9-828d-004f1c52b028',
   email: 'userMaster@gmail.com',
   firstName: 'User',
@@ -129,5 +129,5 @@ export const mockUpdateUser: User = {
     description: 'only available with manager user',
     active: true,
     createdAt: new Date('2024-09-19T12:13:20.329Z'),
-  } as MockRoleType
+  } as MockRoleType,
 };

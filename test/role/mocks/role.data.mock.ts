@@ -1,6 +1,6 @@
 import { CreateRoleDTO } from '@/role/dto/request/create-role.dto';
 import { Role } from '@/role/entity/role.entity';
-import { Action } from '@common/enums/action.enum';
+import { EAction } from '@common/enums/action.enum';
 import { IOffsetPaginatedType } from '@common/interface/offsetPagination.interface';
 import { User } from 'src/user/entity/user.entity';
 
@@ -17,7 +17,7 @@ export const mockRole: Role = {
   permissions: [
     {
       id: '1',
-      action: Action.READ,
+      action: EAction.READ,
       active: true,
       condition: null,
       createdAt: new Date('2024-09-19T12:13:20.329Z'),
@@ -50,7 +50,7 @@ export const mockRoles: Role[] = [
     permissions: [
       {
         id: '1',
-        action: Action.READ,
+        action: EAction.READ,
         active: true,
         condition: null,
         createdAt: new Date('2024-09-19T12:13:20.329Z'),

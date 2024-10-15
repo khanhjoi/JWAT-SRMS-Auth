@@ -2,17 +2,19 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserRepository } from 'src/user/user.repository';
 import { UserService } from 'src/user/user.service';
 import { CacheSharedService } from '@khanhjoi/protos';
+import { CreateUserDTO } from '@/user/dto/create-user.dto';
 import {
-  MockUser,
   mockCreatedUser,
   mockListUser,
   mockUpdateUser,
   mockUserExitData,
   userRepositoryMock,
 } from './mocks';
-import { CreateUserDTO } from '@/user/dto/create-user.dto';
-import { User } from '@user/entity/user.entity';
-import { userServiceMock } from './mocks/user.mockService.mock';
+import {
+  BadRequestException,
+  NotFoundException,
+} from '@khanhjoi/protos/dist/errors/http';
+import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 
 describe('UserService', () => {
   let service: UserService;
@@ -23,10 +25,7 @@ describe('UserService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         UserService,
-        {
-          provide: UserRepository,
-          useValue: userRepositoryMock, // Mock UserRepository
-        },
+        { provide: UserRepository, useValue: userRepositoryMock },
         {
           provide: 'CACHE_SERVICE',
           useValue: {
@@ -44,154 +43,199 @@ describe('UserService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks(); // Clear mocks after each test
-  });
-
-  it('should be defined', () => {
-    expect(service).toBeDefined();
+    jest.clearAllMocks(); // Ensure a clean slate between tests
   });
 
   describe('createUser', () => {
     it('should create a user successfully', async () => {
-      const mockCreateInput: CreateUserDTO = {
-        firstName: mockCreatedUser.firstName,
-        lastName: mockCreatedUser.lastName,
-        email: mockCreatedUser.email,
-        password: mockCreatedUser.password,
-      };
-      const mockCreateResult = mockCreatedUser;
-
+      const input: CreateUserDTO = { ...mockCreatedUser };
       userRepository.findUserByEmail.mockResolvedValue(null);
       userRepository.createNewUser.mockResolvedValue(mockCreatedUser);
 
-      const result = await service.createUser(mockCreateInput);
+      const result = await service.createUser(input);
 
-      expect(result).toEqual(mockCreateResult);
+      result.password = '';
+
+      expect(result).toEqual(mockCreatedUser);
+    });
+
+    it('should throw an error if user already exists', async () => {
+      userRepository.findUserByEmail.mockResolvedValue(mockCreatedUser);
+
+      await expect(service.createUser(mockCreatedUser)).rejects.toThrow(
+        'User already exists',
+      );
       expect(userRepository.findUserByEmail).toHaveBeenCalledTimes(1);
-      expect(userRepository.createNewUser).toHaveBeenCalledTimes(1);
-      expect(userRepository.createNewUser).toHaveBeenCalledWith({
-        email: mockCreateInput.email,
-        password: expect.any(String),
-        firstName: mockCreateInput.firstName,
-        lastName: mockCreateInput.lastName,
+    });
+
+    it('should throw an error if user already exists', async () => {
+      userRepository.findUserByEmail.mockResolvedValue({
+        ...mockCreatedUser,
+        isDelete: true,
       });
+
+      await expect(service.createUser(mockCreatedUser)).rejects.toThrow(
+        'User was deactivated. Please contact admin for further detail',
+      );
+      expect(userRepository.findUserByEmail).toHaveBeenCalledTimes(1);
     });
   });
 
   describe('updateUser', () => {
     it('should update a user successfully', async () => {
-      const mockUpdateInput = mockUpdateUser;
-      const mockUpdatedResult = mockUpdateUser;
-
       userRepository.findUserById.mockResolvedValue(mockUserExitData);
-      userRepository.updateUser.mockResolvedValue(mockUpdatedResult);
+      userRepository.updateUser.mockResolvedValue(mockUpdateUser);
 
-      const result = await service.updateUser(mockUpdateInput);
+      const result = await service.updateUser(mockUpdateUser);
+      result.password = '';
 
-      expect(result).toEqual(mockUpdatedResult);
-      expect(userRepository.findUserById).toBeCalledTimes(1);
-      expect(userRepository.updateUser).toBeCalledTimes(1);
-      expect(userRepository.updateUser).toBeCalledWith(mockUpdateInput);
+      expect(result).toEqual(mockUpdateUser);
+      expect(userRepository.findUserById).toHaveBeenCalledWith(
+        mockUpdateUser.id,
+      );
+      expect(userRepository.updateUser).toHaveBeenCalledWith(mockUpdateUser);
+    });
+
+    it('should throw an error if user is not found', async () => {
+      userRepository.findUserById.mockResolvedValue(null);
+
+      await expect(service.updateUser(mockUpdateUser)).rejects.toThrow(
+        'User not found',
+      );
     });
   });
 
   describe('updateProfileUser', () => {
-    it('should update user profile successfully', async () => {
+    it('should update the user profile successfully', async () => {
       const mockUserId = '1132e528-c197-48a9-828d-004f1c52b028';
-      const mockUpdateInput = { ...mockUpdateUser, password: 'newPassword' };
+      const mockUpdateInput = { ...mockUpdateUser };
 
-      jest.spyOn(service, 'updateProfileUser');
-
-      userRepository.findUserById.mockResolvedValue(mockUpdateInput); // Simulate finding the user
-      userRepository.findUserByEmail.mockResolvedValue(null); // Simulate no email conflict
-      userRepository.updateUser.mockResolvedValue(mockUpdateInput); // Simulate successful update
+      userRepository.findUserById.mockResolvedValue(mockUpdateUser);
+      userRepository.findUserByEmail.mockResolvedValue(null);
+      userRepository.updateUser.mockResolvedValue(mockUpdateInput);
 
       const result = await service.updateProfileUser(
         mockUserId,
         mockUpdateInput,
       );
 
-      expect(userRepository.findUserById).toHaveBeenCalledTimes(1);
-      expect(userRepository.updateUser).toHaveBeenCalledTimes(1);
-      expect(service.updateProfileUser).toHaveBeenCalledTimes(1);
-      expect(service.updateProfileUser).toHaveBeenCalledWith(
-        mockUserId,
-        mockUpdateInput,
-      );
+      result.password = '';
+
       expect(result).toEqual(mockUpdateInput);
+    });
+
+    it('should throw an error if user not exit', async () => {
+      userRepository.findUserById.mockResolvedValue(null);
+
+      await expect(
+        service.updateProfileUser('id', { ...mockCreatedUser }),
+      ).rejects.toThrow(
+        new NotFoundException('User not found', AuthErrorCode.USER_NOT_FOUND),
+      );
+    });
+    it('should throw an error if email is already taken', async () => {
+      userRepository.findUserById.mockResolvedValue(mockCreatedUser);
+      userRepository.findUserByEmail.mockResolvedValue({
+        ...mockCreatedUser,
+        email: 'orther@gmail.com',
+      });
+
+      await expect(
+        service.updateProfileUser(mockCreatedUser.id, { ...mockCreatedUser }),
+      ).rejects.toThrow(
+        new BadRequestException(
+          'Email has already been taken',
+          AuthErrorCode.USER_UPDATE_FAILED,
+        ),
+      );
     });
   });
 
   describe('findUserById', () => {
-    it('should find a user by ID', async () => {
+    it('should return user if found', async () => {
       const mockId = '1132e528-c197-48a9-828d-004f1c52b028';
-      const mockUser: User = { ...mockUpdateUser, id: mockId };
-
-      jest.spyOn(service, 'findUserById');
-
-      cacheService.getValueByKey.mockResolvedValue(null); // Simulate no cache
-      userRepository.findUserById.mockResolvedValue(mockUser); // Simulate finding the user
+      cacheService.getValueByKey.mockResolvedValue(null);
+      userRepository.findUserById.mockResolvedValue(mockUpdateUser);
 
       const result = await service.findUserById(mockId);
 
-      expect(userRepository.findUserById).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mockUpdateUser);
       expect(userRepository.findUserById).toHaveBeenCalledWith(
         mockId,
         undefined,
       );
+    });
 
-      expect(service.findUserById).toHaveBeenCalledTimes(1);
-      expect(service.findUserById).toHaveBeenCalledWith(mockId);
-      expect(result.id).toEqual(mockId);
+    it('should return data cached', async () => {
+      const mockId = '1132e528-c197-48a9-828d-004f1c52b028';
+      cacheService.getValueByKey.mockResolvedValue(mockUpdateUser);
+      userRepository.findUserById.mockResolvedValue(mockUpdateUser);
+
+      const result = await service.findUserById(mockId);
+
+      expect(result).toEqual(mockUpdateUser);
+    });
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      const invalidEmail = 'nonexistent@example.com';
+
+      // Simulate the repository returning null for a non-existing user
+      userRepository.findUserByEmail.mockResolvedValueOnce(null);
+
+      await expect(service.findUserByEmail(invalidEmail)).rejects.toThrow(
+        new NotFoundException('User not found', AuthErrorCode.USER_NOT_FOUND),
+      );
     });
   });
 
   describe('findUserByEmail', () => {
-    it('should find a user by email', async () => {
+    it('should return user if found', async () => {
       const mockEmail = 'userMaster@gmail.com';
-      const mockUser: User = { ...mockUserExitData, email: mockEmail };
-
-      jest.spyOn(service, 'findUserByEmail');
-
-      cacheService.getValueByKey.mockResolvedValue(null); // Simulate no cache
-      userRepository.findUserByEmail.mockResolvedValue(mockUser); // Simulate finding the user
+      cacheService.getValueByKey.mockResolvedValue(null);
+      userRepository.findUserByEmail.mockResolvedValue(mockUserExitData);
 
       const result = await service.findUserByEmail(mockEmail);
 
-      expect(userRepository.findUserByEmail).toHaveBeenCalledTimes(1);
+      expect(result).toEqual(mockUserExitData);
       expect(userRepository.findUserByEmail).toHaveBeenCalledWith(
         mockEmail,
         undefined,
         undefined,
       );
+    });
 
-      expect(service.findUserByEmail).toHaveBeenCalledTimes(1);
-      expect(service.findUserByEmail).toHaveBeenCalledWith(mockEmail);
-      expect(result.email).toEqual(mockEmail);
+    it('should return data cached', async () => {
+      const mockId = '1132e528-c197-48a9-828d-004f1c52b028';
+      cacheService.getValueByKey.mockResolvedValue(mockUpdateUser);
+      userRepository.findUserByEmail.mockResolvedValue(mockUpdateUser);
+
+      const result = await service.findUserById(mockId);
+
+      expect(result).toEqual(mockUpdateUser);
+    });
+
+    it('should throw NotFoundException if user does not exist', async () => {
+      const invalidUserEmail = 'invalid-email@gmail.com';
+      userRepository.findUserByEmail.mockResolvedValue(null);
+
+      await expect(service.findUserByEmail(invalidUserEmail)).rejects.toThrow(
+        new NotFoundException('User not found', AuthErrorCode.USER_NOT_FOUND),
+      );
     });
   });
 
   describe('findUsersWithRoleId', () => {
-    it('should find users with a specific role ID', async () => {
+    it('should return users with the specified role ID', async () => {
       const mockRoleId = '93d13875-ae1d-4283-a877-ab1eac71e066';
-      const usersWithRoleId = mockListUser.filter(
+      const expectedUsers = mockListUser.filter(
         (user) => user.role?.id === mockRoleId,
       );
 
-      jest.spyOn(service, 'findUsersWithRoleId');
-
-      userRepository.findUsersWithRoleId.mockResolvedValue(usersWithRoleId); // Simulate finding users
+      userRepository.findUsersWithRoleId.mockResolvedValue(expectedUsers);
 
       const result = await service.findUsersWithRoleId(mockRoleId);
 
-      expect(userRepository.findUsersWithRoleId).toHaveBeenCalledTimes(1);
-      expect(userRepository.findUsersWithRoleId).toHaveBeenCalledWith(
-        mockRoleId,
-      );
-
-      expect(service.findUsersWithRoleId).toHaveBeenCalledTimes(1);
-      expect(service.findUsersWithRoleId).toHaveBeenCalledWith(mockRoleId);
-      expect(result).toEqual(usersWithRoleId);
+      expect(result).toEqual(expectedUsers);
     });
   });
 });

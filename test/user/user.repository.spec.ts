@@ -14,6 +14,7 @@ import { Repository } from 'typeorm';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
+import { SortOrder } from '@common/enums/order.enum';
 
 describe('UserRepository', () => {
   let repository: UserRepository;
@@ -388,6 +389,7 @@ describe('UserRepository', () => {
       const userPagination: OffsetPaginationDto = {
         limit: 6,
         page: 1,
+        sortOrder: SortOrder.ASC,
       };
 
       const mockUsers = mockListUser;
@@ -401,7 +403,11 @@ describe('UserRepository', () => {
         getManyAndCount: jest.fn().mockResolvedValue([mockUsers, 6]),
       } as any);
 
-      const result = await repository.findAllUserWithPagination(userPagination);
+      const result = await repository.findAllUserWithPagination(
+        userPagination,
+        ['id', 'firstName', 'lastName', 'email'],
+        ['role'],
+      );
 
       expect(result).toEqual({
         data: mockListUser,
