@@ -15,7 +15,7 @@ import { CreateRoleDTO } from './dto/request/create-role.dto';
 import { UpdateRoleDTO } from './dto/request/update-role.dto';
 import { Role } from './entity/role.entity';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { Action } from 'src/common/enums/action.enum';
+import { EAction, ESubject } from 'src/common/enums/action.enum';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
@@ -28,7 +28,7 @@ export class RoleController {
   constructor(private roleService: RoleService) {}
 
   @Get('')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getRolesWithPagination(
     @Query() queryPagination: OffsetPaginationDto,
   ): Promise<IOffsetPaginatedType<Role>> {
@@ -37,28 +37,28 @@ export class RoleController {
   }
 
   @Get('/withoutPagination')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getAllRoles(): Promise<Role[]> {
     const res = await this.roleService.getRoles();
     return res;
   }
 
   @Get('/:id')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getRoles(@Param('id') roleId: string): Promise<Role> {
     const res = await this.roleService.getRoleWithId(roleId);
     return res;
   }
 
   @Post('')
-  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
+  @CheckAbilities({ action: EAction.WRITE, subject: ESubject.user })
   async createRole(@Body() data: CreateRoleDTO): Promise<Role> {
     const res = await this.roleService.createRole(data);
     return res;
   }
 
   @Put('/:id')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: EAction.UPDATE, subject: ESubject.user })
   async updateRole(
     @Body() data: UpdateRoleDTO,
     @Param('id', ParseUUIDPipe) id: string,
@@ -68,7 +68,7 @@ export class RoleController {
   }
 
   @Put('/:id/status')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: EAction.UPDATE, subject: ESubject.user })
   async activeRole(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateStatusRole,
@@ -78,7 +78,7 @@ export class RoleController {
   }
 
   @Delete('/:id')
-  @CheckAbilities({ action: Action.DELETE, subject: 'User' })
+  @CheckAbilities({ action: EAction.DELETE, subject: ESubject.user })
   async deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Role> {
     const res = await this.roleService.deleteRole(id);
     return res;

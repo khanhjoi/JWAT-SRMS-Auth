@@ -1,16 +1,16 @@
 import { Ability } from '@casl/ability';
 import { ForbiddenException, Injectable } from '@nestjs/common';
-import { Action } from 'src/common/enums/action.enum';
+import { EAction } from 'src/common/enums/action.enum';
 import { Permission } from 'src/permission/entity/permission.entity';
 import { RoleService } from 'src/role/role.service';
 import { UserService } from 'src/user/user.service';
 
 export type PermissionObjectType = any;
 
-export type AppAbility = Ability<[Action, PermissionObjectType]>;
+export type AppAbility = Ability<[EAction, PermissionObjectType]>;
 
 interface CaslPermission {
-  action: Action;
+  action: EAction;
   subject: string;
 }
 @Injectable()
@@ -34,6 +34,6 @@ export class CaslAbilityFactory {
       subject: p.subject,
     }));
 
-    return new Ability<[Action, PermissionObjectType]>(caslPermissions);
+    return new Ability<[EAction, PermissionObjectType]>(caslPermissions);
   }
 }

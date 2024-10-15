@@ -5,7 +5,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IPermission } from '../interface/permission.interface';
-import { Action } from '../../common/enums/action.enum';
+import { EAction } from '../../common/enums/action.enum';
 
 @Entity()
 export class Permission implements IPermission {
@@ -17,9 +17,9 @@ export class Permission implements IPermission {
 
   @Column({
     type: 'enum',
-    enum: Action,
+    enum: EAction,
   })
-  action: Action;
+  action: EAction;
 
   @Column()
   subject: string;

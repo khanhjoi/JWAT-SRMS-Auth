@@ -14,7 +14,7 @@ export class UserRepository {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async findAllUserWithPagination(
+  async findAllUserWithPagination( 
     userQueryPagination: OffsetPaginationDto,
     select?: (keyof User)[],
     relations?: (keyof User)[],

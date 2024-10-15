@@ -16,7 +16,7 @@ import { PermissionService } from './permission.service';
 import { CreatePermissionDTO } from './dto/create-permission.dto';
 import { UpdatePermissionDTO } from './dto/update-permission.dto';
 import { AuthGuard } from 'src/auth/guard/auth.guard';
-import { Action } from 'src/common/enums/action.enum';
+import { EAction, ESubject } from 'src/common/enums/action.enum';
 import { AbilitiesGuard } from 'src/auth/guard/abilities.guard';
 import { CheckAbilities } from 'src/common/decorators/abilities.decorator';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
@@ -29,7 +29,7 @@ export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
   @Get('')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getPermissionsWithPagination(
     @Query() queryPagination: OffsetPaginationDto,
   ): Promise<IOffsetPaginatedType<Permission>> {
@@ -39,13 +39,13 @@ export class PermissionController {
   }
 
   @Get('/withoutPagination')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getPermission(): Promise<Permission[]> {
     return this.permissionService.getPermissions();
   }
 
   @Post('')
-  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
+  @CheckAbilities({ action: EAction.WRITE, subject: ESubject.user })
   createRole(
     @Body() createPermission: CreatePermissionDTO,
   ): Promise<Permission> {
@@ -53,7 +53,7 @@ export class PermissionController {
   }
 
   @Put('/:id')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: EAction.UPDATE, subject: ESubject.user })
   updateRole(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updatePermissionDTO: UpdatePermissionDTO,
@@ -62,7 +62,7 @@ export class PermissionController {
   }
 
   @Delete('/:id')
-  @CheckAbilities({ action: Action.DELETE, subject: 'User' })
+  @CheckAbilities({ action: EAction.DELETE, subject: ESubject.user })
   deleteRole(@Param('id', ParseUUIDPipe) id: string): Promise<Permission> {
     return this.permissionService.deletePermission(id);
   }

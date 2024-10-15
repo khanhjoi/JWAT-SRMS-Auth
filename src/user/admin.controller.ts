@@ -15,7 +15,7 @@ import { AuthGuard } from 'src/auth/guard/auth.guard';
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
 import { User } from './entity/user.entity';
-import { Action } from 'src/common/enums/action.enum';
+import { EAction, ESubject } from 'src/common/enums/action.enum';
 import { UpdateUserByAdminDTO } from './dto/update-user-by-admin.dto';
 import { AdminUserService } from './admin.service';
 import { UserService } from './user.service';
@@ -31,7 +31,7 @@ export class AdminController {
   ) {}
 
   @Get('/users')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getUsersAdmin(
     @Query() userQueryPagination: OffsetPaginationDto,
   ): Promise<IOffsetPaginatedType<User>> {
@@ -43,7 +43,7 @@ export class AdminController {
   }
 
   @Get('/users/:id')
-  @CheckAbilities({ action: Action.READ, subject: 'User' })
+  @CheckAbilities({ action: EAction.READ, subject: ESubject.user })
   async getUserDetailAdmin(@Param('id') id: string): Promise<User> {
     const res = await this.userService.findUserById(id, [
       'id',
@@ -57,14 +57,14 @@ export class AdminController {
   }
 
   @Post('/user')
-  @CheckAbilities({ action: Action.WRITE, subject: 'User' })
+  @CheckAbilities({ action: EAction.WRITE, subject: ESubject.user })
   async addUserAdmin(@Body() createUserDto: CreateUserDTO): Promise<User> {
     const res = await this.userService.createUser(createUserDto);
     return res;
   }
 
   @Post('/user/:userId/assign-role/:roleId')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: EAction.UPDATE, subject: ESubject.user })
   async assignRole(@Param() params: AssignRoleDto): Promise<User> {
     const { userId, roleId } = params;
     const res = await this.adminUserService.assignRole(userId, roleId);
@@ -72,21 +72,21 @@ export class AdminController {
   }
 
   @Put('/user')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: EAction.UPDATE, subject: ESubject.user })
   async updateUser(@Body() updateUser: UpdateUserByAdminDTO): Promise<User> {
     const res = await this.adminUserService.updateUser(updateUser);
     return res;
   }
 
   @Put('/user/:id/active')
-  @CheckAbilities({ action: Action.UPDATE, subject: 'User' })
+  @CheckAbilities({ action: EAction.UPDATE, subject: ESubject.user })
   async activeUser(@Param('id') userId: string): Promise<User> {
     const res = await this.adminUserService.activeUser(userId);
     return res;
   }
 
   @Delete('/user/:id')
-  @CheckAbilities({ action: Action.DELETE, subject: 'User' })
+  @CheckAbilities({ action: EAction.DELETE, subject: ESubject.user })
   async delete(@Param('id') userId: string): Promise<User> {
     const res = await this.adminUserService.deleteUser(userId);
     return res;

@@ -7,7 +7,7 @@ import {
   IsUUID,
 } from 'class-validator';
 import { IPermission } from '../interface/permission.interface';
-import { Action } from '../../common/enums/action.enum';
+import { EAction } from '../../common/enums/action.enum';
 
 export class UpdatePermissionDTO
   implements Omit<IPermission, 'createdAt' | 'id' | 'condition'>
@@ -17,8 +17,8 @@ export class UpdatePermissionDTO
   title: string;
 
   @IsNotEmpty()
-  @IsEnum(Action)
-  action: Action;
+  @IsEnum(EAction)
+  action: EAction;
 
   @IsNotEmpty()
   @IsString()

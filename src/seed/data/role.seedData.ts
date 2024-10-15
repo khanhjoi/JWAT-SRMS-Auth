@@ -30,6 +30,42 @@ export const roleRouteManagerSeedData = {
     'b4f91232-1300-4fbc-a917-a9c807e89014',
     'cf0e0843-2646-47fa-86b0-00c0218a9b64',
     'e1fbd049-5929-48d5-8a0a-5d0d7fe4be66',
+
+    '6de5bf78-c8a6-499d-8ec6-c120cd6d13aa',
+    '2d3decc8-0f61-4343-8c4d-a3dad1a9f5db',
+    'c391a3f3-bfd6-4c7d-be68-210dee88eb20',
+    'fa982f02-42d3-4380-97dc-cf910774f8a6',
+
+    'a54365ab-623e-4e58-92d5-c1c71e1bdb81',
+    '79afd615-63e3-4f07-b26b-6d663d4626f9',
+    '66079527-acad-4e54-930a-9df0c02418b7',
+    'dc8ade26-f7b7-42dd-9e07-84c3439801b6',
+  ],
+};
+
+export const rolePortManagerSeedData = {
+  id: 'd88823c9-3b97-43cc-99b5-74055c01f15b',
+  title: 'Route manager',
+  description: 'only available with manager route',
+  active: true,
+  permissions: [
+    '6de5bf78-c8a6-499d-8ec6-c120cd6d13aa',
+    '2d3decc8-0f61-4343-8c4d-a3dad1a9f5db',
+    'c391a3f3-bfd6-4c7d-be68-210dee88eb20',
+    'fa982f02-42d3-4380-97dc-cf910774f8a6',
+  ],
+};
+
+export const roleVesselManagerSeedData = {
+  id: '13a3d784-62ca-47ba-8c4b-8adce846b249',
+  title: 'Route manager',
+  description: 'only available with manager route',
+  active: true,
+  permissions: [
+    'a54365ab-623e-4e58-92d5-c1c71e1bdb81',
+    '79afd615-63e3-4f07-b26b-6d663d4626f9',
+    '66079527-acad-4e54-930a-9df0c02418b7',
+    'dc8ade26-f7b7-42dd-9e07-84c3439801b6',
   ],
 };
 
