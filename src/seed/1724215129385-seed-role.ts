@@ -8,19 +8,26 @@ import {
   roleVesselManagerSeedData,
 } from './data/role.seedData';
 
+function handleCreatedAt(index) {
+  let createdAt = new Date();
+  createdAt.setSeconds(createdAt.getSeconds() - index);
+  return createdAt;
+}
+
 export class SeedRole1724215129385 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     // super admin
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
-            VALUES ($1, $2, $3, $4, NOW())
+            VALUES ($1, $2, $3, $4, $5)
         `,
       [
         roleSupperAdminSeedData.id,
         roleSupperAdminSeedData.title,
         roleSupperAdminSeedData.description,
         roleSupperAdminSeedData.active,
+        handleCreatedAt(1),
       ],
     );
 
@@ -38,13 +45,14 @@ export class SeedRole1724215129385 implements MigrationInterface {
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
-            VALUES ($1, $2, $3, $4, NOW())
+            VALUES ($1, $2, $3, $4, $5)
         `,
       [
         roleUserManagerSeedData.id,
         roleUserManagerSeedData.title,
         roleUserManagerSeedData.description,
         roleUserManagerSeedData.active,
+        handleCreatedAt(2),
       ],
     );
 
@@ -62,13 +70,14 @@ export class SeedRole1724215129385 implements MigrationInterface {
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
-            VALUES ($1, $2, $3, $4, NOW())
+            VALUES ($1, $2, $3, $4, $5)
         `,
       [
         roleRouteManagerSeedData.id,
         roleRouteManagerSeedData.title,
         roleRouteManagerSeedData.description,
         roleRouteManagerSeedData.active,
+        handleCreatedAt(3),
       ],
     );
 
@@ -86,13 +95,14 @@ export class SeedRole1724215129385 implements MigrationInterface {
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
-            VALUES ($1, $2, $3, $4, NOW())
+            VALUES ($1, $2, $3, $4, $5)
         `,
       [
         rolePortManagerSeedData.id,
         rolePortManagerSeedData.title,
         rolePortManagerSeedData.description,
         rolePortManagerSeedData.active,
+        handleCreatedAt(4),
       ],
     );
 
@@ -110,13 +120,14 @@ export class SeedRole1724215129385 implements MigrationInterface {
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
-            VALUES ($1, $2, $3, $4, NOW())
+            VALUES ($1, $2, $3, $4, $5)
         `,
       [
         roleVesselManagerSeedData.id,
         roleVesselManagerSeedData.title,
         roleVesselManagerSeedData.description,
         roleVesselManagerSeedData.active,
+        handleCreatedAt(6),
       ],
     );
 
@@ -133,13 +144,14 @@ export class SeedRole1724215129385 implements MigrationInterface {
     await queryRunner.query(
       `
             INSERT INTO "role" ("id", "title", "description", "active", "createdAt")
-            VALUES ($1, $2, $3, $4, NOW())
+            VALUES ($1, $2, $3, $4, $5)
         `,
       [
         roleClient.id,
         roleClient.title,
         roleClient.description,
         roleClient.active,
+        handleCreatedAt(7),
       ],
     );
   }

@@ -45,8 +45,8 @@ export const roleRouteManagerSeedData = {
 
 export const rolePortManagerSeedData = {
   id: 'd88823c9-3b97-43cc-99b5-74055c01f15b',
-  title: 'Route manager',
-  description: 'only available with manager route',
+  title: 'Port manager',
+  description: 'only available with manager Port',
   active: true,
   permissions: [
     '6de5bf78-c8a6-499d-8ec6-c120cd6d13aa',
@@ -58,8 +58,8 @@ export const rolePortManagerSeedData = {
 
 export const roleVesselManagerSeedData = {
   id: '13a3d784-62ca-47ba-8c4b-8adce846b249',
-  title: 'Route manager',
-  description: 'only available with manager route',
+  title: 'Vessel manager',
+  description: 'only available with manager Vessel',
   active: true,
   permissions: [
     'a54365ab-623e-4e58-92d5-c1c71e1bdb81',

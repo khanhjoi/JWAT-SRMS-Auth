@@ -14,7 +14,7 @@ export class UserRepository {
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
 
-  async findAllUserWithPagination( 
+  async findAllUserWithPagination(
     userQueryPagination: OffsetPaginationDto,
     select?: (keyof User)[],
     relations?: (keyof User)[],
@@ -129,14 +129,14 @@ export class UserRepository {
         .leftJoinAndSelect(
           'role.permissions',
           'permission',
-          'permission.active = true',
+          'role.active = true AND permission.active = true',
         )
         .where('user.id = :id', { id: id });
 
       if (select && select.length > 0) {
         query.select([
-          ...select.map((field) => `user.${field}`), // Select specified user fields
-          'role.id', // Always include the role and permission fields
+          ...select.map((field) => `user.${field}`),
+          'role.id',
           'role.title',
           'permission.id',
           'permission.title',
