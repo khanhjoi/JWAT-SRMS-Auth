@@ -159,6 +159,7 @@ export class RoleRepository {
         ...createRoleDTO,
         createdAt,
       };
+      
       const role = await this.roleRepository.save(roleData);
       return role;
     } catch (error) {

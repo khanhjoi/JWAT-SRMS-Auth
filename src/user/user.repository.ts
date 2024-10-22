@@ -178,7 +178,7 @@ export class UserRepository {
     } catch (error) {
       throw new BadRequestException(
         'Create user failed',
-        AuthErrorCode.DATABASE_ERROR,
+        AuthErrorCode.DATABASE_ERROR, 
       );
     }
   }
