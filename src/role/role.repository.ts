@@ -35,7 +35,10 @@ export class RoleRepository {
     }
   }
 
-  async getRoleByUserId(roleId: string, select?: (keyof Role)[]): Promise<Role> {
+  async getRoleByUserId(
+    roleId: string,
+    select?: (keyof Role)[],
+  ): Promise<Role> {
     try {
       const role = await this.roleRepository.findOne({
         where: { id: roleId },
@@ -150,7 +153,13 @@ export class RoleRepository {
 
   async createRole(createRoleDTO: CreateRoleDTO): Promise<Role> {
     try {
-      const role = await this.roleRepository.save(createRoleDTO);
+      const createdAt = new Date();
+
+      const roleData = {
+        ...createRoleDTO,
+        createdAt,
+      };
+      const role = await this.roleRepository.save(roleData);
       return role;
     } catch (error) {
       console.log(error);

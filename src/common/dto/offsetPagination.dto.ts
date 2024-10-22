@@ -22,7 +22,7 @@ export class OffsetPaginationDto {
 
   @IsEnum(SortOrder)
   @IsOptional()
-  sortOrder?: SortOrder = SortOrder.ASC;
+  sortOrder?: SortOrder = SortOrder.DESC;
 
   @IsEnum(EOrderBy)
   @IsOptional()

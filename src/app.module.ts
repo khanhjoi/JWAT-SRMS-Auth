@@ -18,10 +18,6 @@ import configEnv from '../config-env';
 
 configEnv();
 
-console.log(process.env.NODE_ENV);
-console.log(__dirname + './**/*.entity{.ts,.js}');
-
-
 @Module({
   imports: [
     ConfigModule.forRoot({

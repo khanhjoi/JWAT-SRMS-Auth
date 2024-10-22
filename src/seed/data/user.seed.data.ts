@@ -19,9 +19,9 @@ export const usersData: Array<
   }
 > = [
   {
-    email: 'Admin@gmail.com',
-    firstName: 'Admin',
-    lastName: 'Master',
+    email: 'superadmin@gmail.com',
+    firstName: 'Supper',
+    lastName: 'Admin',
     roleId: '5e4d81e7-3403-4ea5-928d-2d735e051801',
   },
   {

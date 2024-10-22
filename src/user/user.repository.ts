@@ -7,11 +7,13 @@ import { BadRequestException } from '@khanhjoi/protos/dist/errors/http';
 import { AuthErrorCode } from '@khanhjoi/protos/dist/errors/AuthError.enum';
 import { OffsetPaginationDto } from 'src/common/dto/offsetPagination.dto';
 import { IOffsetPaginatedType } from 'src/common/interface/offsetPagination.interface';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class UserRepository {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    private configService: ConfigService,
   ) {}
 
   async findAllUserWithPagination(
@@ -22,7 +24,12 @@ export class UserRepository {
     try {
       const { limit, page, search, sortOrder, sortOrderBy } =
         userQueryPagination;
+
       const queryBuilder = this.userRepository.createQueryBuilder('user');
+
+      queryBuilder.where('user.email != :superAdminEmail', {
+        superAdminEmail: this.configService.get<string>('super_Admin_Email'),
+      });
 
       if (select) {
         queryBuilder.select(select.map((field) => `user.${field}`));
@@ -159,7 +166,14 @@ export class UserRepository {
 
   async createNewUser(createUserDTO: CreateUserDTO): Promise<User> {
     try {
-      const user = await this.userRepository.save(createUserDTO);
+      const createdAt = new Date();
+
+      const userData = {
+        ...createUserDTO,
+        createdAt,
+      };
+      
+      const user = await this.userRepository.save(userData);
       return user;
     } catch (error) {
       throw new BadRequestException(
