@@ -33,7 +33,7 @@ async function bootstrap() {
         __dirname,
         '../../node_modules/@khanhjoi/protos/auth.proto',
       ),
-      url: 'localhost:8081',
+      url: `${process.env.AUTH_SERVICE_HOST || "localhost"}:8081`, 
       onLoadPackageDefinition: (pkg, server) => {
         new ReflectionService(pkg).addToServer(server);
       },
