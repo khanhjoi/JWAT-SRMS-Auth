@@ -84,7 +84,6 @@ export class AuthService {
       TypeToken.REFRESH_TOKEN,
     );
 
-    console.log('check is exit', isRefreshTokenExit);
 
     if (isRefreshTokenExit) {
       await this.tokenService.updateRefreshToken(isRefreshTokenExit.id);

@@ -24,6 +24,7 @@ export class UserController {
       'lastName',
       'firstName',
       'email',
+      'password',
       'createdAt',
       'role',
       'isDelete',
